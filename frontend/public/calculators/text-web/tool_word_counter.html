@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Word Counter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-file-lines"></i> Advanced Word Counter</h2>
+                            <p>Analyze text length, reading time, and structural density.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Input Text</span>
+                                <textarea id="textInput" class="form-control" rows="8" 
+                                    style="width:100%; margin-top:10px; resize:vertical;" 
+                                    placeholder="Type or paste your content here..."></textarea>
+                            </div>
+                            
+                            <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button id="btn-word-count" class="btn-calc" style="flex: 2;">Analyze Text</button>
+                                <button id="clear-text-btn" class="btn-calc" style="flex: 1; background: var(--text-secondary);">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3><i class="fa-solid fa-chart-simple"></i> Text Metrics</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="save-text-btn" class="btn-save">
+                                <i class="fa-solid fa-save"></i> Save Report
+                            </button>
+                            <button onclick="window.print()" class="btn-calc" style="background: var(--text-secondary);">
+                                <i class="fa-solid fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('btn-word-count').addEventListener('click', function() {
+            const text = document.getElementById('textInput').value.trim();
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+
+            if (!text) {
+                alert("Please enter some text to analyze.");
+                return;
+            }
+
+            // Calculations
+            const words = text.split(/\s+/).filter(word => word.length > 0);
+            const wordCount = words.length;
+            const charCount = text.length;
+            const charNoSpaces = text.replace(/\s/g, '').length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0).length;
+            
+            // Average reading speed: 225 words per minute
+            const readingTime = Math.ceil(wordCount / 225);
+
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Words</span><strong>${wordCount.toLocaleString()}</strong></div>
+                <div class="sub-link"><span>Characters (with spaces)</span><strong>${charCount.toLocaleString()}</strong></div>
+                <div class="sub-link"><span>Characters (no spaces)</span><strong>${charNoSpaces.toLocaleString()}</strong></div>
+                <div class="sub-link"><span>Sentences</span><strong>${sentences}</strong></div>
+                <div class="sub-link"><span>Paragraphs</span><strong>${paragraphs}</strong></div>
+                <div class="sub-link"><span>Est. Reading Time</span><strong style="color:var(--accent-color)">~${readingTime} min</strong></div>
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+
+        document.getElementById('clear-text-btn').addEventListener('click', function() {
+            document.getElementById('textInput').value = "";
+            document.getElementById('results').style.display = 'none';
+        });
+    </script>
+    
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

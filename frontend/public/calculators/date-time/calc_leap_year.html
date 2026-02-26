@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Leap Year Checker Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        /* Precision UI Styling */
+        .res-hero-box {
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+        }
+        .leap-true { 
+            background: rgba(0, 255, 204, 0.1); 
+            border-color: var(--accent-color); 
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+        }
+        .leap-false { 
+            background: rgba(255, 68, 68, 0.1); 
+            border-color: #ff4444; 
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.2);
+        }
+        .algo-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-calendar-check"></i> Leap Year Checker</h2>
+                            <p>Determine if a year contains the intercalary day (Feb 29) based on the Gregorian calendar rules.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Target Year</span>
+                                <input type="number" id="yearInput" class="form-control" placeholder="e.g. 2024" min="1">
+                            </div>
+                            <button id="calc-btn" class="btn-calc" onclick="checkLeapYear()">Perform Chronos Scan</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
+                        <h3>Analysis Results</h3>
+                        
+                        <div id="resContainer" class="res-hero-box">
+                            <div id="resTitle" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 5px;"></div>
+                            <p id="resDesc" style="margin: 0; opacity: 0.9; font-weight: 500;"></p>
+                        </div>
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Calendar Length</span>
+                                <strong id="totalDays">365 Days</strong>
+                            </div>
+                            <div class="sub-link">
+                                <span>February Status</span>
+                                <strong id="febDays">28 Days</strong>
+                            </div>
+                        </div>
+
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+
+                    
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <h3><i class="fa-solid fa-gears"></i> Technical Logic</h3>
+                        <div class="algo-box">
+                            <strong>Standard Rule:</strong> A year is leap if divisible by 4.<br>
+                            <strong>Exception 1:</strong> If divisible by 100, it is NOT leap.<br>
+                            <strong>Exception 2:</strong> If divisible by 400, it actually IS leap.
+                        </div>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let currentResult = null;
+
+        function checkLeapYear() {
+            const yearVal = document.getElementById('yearInput').value;
+            const year = parseInt(yearVal);
+
+            if (!yearVal || isNaN(year)) {
+                alert("Please enter a valid numeric year.");
+                return;
+            }
+
+            // The Leap Year Algorithm
+            const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+
+            // Select UI elements
+            const resultsCard = document.getElementById('results');
+            const container = document.getElementById('resContainer');
+            const title = document.getElementById('resTitle');
+            const desc = document.getElementById('resDesc');
+            const totalDays = document.getElementById('totalDays');
+            const febDays = document.getElementById('febDays');
+
+            // Force reset display (prevents stuck UI)
+            resultsCard.style.display = 'block';
+            resultsCard.classList.add('fade-in');
+
+            if (isLeap) {
+                container.className = "res-hero-box leap-true";
+                title.innerHTML = `<i class="fa-solid fa-circle-check"></i> LEAP YEAR`;
+                title.style.color = "var(--accent-color)";
+                desc.innerText = `${year} successfully passed the leap year scan.`;
+                totalDays.innerText = "366 Days";
+                febDays.innerText = "29 Days";
+            } else {
+                container.className = "res-hero-box leap-false";
+                title.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> COMMON YEAR`;
+                title.style.color = "#ff4444";
+                desc.innerText = `${year} follows the standard 365-day calendar.`;
+                totalDays.innerText = "365 Days";
+                febDays.innerText = "28 Days";
+            }
+
+            // Store data for the Save function
+            currentResult = {
+                y: year,
+                status: isLeap ? "Leap Year" : "Common Year",
+                summary: isLeap ? "366 Days" : "365 Days"
+            };
+        }
+
+        // Integrated SMART HUB Save Listener
+        document.getElementById('save-btn').addEventListener('click', function() {
+            if (!currentResult) {
+                alert("Please perform a scan first.");
+                return;
+            }
+
+            if (typeof saveCalculation === 'function') {
+                saveCalculation(
+                    'Leap Year Checker', 
+                    `Year: ${currentResult.y}`, 
+                    `${currentResult.status} (${currentResult.summary})`
+                );
+                
+                // Visual feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-check"></i> Analysis Saved';
+                this.style.background = 'var(--accent-color)';
+                this.style.color = '#000';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.background = '';
+                    this.style.color = '';
+                }, 2000);
+            } else {
+                alert("Core system error: saveCalculation function not found.");
+            }
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

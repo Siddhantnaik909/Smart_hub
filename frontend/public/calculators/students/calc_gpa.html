@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Student Grade Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .mode-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid var(--primary-color); 
+            background: rgba(255,255,255,0.05); 
+            color: var(--text-main); 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .mode-btn.active { 
+            background: var(--primary-color); 
+            color: #fff; 
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            border-color: var(--primary-color);
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .btn-remove {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .btn-remove:hover { background: #ff4444; color: white; }
+        
+        .res-hero {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            border: 1px dashed var(--primary-color);
+            margin-bottom: 15px;
+        }
+        .res-value { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); }
+        .res-label { font-size: 0.9rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-graduation-cap"></i> Student Grade Calculator</h2>
+                            <p>Calculate GPA, CGPA (Semester-wise), or School Marks (0-12th Std).</p>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px;">
+                            <button class="mode-btn active" id="btn-mode-gpa" onclick="setMode('gpa')">Semester GPA</button>
+                            <button class="mode-btn" id="btn-mode-cgpa" onclick="setMode('cgpa')">CGPA (Cumulative)</button>
+                            <button class="mode-btn" id="btn-mode-marks" onclick="setMode('marks')">School Marks (0-12th)</button>
+                        </div>
+                        
+                        <!-- GPA Input (College) -->
+                        <div id="input-gpa" class="mode-section">
+                            <div class="sub-cat-list" id="gpa-rows"></div>
+                            <button class="sub-link" onclick="addGpaRow()" style="justify-content: center; border: 1px dashed var(--primary-color); color: var(--primary-color); background: transparent; margin-top: 10px;">
+                                <i class="fa fa-plus"></i> &nbsp; Add Course
+                            </button>
+                        </div>
+
+                        <!-- CGPA Input (University) -->
+                        <div id="input-cgpa" class="mode-section" style="display: none;">
+                            <div class="sub-cat-list" id="cgpa-rows"></div>
+                            <button class="sub-link" onclick="addCgpaRow()" style="justify-content: center; border: 1px dashed var(--primary-color); color: var(--primary-color); background: transparent; margin-top: 10px;">
+                                <i class="fa fa-plus"></i> &nbsp; Add Semester
+                            </button>
+                        </div>
+
+                        <!-- Marks Input (School 0-12th) -->
+                        <div id="input-marks" class="mode-section" style="display: none;">
+                            <div class="sub-link" style="margin-bottom: 15px;">
+                                <span>Standard / Class</span>
+                                <input type="text" id="std-input" class="form-control" placeholder="e.g. 10th, 12th">
+                            </div>
+                            <div class="sub-cat-list" id="marks-rows"></div>
+                            <button class="sub-link" onclick="addMarksRow()" style="justify-content: center; border: 1px dashed var(--primary-color); color: var(--primary-color); background: transparent; margin-top: 10px;">
+                                <i class="fa fa-plus"></i> &nbsp; Add Subject
+                            </button>
+                        </div>
+
+                        <div class="button-group" style="margin-top: 25px;">
+                            <button id="calc-btn" class="btn-calc">Calculate Result</button>
+                            <button onclick="resetForms()" class="btn-secondary">Reset</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Performance Summary</h3>
+                        
+                        <div class="res-hero">
+                            <div class="res-value" id="main-result">0.00</div>
+                            <div class="res-label" id="main-label">GPA</div>
+                        </div>
+
+                        <div class="sub-cat-list" id="details-list">
+                            <!-- Dynamic Details -->
+                        </div>
+
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+    <script>
+        let currentMode = 'gpa';
+        let lastResult = null;
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-mode-${mode}`).classList.add('active');
+            
+            document.querySelectorAll('.mode-section').forEach(d => d.style.display = 'none');
+            document.getElementById(`input-${mode}`).style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function addGpaRow() {
+            const div = document.createElement('div');
+            div.className = 'input-row fade-in';
+            div.innerHTML = `
+                <input type="text" class="form-control" placeholder="Course (Optional)" style="flex: 2;">
+                <select class="form-control grade-select" style="flex: 1;">
+                    <option value="4.0">A (4.0)</option><option value="3.7">A- (3.7)</option>
+                    <option value="3.3">B+ (3.3)</option><option value="3.0">B (3.0)</option>
+                    <option value="2.7">B- (2.7)</option><option value="2.3">C+ (2.3)</option>
+                    <option value="2.0">C (2.0)</option><option value="1.7">C- (1.7)</option>
+                    <option value="1.0">D (1.0)</option><option value="0.0">F (0.0)</option>
+                </select>
+                <input type="number" class="form-control credit-input" placeholder="Credits" style="flex: 1;">
+                <button class="btn-remove" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+            `;
+            document.getElementById('gpa-rows').appendChild(div);
+        }
+
+        function addCgpaRow() {
+            const div = document.createElement('div');
+            div.className = 'input-row fade-in';
+            div.innerHTML = `
+                <input type="text" class="form-control" placeholder="Semester Name" style="flex: 2;">
+                <input type="number" class="form-control sgpa-input" placeholder="SGPA" step="0.01" style="flex: 1;">
+                <input type="number" class="form-control credit-input" placeholder="Total Credits" style="flex: 1;">
+                <button class="btn-remove" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+            `;
+            document.getElementById('cgpa-rows').appendChild(div);
+        }
+
+        function addMarksRow() {
+            const div = document.createElement('div');
+            div.className = 'input-row fade-in';
+            div.innerHTML = `
+                <input type="text" class="form-control" placeholder="Subject" style="flex: 2;">
+                <input type="number" class="form-control marks-obt" placeholder="Obtained" style="flex: 1;">
+                <input type="number" class="form-control marks-max" placeholder="Total" value="100" style="flex: 1;">
+                <button class="btn-remove" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+            `;
+            document.getElementById('marks-rows').appendChild(div);
+        }
+
+        function calculate() {
+            let totalPoints = 0, totalCredits = 0, totalObtained = 0, totalMax = 0;
+            let result = 0, label = "", details = "";
+
+            if (currentMode === 'gpa') {
+                const rows = document.querySelectorAll('#gpa-rows .input-row');
+                rows.forEach(row => {
+                    const grade = parseFloat(row.querySelector('.grade-select').value);
+                    const credit = parseFloat(row.querySelector('.credit-input').value);
+                    if (!isNaN(grade) && !isNaN(credit)) {
+                        totalPoints += grade * credit;
+                        totalCredits += credit;
+                    }
+                });
+                if (totalCredits === 0) return alert("Please enter valid credits.");
+                result = (totalPoints / totalCredits).toFixed(2);
+                label = "Semester GPA";
+                details = `<div class="sub-link"><span>Total Credits</span><strong>${totalCredits}</strong></div>`;
+                lastResult = { tool: 'GPA Calculator', input: `${rows.length} Courses`, output: `GPA: ${result}` };
+            } 
+            else if (currentMode === 'cgpa') {
+                const rows = document.querySelectorAll('#cgpa-rows .input-row');
+                rows.forEach(row => {
+                    const sgpa = parseFloat(row.querySelector('.sgpa-input').value);
+                    const credit = parseFloat(row.querySelector('.credit-input').value);
+                    if (!isNaN(sgpa) && !isNaN(credit)) {
+                        totalPoints += sgpa * credit;
+                        totalCredits += credit;
+                    }
+                });
+                if (totalCredits === 0) return alert("Please enter valid credits.");
+                result = (totalPoints / totalCredits).toFixed(2);
+                label = "Cumulative GPA (CGPA)";
+                details = `<div class="sub-link"><span>Total Semesters</span><strong>${rows.length}</strong></div>
+                           <div class="sub-link"><span>Total Credits</span><strong>${totalCredits}</strong></div>`;
+                lastResult = { tool: 'CGPA Calculator', input: `${rows.length} Semesters`, output: `CGPA: ${result}` };
+            }
+            else if (currentMode === 'marks') {
+                const rows = document.querySelectorAll('#marks-rows .input-row');
+                rows.forEach(row => {
+                    const obt = parseFloat(row.querySelector('.marks-obt').value);
+                    const max = parseFloat(row.querySelector('.marks-max').value);
+                    if (!isNaN(obt) && !isNaN(max)) {
+                        totalObtained += obt;
+                        totalMax += max;
+                    }
+                });
+                if (totalMax === 0) return alert("Please enter valid marks.");
+                result = ((totalObtained / totalMax) * 100).toFixed(2) + "%";
+                label = "Overall Percentage";
+                const std = document.getElementById('std-input').value || "Standard";
+                details = `<div class="sub-link"><span>Total Obtained</span><strong>${totalObtained}</strong></div>
+                           <div class="sub-link"><span>Total Max Marks</span><strong>${totalMax}</strong></div>`;
+                lastResult = { tool: 'School Marks', input: `${std} - ${rows.length} Subjects`, output: `Percentage: ${result}` };
+            }
+
+            document.getElementById('main-result').innerText = result;
+            document.getElementById('main-label').innerText = label;
+            document.getElementById('details-list').innerHTML = details;
+            
+            const resBox = document.getElementById('results');
+            resBox.style.display = 'block';
+            resBox.classList.remove('hidden');
+        }
+
+        function resetForms() {
+            document.getElementById('gpa-rows').innerHTML = '';
+            document.getElementById('cgpa-rows').innerHTML = '';
+            document.getElementById('marks-rows').innerHTML = '';
+            document.getElementById('results').style.display = 'none';
+            addGpaRow(); addCgpaRow(); addMarksRow();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetForms();
+            document.getElementById('calc-btn').addEventListener('click', calculate);
+            document.getElementById('save-btn').addEventListener('click', function() {
+                if(lastResult && typeof saveCalculation === 'function') {
+                    saveCalculation(lastResult.tool, lastResult.input, lastResult.output);
+                    this.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+                    setTimeout(() => { this.innerHTML = '<i class="fa-solid fa-save"></i> Save to History'; }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

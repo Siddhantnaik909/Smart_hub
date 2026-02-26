@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Ohm's Law Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-microchip"></i> Ohm's Law Calculator</h2>
+                            <p>Enter any two values to calculate the third (Voltage, Current, or Resistance).</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Voltage (V)</span>
+                                <input type="number" id="voltage" class="form-control" placeholder="Volts">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Current (I)</span>
+                                <input type="number" id="current" class="form-control" placeholder="Amperes">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Resistance (R)</span>
+                                <input type="number" id="resistance" class="form-control" placeholder="Ohms">
+                            </div>
+                            
+                            <button id="calc-btn-ohm" class="btn-calc" onclick="calculateOhm()">Calculate Missing Value</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn-ohm" class="btn-save" disabled>
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function calculateOhm() {
+            const v = parseFloat(document.getElementById('voltage').value);
+            const i = parseFloat(document.getElementById('current').value);
+            const r = parseFloat(document.getElementById('resistance').value);
+            
+            const resultsDiv = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+            const saveBtn = document.getElementById('save-btn-ohm');
+            
+            let resultHTML = "";
+            let success = false;
+
+            // Logic for Ohm's Law: V = I * R
+            if (!isNaN(i) && !isNaN(r) && isNaN(v)) {
+                const calculatedV = (i * r).toFixed(2);
+                resultHTML = `
+                    <div class="sub-link">
+                        <span>Calculated Voltage</span>
+                        <strong>${calculatedV} V</strong>
+                    </div>`;
+                success = true;
+            } else if (!isNaN(v) && !isNaN(r) && isNaN(i)) {
+                if (r === 0) {
+                    resultHTML = `<div class="sub-link"><span style="color:red">Error: Resistance cannot be zero.</span></div>`;
+                } else {
+                    const calculatedI = (v / r).toFixed(4);
+                    resultHTML = `
+                        <div class="sub-link">
+                            <span>Calculated Current</span>
+                            <strong>${calculatedI} A</strong>
+                        </div>`;
+                    success = true;
+                }
+            } else if (!isNaN(v) && !isNaN(i) && isNaN(r)) {
+                if (i === 0) {
+                    resultHTML = `<div class="sub-link"><span style="color:red">Error: Current cannot be zero.</span></div>`;
+                } else {
+                    const calculatedR = (v / i).toFixed(2);
+                    resultHTML = `
+                        <div class="sub-link">
+                            <span>Calculated Resistance</span>
+                            <strong>${calculatedR} Ω</strong>
+                        </div>`;
+                    success = true;
+                }
+            } else if (!isNaN(v) && !isNaN(i) && !isNaN(r)) {
+                resultHTML = `<div class="sub-link"><span>Notice: All fields filled. Try clearing one.</span></div>`;
+            } else {
+                resultHTML = `<div class="sub-link"><span style="color:red">Error: Please enter exactly two values.</span></div>`;
+            }
+
+            displayArea.innerHTML = resultHTML;
+            resultsDiv.style.display = 'block';
+            resultsDiv.classList.remove('hidden');
+            
+            if (success) {
+                saveBtn.disabled = false;
+            } else {
+                saveBtn.disabled = true;
+            }
+        }
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SMART HUB | Authenticating...</title>
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="auth-body">
+    <div class="dashboard-layout">
+        <main class="main-content">
+            <div class="page-body" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+                <div class="auth-card fade-in">
+                    <div class="auth-logo">
+                        <i class="fa-solid fa-spinner fa-spin" style="color: var(--primary-color);"></i>
+                    </div>
+                    <h2 style="font-size: 1.5rem; margin-top: 20px;">Authenticating...</h2>
+                    <p>Please wait while we finalize your login.</p>
+                    <div id="error-msg" class="error-msg" style="display: none; margin-top: 20px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        (async function() {
+            const errorMsg = document.getElementById('error-msg');
+            const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3000'
+                    : 'https://smart-calculator-hub.onrender.com';
+
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const token = params.get('token');
+
+                if (!token) throw new Error('Authentication token not found.');
+
+                localStorage.setItem('token', token);
+
+                const res = await fetch(`${API_URL}/api/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Could not retrieve profile.');
+
+                const user = await res.json();
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // REDIRECT TO ROOT
+                window.location.href = '/index.html';
+
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                errorMsg.style.display = 'block';
+                setTimeout(() => { window.location.href = '/login.html'; }, 3000);
+            }
+        })();
+    </script>
+</body>
+</html>

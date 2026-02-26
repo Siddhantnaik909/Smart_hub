@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Case Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-font-case"></i> Case Converter</h2>
+                            <p>Quickly change text formatting between uppercase, lowercase, and title case.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Input Text</span>
+                                <textarea id="caseInput" class="form-control" rows="5" style="width: 100%; margin-top: 10px;" placeholder="Paste or type your text here..."></textarea>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Target Format</span>
+                                <select id="caseType" class="form-control">
+                                    <option value="upper">UPPERCASE</option>
+                                    <option value="lower">lowercase</option>
+                                    <option value="title">Title Case</option>
+                                    <option value="sentence">Sentence case</option>
+                                    <option value="capital">Capitalize Each Word</option>
+                                </select>
+                            </div>
+                            
+                            <button id="btn-case-convert" class="btn-calc">Convert Text</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Converted Result</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link" style="flex-direction: column;">
+                                <textarea id="caseResult" class="form-control" rows="5" style="width: 100%; background: var(--bg-main);" readonly></textarea>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="copy-btn" class="btn-save" style="flex: 1; margin-top: 0;">
+                                <i class="fa-solid fa-copy"></i> Copy to Clipboard
+                            </button>
+                            <button id="save-btn-case" class="btn-save" style="flex: 1; margin-top: 0;">
+                                <i class="fa-solid fa-save"></i> Save as File
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const convertBtn = document.getElementById('btn-case-convert');
+            const input = document.getElementById('caseInput');
+            const resultArea = document.getElementById('caseResult');
+            const resultsCard = document.getElementById('results');
+            const formatType = document.getElementById('caseType');
+            const copyBtn = document.getElementById('copy-btn');
+
+            convertBtn.addEventListener('click', () => {
+                const text = input.value;
+                if (!text.trim()) return alert("Please enter some text.");
+
+                let convertedText = "";
+                const mode = formatType.value;
+
+                switch (mode) {
+                    case 'upper':
+                        convertedText = text.toUpperCase();
+                        break;
+                    case 'lower':
+                        convertedText = text.toLowerCase();
+                        break;
+                    case 'title':
+                        convertedText = text.toLowerCase().split(' ').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                        break;
+                    case 'sentence':
+                        convertedText = text.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g, c => c.toUpperCase());
+                        break;
+                    case 'capital':
+                        convertedText = text.split(' ').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+                        break;
+                }
+
+                resultArea.value = convertedText;
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            });
+
+            copyBtn.addEventListener('click', () => {
+                resultArea.select();
+                document.execCommand('copy');
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                setTimeout(() => copyBtn.innerHTML = originalHTML, 2000);
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

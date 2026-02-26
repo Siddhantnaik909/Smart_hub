@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | DNS Lookup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-network-wired"></i> DNS Lookup</h2>
+                            <p>Retrieve DNS records (A, AAAA, MX, TXT) for any domain name.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Domain Name</span>
+                                <input type="text" id="dnsDomain" class="form-control" placeholder="e.g. google.com">
+                            </div>
+                            
+                            <button id="btn-dns-lookup" class="btn-calc">Lookup DNS</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn-dns" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const lookupBtn = document.getElementById('btn-dns-lookup');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+            const domainInput = document.getElementById('dnsDomain');
+
+            lookupBtn.addEventListener('click', async () => {
+                const domain = domainInput.value.trim();
+                
+                if (!domain) {
+                    alert("Please enter a valid domain name.");
+                    return;
+                }
+
+                // UI Loading State
+                lookupBtn.innerText = "Searching...";
+                displayArea.innerHTML = '';
+                
+                try {
+                    // Use Google DNS API for real data
+                    const [resA, resMX] = await Promise.all([
+                        fetch(`https://dns.google/resolve?name=${domain}&type=A`).then(r => r.json()),
+                        fetch(`https://dns.google/resolve?name=${domain}&type=MX`).then(r => r.json())
+                    ]);
+                    
+                    let resultsHTML = `
+                        <div class="sub-link">
+                            <span>Target Domain</span>
+                            <strong>${domain}</strong>
+                        </div>
+                    `;
+
+                    // Process A Records
+                    if (resA.Answer) {
+                        resA.Answer.forEach(rec => {
+                            resultsHTML += `<div class="sub-link"><span>A Record (IP)</span><strong>${rec.data}</strong></div>`;
+                        });
+                    } else {
+                        resultsHTML += `<div class="sub-link"><span>A Record</span><strong>Not Found</strong></div>`;
+                    }
+
+                    // Process MX Records
+                    if (resMX.Answer) {
+                        resMX.Answer.forEach(rec => {
+                            resultsHTML += `<div class="sub-link"><span>MX Record</span><strong>${rec.data}</strong></div>`;
+                        });
+                    }
+
+                    resultsHTML += `<div class="sub-link"><span>Status</span><strong style="color: var(--success-color, #28a745);">Resolved</strong></div>`;
+
+                    displayArea.innerHTML = resultsHTML;
+                    resultsCard.style.display = 'block';
+                    resultsCard.classList.remove('hidden');
+                    
+                } catch (error) {
+                    console.error(error);
+                    displayArea.innerHTML = `<div class="sub-link"><span>Error</span><strong>Could not resolve domain.</strong></div>`;
+                } finally {
+                    lookupBtn.innerText = "Lookup DNS";
+                }
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

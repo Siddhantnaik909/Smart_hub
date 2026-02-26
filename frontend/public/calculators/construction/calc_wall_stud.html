@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Wall Stud Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="cyan-theme">
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-ruler-combined"></i> Pro Framing Estimator</h2>
+                            <p>Calculate structural studs, top/bottom plates, and corner assemblies.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Wall Length</span>
+                                <div style="display: flex; gap: 10px; width: 65%;">
+                                    <input type="number" id="wallLength" class="form-control" placeholder="0">
+                                    <select id="units" class="form-control" style="width: 100px;">
+                                        <option value="feet">ft</option>
+                                        <option value="inches">in</option>
+                                        <option value="meters">m</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Stud Spacing (On-Center)</span>
+                                <select id="spacing" class="form-control">
+                                    <option value="16">16" O.C. (Standard)</option>
+                                    <option value="24">24" O.C. (Utility)</option>
+                                    <option value="12">12" O.C. (Heavy Duty)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Corner / Intersection Count</span>
+                                <input type="number" id="corners" class="form-control" value="2">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Waste / Defect Factor</span>
+                                <select id="wasteFactor" class="form-control">
+                                    <option value="1.05">5% Waste</option>
+                                    <option value="1.10" selected>10% Waste (Recommended)</option>
+                                    <option value="1.15">15% Waste (Bulk Order)</option>
+                                </select>
+                            </div>
+
+                            <button id="calc-studs-btn" class="btn-calc">Generate Lumber List</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Lumber Requirements</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-studs-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Framing Specs
+                        </button>
+                    </div>
+
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <h3><i class="fa-solid fa-lightbulb" style="color: #fbbf24;"></i> Pro Framing Tip</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.8; line-height: 1.5;">
+                            This calculation includes a <strong>California Corner</strong> or 3-stud corner assembly logic. For load-bearing walls, ensure headers for doors/windows are calculated separately.
+                        </p>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.getElementById('calc-studs-btn').addEventListener('click', function() {
+            // Inputs
+            let length = parseFloat(document.getElementById('wallLength').value);
+            const unit = document.getElementById('units').value;
+            const spacing = parseFloat(document.getElementById('spacing').value);
+            const corners = parseInt(document.getElementById('corners').value) || 0;
+            const waste = parseFloat(document.getElementById('wasteFactor').value);
+
+            if (!length || length <= 0) {
+                alert("Please enter a valid wall length.");
+                return;
+            }
+
+            // Standardize length to Inches for calculation
+            let lengthInInches;
+            if (unit === 'feet') lengthInInches = length * 12;
+            else if (unit === 'meters') lengthInInches = length * 39.3701;
+            else lengthInInches = length;
+
+            // 1. Calculate basic stud count (Length / Spacing + 1 for end)
+            let basicStuds = Math.ceil(lengthInInches / spacing) + 1;
+
+            // 2. Add extra studs for corners (usually 2 extra per corner for framing pockets)
+            let cornerStuds = corners * 2;
+
+            // 3. Total base studs
+            let totalBaseStuds = basicStuds + cornerStuds;
+
+            // 4. Apply Waste Factor
+            let finalStudCount = Math.ceil(totalBaseStuds * waste);
+
+            // 5. Plate logic (1 bottom plate, 2 top plates for standard framing)
+            let plateLinearFeet = (lengthInInches / 12) * 3;
+
+            // Injection
+            const displayArea = document.getElementById('result-display-area');
+            displayArea.innerHTML = `
+                <div class="sub-link">
+                    <span>Vertical Studs (Estimate)</span>
+                    <strong class="accent-text" style="font-size: 1.4rem;">${finalStudCount} pcs</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Base Studs (Exact)</span>
+                    <strong>${totalBaseStuds} pcs</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Plate Lumber (Total)</span>
+                    <strong>~${Math.ceil(plateLinearFeet)} Linear Ft</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Includes:</span>
+                    <small>${corners} Corners, ${spacing}" O.C. Spacing</small>
+                </div>
+            `;
+
+            const resCard = document.getElementById('results');
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+            document.getElementById('save-studs-btn').disabled = false;
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = 'Advanced Wall Stud Calculator';
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

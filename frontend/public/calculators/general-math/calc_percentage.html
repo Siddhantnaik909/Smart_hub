@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Percentage Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-percent"></i> Percentage Calculator</h2>
+                            <p>Versatile tool for finding percentages, proportions, and growth rates.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Operation</span>
+                                <select id="calc-type" class="form-control">
+                                    <option value="of">What is X% of Y?</option>
+                                    <option value="is">X is what % of Y?</option>
+                                    <option value="change">Percentage Change (X to Y)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span id="label-x">Value X</span>
+                                <input type="number" id="val-x" class="form-control" placeholder="X">
+                            </div>
+
+                            <div class="sub-link">
+                                <span id="label-y">Value Y</span>
+                                <input type="number" id="val-y" class="form-control" placeholder="Y">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Calculate Result</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcBtn = document.getElementById('calc-btn');
+            const typeSelect = document.getElementById('calc-type');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            // Dynamic Labeling
+            typeSelect.addEventListener('change', () => {
+                const type = typeSelect.value;
+                document.getElementById('label-x').innerText = type === 'of' ? 'Percentage (%)' : (type === 'change' ? 'Initial Value' : 'Value X');
+                document.getElementById('label-y').innerText = type === 'change' ? 'Final Value' : 'Total Value Y';
+            });
+
+            calcBtn.addEventListener('click', () => {
+                const x = parseFloat(document.getElementById('val-x').value);
+                const y = parseFloat(document.getElementById('val-y').value);
+                const type = typeSelect.value;
+
+                if (isNaN(x) || isNaN(y)) {
+                    alert("Please enter valid numbers.");
+                    return;
+                }
+
+                let result = 0;
+                let unit = "";
+                let description = "";
+
+                if (type === 'of') {
+                    result = (x / 100) * y;
+                    description = `${x}% of ${y}`;
+                } else if (type === 'is') {
+                    result = (x / y) * 100;
+                    unit = "%";
+                    description = `${x} as a percentage of ${y}`;
+                } else if (type === 'change') {
+                    result = ((y - x) / x) * 100;
+                    unit = "%";
+                    description = `Growth/Decline from ${x} to ${y}`;
+                }
+
+                // Inject results using sub-link structure
+                displayArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Description</span>
+                        <span>${description}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Final Result</span>
+                        <span style="font-weight: 700; color: var(--primary-color); font-size: 1.25rem;">
+                            ${result.toFixed(2)}${unit}
+                        </span>
+                    </div>
+                `;
+
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

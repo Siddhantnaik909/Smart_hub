@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Admin Command Center</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        // Immediate Auth Check
+        (function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!isLoggedIn || user.role !== 'admin') {
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+    <style>
+        .admin-nav-scroll {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        .admin-nav-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Modal for Editor */
+        #editor-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #editor-modal.active {
+            display: flex;
+        }
+
+        .editor-container {
+            width: 95%;
+            height: 90%;
+            background: #282a36;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="text-center" style="margin: 30px 0;">
+                        <h1><i class="fa-solid fa-user-shield accent-text"></i> Command <span
+                                class="accent-text">Center</span></h1>
+                        <p class="hero-subtitle1">System Version: 0.0.1 | Production Stable</p>
+                    </div>
+
+                    <div class="admin-nav-scroll">
+                        <button class="btn-calc" onclick="switchTab('overview')"><i class="fa-solid fa-chart-line"></i>
+                            Overview</button>
+                        <button class="btn-save" onclick="switchTab('files')"><i class="fa-solid fa-folder-tree"></i>
+                            File Manager</button>
+                        <button class="btn-save" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> User
+                            Access</button>
+                        <button class="btn-save" onclick="switchTab('logs')"><i class="fa-solid fa-terminal"></i> Server
+                            Logs</button>
+                        <button class="btn-save" onclick="switchTab('settings')"><i class="fa-solid fa-gears"></i>
+                            System Settings</button>
+                    </div>
+
+                    <div id="tab-overview" class="tab-content active">
+                        <div class="category-grid">
+                            <article class="cat-card">
+                                <h3>Total Users</h3>
+                                <p id="stat-users"
+                                    style="font-size: 2.5rem; font-weight: 800; color: var(--primary-color);">0</p>
+                            </article>
+                            <article class="cat-card">
+                                <h3>Active Calculators</h3>
+                                <p id="stat-tools"
+                                    style="font-size: 2.5rem; font-weight: 800; color: var(--primary-color);">85</p>
+                            </article>
+                        </div>
+
+                        <div class="cat-card" style="margin-top: 25px;">
+                            <h3>Quick System Actions</h3>
+                            <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn-save" style="background: #10b981;"
+                                    onclick="editFile('css/custom.css')"><i class="fa-solid fa-paint-roller"></i> Edit
+                                    Global CSS</button>
+                                <button class="btn-save" style="background: #3b82f6;"
+                                    onclick="editFile('js/custom.js')"><i class="fa-solid fa-code"></i> Edit Global
+                                    JS</button>
+                                <button class="btn-save" onclick="triggerSystemAction('clear_cache')"><i
+                                        class="fa-solid fa-broom"></i> Flush Cache</button>
+                                <button class="btn-save" style="background: #f59e0b;"
+                                    onclick="triggerSystemAction('maintenance_toggle')"><i
+                                        class="fa-solid fa-hammer"></i> Maintenance Mode</button>
+                                <button class="btn-save" style="background: #ef4444;"
+                                    onclick="triggerSystemAction('restart_services')"><i
+                                        class="fa-solid fa-power-off"></i> Reboot API</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-files" class="tab-content">
+                        <div class="cat-card">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h2>File Manager</h2>
+                                <div>
+                                    <button class="btn-calc" onclick="createFileFolder('file')"
+                                        style="padding: 6px 12px;"><i class="fa-solid fa-plus"></i> File</button>
+                                    <button class="btn-calc" onclick="createFileFolder('folder')"
+                                        style="padding: 6px 12px; margin-left: 5px;"><i
+                                            class="fa-solid fa-folder-plus"></i> Folder</button>
+                                    <button class="btn-calc" onclick="fetchAssetFiles()"
+                                        style="padding: 6px 12px; margin-left: 5px;"><i class="fa-solid fa-rotate"></i>
+                                        Sync</button>
+                                </div>
+                            </div>
+                            <div id="file-manager-path"
+                                style="padding: 10px; background: var(--border-color); border-radius: 6px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; font-weight: bold; overflow-x: auto;">
+                                /.</div>
+                            <div id="file-manager-container">
+                                <p class="text-center">Loading server directory...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-logs" class="tab-content">
+                        <div class="cat-card">
+                            <h2>Live Server Logs</h2>
+                            <div id="server-logs-output"
+                                style="background: #1e1e2e; color: #a6e22e; padding: 20px; border-radius: 8px; font-family: monospace; height: 400px; overflow-y: auto; margin-top: 15px;">
+                                [System] Connection established. Listening for log stream...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-users" class="tab-content">
+                        <div class="cat-card">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2><i class="fa-solid fa-users"></i> User Management</h2>
+                                <div>
+                                    <button class="btn-calc" onclick="openUserModal(null)"><i
+                                            class="fa-solid fa-user-plus"></i> Add User</button>
+                                    <button class="btn-save" onclick="fetchUsers()"><i class="fa-solid fa-rotate"></i>
+                                        Refresh</button>
+                                </div>
+                            </div>
+                            <div id="users-list-container">
+                                <p class="text-center" style="color: var(--text-muted);">Users overview module coming
+                                    soon.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-settings" class="tab-content">
+                        <div class="cat-card" style="animation: slideIn 0.3s ease;">
+                            <h2><i class="fa-solid fa-gears"></i> Application Settings</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 20px;">Manage global application settings
+                                applied across all users.</p>
+
+                            <div style="display: grid; gap: 20px;">
+                                <!-- System Status -->
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <div>
+                                            <h4 style="margin: 0;">Maintenance Mode</h4>
+                                            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                                Restrict access to non-admin users.</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="setting-maintenance"
+                                                onchange="saveGlobalSettings()">
+                                            <div class="slider"></div>
+                                        </label>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <div>
+                                            <h4 style="margin: 0;">Global Dark Mode</h4>
+                                            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                                Set default theme for visitors.</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="setting-dark-mode"
+                                                onchange="saveGlobalSettings()">
+                                            <div class="slider"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- BRANDING & IDENTITY -->
+                                <h3
+                                    style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                                    <i class="fa-solid fa-id-card"></i> Branding & Identity
+                                </h3>
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:15px;">
+                                    <div
+                                        style="padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <label style="display:block; margin-bottom: 8px; font-weight:600;">Site
+                                            Name</label>
+                                        <input type="text" id="setting-site-name" placeholder="SMART HUB"
+                                            style="width:100%; padding:10px; background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px;"
+                                            onchange="saveGlobalSettings()">
+                                    </div>
+                                    <div
+                                        style="padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <label style="display:block; margin-bottom: 8px; font-weight:600;">Layout
+                                            Navigation</label>
+                                        <select id="admin-layout-select"
+                                            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-header);"
+                                            onchange="adminSetLayoutMode(this.value); saveGlobalSettings();">
+                                            <option value="left">Left Sidebar (Classic)</option>
+                                            <option value="right">Right Sidebar</option>
+                                            <option value="top">Top Navigation Bar</option>
+                                            <option value="bottom">Mobile-First Bottom Bar</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- THEME & STYLING -->
+                                <h3
+                                    style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                                    <i class="fa-solid fa-palette"></i> Colors & Visual Styles
+                                </h3>
+
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                                    <!-- Primary Color Picker -->
+                                    <div
+                                        style="padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <h4 style="margin: 0 0 10px 0;">Branding Colors</h4>
+                                        <div
+                                            style="display: flex; gap: 12px; align-items: center; margin-bottom: 15px;">
+                                            <div style="flex:1;">
+                                                <label
+                                                    style="font-size:0.8rem; display:block; opacity:0.7;">Primary</label>
+                                                <input type="color" id="setting-color-primary"
+                                                    style="width:100%; height:40px; border:none; padding:0; background:none; cursor:pointer;"
+                                                    onchange="adminUpdateLiveColor('--primary-color', this.value); saveGlobalSettings();">
+                                            </div>
+                                            <div style="flex:1;">
+                                                <label
+                                                    style="font-size:0.8rem; display:block; opacity:0.7;">Accent</label>
+                                                <input type="color" id="setting-color-accent"
+                                                    style="width:100%; height:40px; border:none; padding:0; background:none; cursor:pointer;"
+                                                    onchange="adminUpdateLiveColor('--accent-purple', this.value); saveGlobalSettings();">
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <button onclick="adminQuickColor('#6366f1')"
+                                                style="width: 25px; height: 25px; border-radius: 4px; background: #6366f1; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;"></button>
+                                            <button onclick="adminQuickColor('#06b6d4')"
+                                                style="width: 25px; height: 25px; border-radius: 4px; background: #06b6d4; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;"></button>
+                                            <button onclick="adminQuickColor('#ef4444')"
+                                                style="width: 25px; height: 25px; border-radius: 4px; background: #ef4444; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;"></button>
+                                            <button onclick="adminQuickColor('#10b981')"
+                                                style="width: 25px; height: 25px; border-radius: 4px; background: #10b981; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;"></button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Typography -->
+                                    <div
+                                        style="padding: 15px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <h4 style="margin: 0 0 10px 0;">Global UI Scaling</h4>
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <input type="range" id="admin-text-size" min="12" max="20" value="16"
+                                                step="1" style="flex: 1; cursor: pointer;"
+                                                oninput="adminUpdateTextSize(this.value)">
+                                            <span id="admin-text-size-val"
+                                                style="font-weight: bold; width: 45px; text-align: right; background: var(--bg-card); padding:2px 6px; border-radius:4px;">16px</span>
+                                        </div>
+                                        <div style="margin-top: 15px;">
+                                            <label
+                                                style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                                <span>Glassmorphism FX</span>
+                                                <div class="toggle-switch">
+                                                    <input type="checkbox" id="setting-glassmorphism"
+                                                        onchange="adminToggleStyleFX('glass', this.checked); saveGlobalSettings();">
+                                                    <div class="slider"></div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ADVANCED GLOBAL CSS -->
+                                <h3
+                                    style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                                    <i class="fa-solid fa-code"></i> Direct CSS Override
+                                </h3>
+                                <div
+                                    style="background: #1e1e2e; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                                    <div
+                                        style="padding: 10px 15px; background: rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center;">
+                                        <span
+                                            style="font-size: 0.8rem; color: #a6e22e; font-family: monospace;">global_overrides.css</span>
+                                        <button class="btn-calc" style="padding: 4px 12px; font-size: 0.8rem; margin:0;"
+                                            onclick="adminApplyCustomCSS()">Apply CSS Live</button>
+                                    </div>
+                                    <textarea id="admin-custom-css"
+                                        style="width:100%; height:150px; background:#1e1e2e; color:#f8f8f2; border:none; padding:15px; font-family:'Fira Code', monospace; font-size:13px; outline:none; resize:vertical;"
+                                        placeholder="/* Add custom CSS rules here to override anything globally */"></textarea>
+                                </div>
+                                <button class="btn-save" style="margin-top: 10px; width: 100%;"
+                                    onclick="saveGlobalSettings()"><i class="fa-solid fa-cloud-arrow-up"></i> Save &
+                                    Broadcast All Changes</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="editor-modal">
+        <div class="editor-container">
+            <div
+                style="padding: 15px; background: #191a21; display: flex; justify-content: space-between; align-items: center;">
+                <span id="editor-filename" style="color: #6272a4; font-weight: bold;">editor.html</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-calc" style="padding: 5px 15px; background: #f59e0b;"
+                        onclick="restorePageDefault()">Restore Default</button>
+                    <button class="btn-calc" style="padding: 5px 15px;" onclick="savePageChanges()">Save &
+                        Deploy</button>
+                    <button class="btn-save" style="padding: 5px 15px; background: #ff5555;"
+                        onclick="closeEditor()">Close</button>
+                </div>
+            </div>
+            <textarea id="code-editor"></textarea>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div id="user-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
+        <div
+            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 400px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <h3 id="user-modal-title" style="margin-top:0;">Add / Edit User</h3>
+            <input type="hidden" id="admin-user-id">
+
+            <div style="margin-bottom: 15px;">
+                <label>Name</label>
+                <input type="text" id="admin-user-name" placeholder="Full Name"
+                    style="width:100%; padding:10px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px; margin-top:5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Email</label>
+                <input type="email" id="admin-user-email" placeholder="Email Address"
+                    style="width:100%; padding:10px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px; margin-top:5px;">
+            </div>
+            <div style="margin-bottom: 15px;" id="admin-user-password-wrap">
+                <label>Password</label>
+                <input type="password" id="admin-user-password" placeholder="Password (only for new users)"
+                    style="width:100%; padding:10px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px; margin-top:5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Photo URL</label>
+                <input type="text" id="admin-user-photo" placeholder="https://..."
+                    style="width:100%; padding:10px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px; margin-top:5px;">
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label>Role</label>
+                <select id="admin-user-role"
+                    style="width:100%; padding:10px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-header); border-radius:6px; margin-top:5px;">
+                    <option value="user">User (Std)</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn-save" style="background:#ef4444; margin:0;"
+                    onclick="closeUserModal()">Cancel</button>
+                <button class="btn-calc" style="margin:0;" onclick="saveUserModal()">Save User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        // API Configuration
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+            ? 'http://localhost:3000'
+            : 'https://smart-calculator-hub.onrender.com';
+
+        // Global State
+        let editorInstance = null;
+        let currentEditingFile = null;
+        let logInterval = null;
+
+        // Helper to handle auth errors globally
+        async function secureFetch(url, options = {}) {
+            const res = await fetch(url, options);
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/login.html';
+                throw new Error("Unauthorized access");
+            }
+            return res;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CodeMirror
+            const editorElement = document.getElementById('code-editor');
+            if (editorElement) {
+                editorInstance = CodeMirror.fromTextArea(editorElement, {
+                    lineNumbers: true,
+                    mode: 'htmlmixed',
+                    theme: 'dracula',
+                    lineWrapping: true
+                });
+            }
+
+            // Load initial stats
+            fetchSystemStats();
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Clear intervals if leaving logs tab
+            if (tabId !== 'logs' && logInterval) {
+                clearInterval(logInterval);
+                logInterval = null;
+            }
+
+            // Trigger specific data loads
+            if (tabId === 'files') fetchAssetFiles();
+            if (tabId === 'logs') fetchServerLogs();
+            if (tabId === 'settings') initAdminSettingsToggles();
+        }
+
+        async function fetchSystemStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (document.getElementById('stat-users')) document.getElementById('stat-users').innerText = data.users || 0;
+                    if (document.getElementById('stat-tools')) document.getElementById('stat-tools').innerText = data.tools || 85;
+                }
+            } catch (e) { console.error("Stats load failed", e); }
+        }
+
+        async function triggerSystemAction(action) {
+            if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action })
+                });
+                const data = await res.json();
+                alert(data.message || 'Action executed');
+            } catch (e) { alert('Action failed: ' + e.message); }
+        }
+
+        let currentAdminDir = '.';
+
+        async function fetchAssetFiles(dir = currentAdminDir) {
+            currentAdminDir = dir;
+            const container = document.getElementById('file-manager-container');
+            const pathDisplay = document.getElementById('file-manager-path');
+            if (!container) return;
+
+            if (pathDisplay) pathDisplay.innerText = '/' + currentAdminDir;
+            container.innerHTML = '<p class="text-center"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files?dir=${encodeURIComponent(currentAdminDir)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch files");
+                const files = await res.json();
+
+                if (!Array.isArray(files)) throw new Error("Invalid response");
+
+                container.innerHTML = files.map(file => `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; align-items: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <span style="cursor: ${file.isDir ? 'pointer' : 'default'}; flex: 1;" onclick="${file.isDir ? `fetchAssetFiles('${file.path.replace(/\\/g, '\\\\')}')` : ''}">
+                            <i class="fa-solid ${file.isDir ? 'fa-folder' : 'fa-file-code'}" style="color: ${file.isDir ? '#f59e0b' : 'inherit'}; width: 25px;"></i> 
+                            <span style="${file.name === '..' ? 'font-weight:bold; color:#6366f1;' : ''}">${file.name}</span>
+                        </span>
+                        <div style="display:flex; gap: 5px;">
+                            ${!file.isDir && file.name !== '..' ? `<button class="btn-save" style="padding: 4px 10px; font-size: 11px; margin:0;" onclick="editFile('${file.path.replace(/\\/g, '\\\\')}')"><i class="fas fa-edit"></i> Edit</button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Rename/Move" onclick="renameFile('${file.path.replace(/\\/g, '\\\\')}', '${file.name}')"><i class="fas fa-random"></i></button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Copy" onclick="copyFile('${file.path.replace(/\\/g, '\\\\')}')"><i class="fas fa-copy"></i></button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-danger" style="padding: 4px 10px; font-size: 11px; margin:0;" title="Delete" onclick="deleteFile('${file.path.replace(/\\/g, '\\\\')}', ${file.isDir})"><i class="fas fa-trash"></i></button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-center" style="color: #ef4444;">Failed to load files. Ensure backend is running.</p>';
+            }
+        }
+
+        async function createFileFolder(type) {
+            const name = prompt(`Enter ${type} name:`);
+            if (!name) return;
+            const fullPath = currentAdminDir === '.' ? name : `${currentAdminDir}/${name}`;
+
+            try {
+                const token = localStorage.getItem('token');
+                if (type === 'folder') {
+                    await secureFetch(`${API_URL}/api/admin/files/folder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ path: fullPath })
+                    });
+                } else {
+                    await secureFetch(`${API_URL}/api/admin/files/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ path: fullPath, content: '' })
+                    });
+                }
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function renameFile(oldPath, oldName) {
+            const newName = prompt('Enter new path/name:', oldPath);
+            if (!newName || newName === oldPath) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ oldPath, newPath: newName })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function copyFile(sourcePath) {
+            const targetPath = prompt('Enter destination path/name:', sourcePath + '_copy');
+            if (!targetPath || targetPath === sourcePath) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/copy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ source: sourcePath, target: targetPath })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function deleteFile(path, isDir) {
+            if (!confirm(`Are you sure you want to delete ${isDir ? 'folder and its contents' : 'file'} "${path}"?`)) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ path })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function editFile(filePath) {
+            currentEditingFile = filePath;
+            const filenameDisplay = document.getElementById('editor-filename');
+            if (filenameDisplay) filenameDisplay.innerText = filePath;
+
+            document.getElementById('editor-modal').classList.add('active');
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/content?path=${encodeURIComponent(filePath)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Failed to load content");
+                const content = await res.text();
+                if (editorInstance) {
+                    editorInstance.setValue(content);
+                    setTimeout(() => editorInstance.refresh(), 100);
+                }
+            } catch (e) {
+                alert("Could not load file content");
+                closeEditor();
+            }
+        }
+
+        async function savePageChanges() {
+            if (!currentEditingFile || !editorInstance) return;
+            const content = editorInstance.getValue();
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ path: currentEditingFile, content })
+                });
+
+                if (res.ok) {
+                    alert("File saved successfully!");
+                    closeEditor();
+                } else {
+                    throw new Error("Save failed");
+                }
+            } catch (e) { alert(e.message); }
+        }
+
+        function closeEditor() {
+            document.getElementById('editor-modal').classList.remove('active');
+            currentEditingFile = null;
+            if (editorInstance) editorInstance.setValue('');
+        }
+
+        async function restorePageDefault() {
+            if (!currentEditingFile) return;
+            if (!confirm(`Are you sure you want to restore "${currentEditingFile}" to its core original unedited state? This will wipe recent changes.`)) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/restore`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ path: currentEditingFile })
+                });
+
+                if (res.ok) {
+                    alert("System file successfully restored to default!");
+                    editFile(currentEditingFile); // Reload
+                } else {
+                    const error = await res.json();
+                    alert(error.error || "Failed to restore.");
+                }
+            } catch (e) { alert("Error connecting to server restore sequence."); }
+        }
+
+        let globalUsersCache = [];
+        async function fetchUsers() {
+            const container = document.getElementById('users-list-container');
+            if (!container) return;
+            container.innerHTML = '<p class="text-center"><i class="fa-solid fa-spinner fa-spin"></i> Loading users from database...</p>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error("Failed to load users");
+                const users = await res.json();
+                globalUsersCache = users; // Cache for quick editing
+
+                container.innerHTML = `
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                            <th style="padding: 10px;">Photo</th>
+                            <th style="padding: 10px;">Name</th>
+                            <th style="padding: 10px;">Email</th>
+                            <th style="padding: 10px;">Role</th>
+                            <th style="padding: 10px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(u => `
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td style="padding: 10px;"><img src="${u.photo || 'https://via.placeholder.com/150'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/150'"></td>
+                                            <td style="padding: 10px; font-weight: bold;">${u.name || (u.email.split('@')[0])}</td>
+                                            <td style="padding: 10px; color: var(--text-muted);">${u.email}</td>
+                                            <td style="padding: 10px;">
+                                                <select onchange="updateUserRole('${u._id}', this.value)" style="padding:4px; font-size:0.85rem; border-radius:4px; background:var(--bg-main); color:var(--text-header); border:1px solid var(--border-color);">
+                                                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>User (Std)</option>
+                                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 10px;">
+                                                <button class="btn-save" style="padding: 6px 10px; font-size: 0.8rem; margin: 0 5px 0 0;" onclick="openUserModal('${u._id}')"><i class="fas fa-edit"></i> Edit</button>
+                                                <button class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem; background: #ef4444; flex-shrink: 0;" onclick="deleteUser('${u._id}', '${u.name || u.email}')"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            `;
+            } catch (e) {
+                container.innerHTML = '<p class="text-center" style="color: #ef4444;">Failed to load users. Connection Error.</p>';
+            }
+        }
+
+        function openUserModal(userId = null) {
+            document.getElementById('user-modal').style.display = 'flex';
+            if (userId) { // Edit mode
+                document.getElementById('user-modal-title').innerText = 'Edit User';
+                document.getElementById('admin-user-password-wrap').style.display = 'none'; // hide password
+                const user = globalUsersCache.find(u => u._id === userId);
+                if (user) {
+                    document.getElementById('admin-user-id').value = user._id;
+                    document.getElementById('admin-user-name').value = user.name || '';
+                    document.getElementById('admin-user-email').value = user.email || '';
+                    document.getElementById('admin-user-photo').value = user.photo || '';
+                    document.getElementById('admin-user-role').value = user.role || 'user';
+                }
+            } else { // Create mode
+                document.getElementById('user-modal-title').innerText = 'Add New User';
+                document.getElementById('admin-user-password-wrap').style.display = 'block';
+                document.getElementById('admin-user-id').value = '';
+                document.getElementById('admin-user-name').value = '';
+                document.getElementById('admin-user-email').value = '';
+                document.getElementById('admin-user-password').value = '';
+                document.getElementById('admin-user-photo').value = 'https://via.placeholder.com/150';
+                document.getElementById('admin-user-role').value = 'user';
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').style.display = 'none';
+        }
+
+        async function saveUserModal() {
+            const id = document.getElementById('admin-user-id').value;
+            const payload = {
+                name: document.getElementById('admin-user-name').value,
+                email: document.getElementById('admin-user-email').value,
+                photo: document.getElementById('admin-user-photo').value,
+                role: document.getElementById('admin-user-role').value
+            };
+
+            const token = localStorage.getItem('token');
+            let res;
+            try {
+                if (id) {
+                    // Update
+                    res = await secureFetch(`${API_URL}/api/admin/users/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    // Create
+                    payload.password = document.getElementById('admin-user-password').value;
+                    res = await secureFetch(`${API_URL}/api/admin/users`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                if (res.ok) {
+                    closeUserModal();
+                    fetchUsers();
+                    alert(id ? 'User updated successfully!' : 'User created successfully!');
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to save user.");
+                }
+            } catch (e) {
+                alert("Action failed. Server error.");
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ role: newRole })
+                });
+                fetchUsers();
+            } catch (e) { alert("Failed to update role"); fetchUsers(); }
+        }
+
+        async function deleteUser(userId, username) {
+            if (!confirm(`WARNING: CRITICAL DELETION. Are you positive you want to completely erase the account for [ ${username} ]?`)) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                showGlobalToast("User fully purged from database.", "info");
+                fetchUsers();
+            } catch (e) { alert("Failed to delete user"); }
+        }
+
+        async function saveGlobalSettings() {
+            const payload = {
+                darkMode: document.getElementById('setting-dark-mode').checked,
+                maintenanceMode: document.getElementById('setting-maintenance').checked,
+                siteName: document.getElementById('setting-site-name').value,
+                layoutMode: document.getElementById('admin-layout-select').value,
+                primaryColor: document.getElementById('setting-color-primary').value,
+                accentColor: document.getElementById('setting-color-accent').value,
+                fontSize: document.getElementById('admin-text-size').value,
+                glassmorphism: document.getElementById('setting-glassmorphism').checked,
+                customCSS: document.getElementById('admin-custom-css').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/settings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showGlobalToast("Global system settings synchronized.", "success");
+                    // Apply locally too
+                    if (payload.darkMode) document.body.classList.add('dark-mode');
+                    else document.body.classList.remove('dark-mode');
+                }
+            } catch (e) {
+                showGlobalToast("Sync failed.", "error");
+            }
+        }
+
+        async function initAdminSettingsToggles() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/client/settings`);
+                if (res.ok) {
+                    const s = await res.json();
+                    document.getElementById('setting-dark-mode').checked = !!s.darkMode;
+                    document.getElementById('setting-maintenance').checked = !!s.maintenanceMode;
+                    document.getElementById('setting-site-name').value = s.siteName || 'SMART HUB';
+                    document.getElementById('admin-layout-select').value = s.layoutMode || 'left';
+                    document.getElementById('setting-color-primary').value = s.primaryColor || '#6366f1';
+                    document.getElementById('setting-color-accent').value = s.accentColor || '#8b5cf6';
+                    document.getElementById('admin-text-size').value = s.fontSize || 16;
+                    document.getElementById('admin-text-size-val').innerText = (s.fontSize || 16) + 'px';
+                    document.getElementById('setting-glassmorphism').checked = !!s.glassmorphism;
+                    document.getElementById('admin-custom-css').value = s.customCSS || '';
+                }
+            } catch (e) { }
+        }
+
+        // --- NEW ADMIN STYLING CONTROLS ---
+        function adminUpdateLiveColor(variable, value) {
+            document.documentElement.style.setProperty(variable, value);
+        }
+
+        function adminQuickColor(hex) {
+            document.getElementById('setting-color-primary').value = hex;
+            adminUpdateLiveColor('--primary-color', hex);
+            saveGlobalSettings();
+        }
+
+        function adminSetLayoutMode(mode) {
+            document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+            if (mode !== 'left') document.body.classList.add(`sidebar-${mode}`);
+        }
+
+        function adminUpdateTextSize(px) {
+            document.getElementById('admin-text-size-val').innerText = `${px}px`;
+            document.documentElement.style.fontSize = `${px}px`;
+        }
+
+        function adminApplyCustomCSS() {
+            const css = document.getElementById('admin-custom-css').value;
+            let styleTag = document.getElementById('admin-live-css');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'admin-live-css';
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = css;
+            showGlobalToast("CSS Injected Live", "info");
+        }
+
+        function adminToggleStyleFX(fx, enabled) {
+            if (fx === 'glass') {
+                if (enabled) {
+                    document.documentElement.style.setProperty('--bg-card', 'rgba(30, 41, 59, 0.4)');
+                    document.body.style.backdropFilter = "blur(10px)";
+                } else {
+                    document.documentElement.style.removeProperty('--bg-card');
+                    document.body.style.backdropFilter = "none";
+                }
+            }
+        }
+
+        // Restore custom preferences on initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdminSettingsToggles();
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Loan EMI Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-hand-holding-dollar"></i> Loan EMI Calculator</h2>
+                            <p>Calculate your monthly loan repayments and total interest cost.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Loan Amount</span>
+                                <input type="number" id="amount" class="form-control" placeholder="100000">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Interest Rate (% per year)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="8.5" step="0.1">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Tenure (Years)</span>
+                                <input type="number" id="years" class="form-control" placeholder="5">
+                            </div>
+                            
+                            <button id="calc-emi-btn" class="btn-calc">Calculate EMI</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Repayment Summary</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-emi" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Calculation
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcBtn = document.getElementById('calc-emi-btn');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            calcBtn.addEventListener('click', () => {
+                const P = parseFloat(document.getElementById('amount').value);
+                const annualRate = parseFloat(document.getElementById('rate').value);
+                const years = parseFloat(document.getElementById('years').value);
+                const symbol = document.getElementById('currency').value;
+
+                if (!P || !annualRate || !years) {
+                    alert("Please fill all fields with valid numbers.");
+                    return;
+                }
+
+                const r = annualRate / 12 / 100; // Monthly rate
+                const n = years * 12; // Total months
+                
+                // EMI Formula: [P x r x (1+r)^n]/[(1+r)^n-1]
+                const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                const totalPayment = emi * n;
+                const totalInterest = totalPayment - P;
+
+                displayArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Monthly EMI</span>
+                        <span style="color: var(--primary-color); font-weight: 700;">${symbol}${emi.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Principal Amount</span>
+                        <span>${symbol}${P.toLocaleString()}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Total Interest</span>
+                        <span style="color: #e74c3c;">${symbol}${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="sub-link" style="border-top: 1px solid var(--border-color); margin-top: 10px; padding-top: 10px;">
+                        <span>Total Payment</span>
+                        <span style="font-weight: 600;">${symbol}${totalPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                `;
+
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

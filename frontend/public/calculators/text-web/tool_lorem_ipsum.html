@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Lorem Ipsum Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-font"></i> Placeholder Text Generator</h2>
+                            <p>Generate professional Lorem Ipsum text for layouts and prototypes.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Generation Type</span>
+                                <select id="loremType" class="form-control">
+                                    <option value="paragraphs">Paragraphs</option>
+                                    <option value="words">Words</option>
+                                    <option value="sentences">Sentences</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Amount</span>
+                                <input type="number" id="loremCount" class="form-control" value="3" min="1" max="50">
+                            </div>
+                            
+                            <button id="btn-lorem" class="btn-calc">Generate Text</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3><i class="fa-solid fa-align-left"></i> Generated Result</h3>
+                            <button id="btn-copy" class="btn-save" style="margin: 0; padding: 5px 15px;">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            <textarea id="loremResult" class="form-control" rows="10" 
+                                style="width:100%; font-family: 'Georgia', serif; line-height: 1.6; resize: vertical; background: var(--bg-main);" readonly></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="window.print()" class="btn-calc" style="background: var(--text-secondary);">
+                                <i class="fa-solid fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const loremLibrary = [
+            "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint", "occaecat", "cupidatat", "non", "proident", "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollit", "anim", "id", "est", "laborum"
+        ];
+
+        function generateText(type, count) {
+            let words = [];
+            const totalNeeded = type === 'words' ? count : count * 15;
+            
+            for (let i = 0; i < totalNeeded; i++) {
+                words.push(loremLibrary[Math.floor(Math.random() * loremLibrary.length)]);
+            }
+
+            if (type === 'words') return words.join(' ') + '.';
+            
+            if (type === 'sentences') {
+                return words.join(' ').match(/.{1,60}/g).map(s => s.charAt(0).toUpperCase() + s.slice(1).trim() + '.').slice(0, count).join(' ');
+            }
+
+            // Paragraphs
+            let paras = [];
+            for (let p = 0; p < count; p++) {
+                let pWords = words.slice(p * 15, (p + 1) * 25).join(' ');
+                paras.push(pWords.charAt(0).toUpperCase() + pWords.slice(1) + '.');
+            }
+            return paras.join('\n\n');
+        }
+
+        document.getElementById('btn-lorem').addEventListener('click', function() {
+            const count = parseInt(document.getElementById('loremCount').value);
+            const type = document.getElementById('loremType').value;
+            const output = document.getElementById('loremResult');
+            const resCard = document.getElementById('results');
+
+            output.value = generateText(type, count);
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-copy').addEventListener('click', function() {
+            const output = document.getElementById('loremResult');
+            output.select();
+            document.execCommand('copy');
+            this.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fa-solid fa-copy"></i> Copy';
+            }, 2000);
+        });
+    </script>
+    
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

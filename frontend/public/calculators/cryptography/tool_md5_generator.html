@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Hash Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-shield-halved"></i> Pro Hash Generator</h2>
+                            <p>Generate, compare, and export cryptographic hashes for text and files.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Input Text</span>
+                                <textarea id="inputText" class="form-control" rows="3" placeholder="Enter text here..."></textarea>
+                            </div>
+                            <div style="text-align: right; padding: 0 15px;"><small id="charCount">0 characters</small></div>
+
+                            <div class="sub-link">
+                                <span>Algorithm</span>
+                                <select id="algorithm" class="form-control">
+                                    <option value="MD5">MD5</option>
+                                    <option value="SHA1">SHA-1</option>
+                                    <option value="SHA256" selected>SHA-256</option>
+                                    <option value="SHA512">SHA-512</option>
+                                    <option value="SHA3">SHA-3</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>File Hashing</span>
+                                <div class="drop-zone" id="dropZone" style="border: 2px dashed var(--border-color); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
+                                    <i class="fa-solid fa-file-arrow-up"></i> Drop file or click to upload
+                                    <input type="file" id="fileInput" hidden>
+                                </div>
+                            </div>
+                            <progress id="hashProgress" max="100" value="0" style="width: 100%; height: 10px; margin-top: 5px;"></progress>
+
+                            <div class="tools-row" style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button id="calc-hash-btn" class="btn-calc" style="flex: 2;">Generate Hash</button>
+                                <button id="toggleCase" class="btn-save" style="flex: 1; background: var(--secondary-bg);"><i class="fa-solid fa-font"></i> A/a</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Generated Output</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Result Hash</span>
+                                <div id="hashOutput" class="output-box" style="word-break: break-all; font-family: monospace; background: var(--input-bg); padding: 10px; border-radius: 5px; border: 1px solid var(--border-color);"></div>
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Verify/Compare</span>
+                                <input type="text" id="compareInput" class="form-control" placeholder="Paste hash to verify...">
+                            </div>
+                            <div id="compareResult" style="padding: 0 15px; font-weight: bold;"></div>
+
+                            <div class="tools-row" style="display: flex; gap: 10px; margin-top: 15px; padding: 0 15px;">
+                                <button onclick="tool.copy()" class="btn-save" style="flex: 1;"><i class="fa-solid fa-copy"></i> Copy</button>
+                                <button onclick="tool.makeQR()" class="btn-save" style="flex: 1;"><i class="fa-solid fa-qrcode"></i> QR Code</button>
+                            </div>
+                        </div>
+                        <div id="qrBox" style="display: flex; justify-content: center; padding: 20px;"></div>
+                    </div>
+
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> History</h3>
+                        <div id="historyBox" style="max-height: 200px; overflow-y: auto; padding: 10px; font-size: 0.85rem;"></div>
+                        <div class="tools-row" style="display: flex; gap: 10px; margin-top: 10px; padding: 10px;">
+                            <button onclick="tool.exportCSV()" class="btn-save" style="font-size: 0.8rem;"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                            <button onclick="tool.clearHistory()" class="btn-save" style="font-size: 0.8rem; background: #e74c3c;"><i class="fa-solid fa-trash"></i> Clear</button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        class SmartHashTool {
+            constructor() {
+                this.input = document.getElementById("inputText");
+                this.alg = document.getElementById("algorithm");
+                this.output = document.getElementById("hashOutput");
+                this.charCount = document.getElementById("charCount");
+                this.compare = document.getElementById("compareInput");
+                this.compareResult = document.getElementById("compareResult");
+                this.fileInput = document.getElementById("fileInput");
+                this.dropZone = document.getElementById("dropZone");
+                this.qrBox = document.getElementById("qrBox");
+                this.progress = document.getElementById("hashProgress");
+                this.historyBox = document.getElementById("historyBox");
+
+                this.upper = false;
+                this.history = JSON.parse(localStorage.getItem("hashHistory") || "[]");
+
+                this.bind();
+                this.renderHistory();
+            }
+
+            bind() {
+                document.getElementById('calc-hash-btn').onclick = () => this.generate();
+                document.getElementById('toggleCase').onclick = () => this.toggleCase();
+                this.input.addEventListener("input", () => {
+                    this.charCount.textContent = this.input.value.length + " characters";
+                });
+                this.compare.addEventListener("input", () => this.compareHash());
+                this.dropZone.onclick = () => this.fileInput.click();
+                this.fileInput.onchange = e => this.hashFile(e.target.files[0]);
+            }
+
+            generate() {
+                const text = this.input.value;
+                if (!text) return;
+
+                let hash;
+                switch (this.alg.value) {
+                    case "MD5": hash = CryptoJS.MD5(text); break;
+                    case "SHA1": hash = CryptoJS.SHA1(text); break;
+                    case "SHA256": hash = CryptoJS.SHA256(text); break;
+                    case "SHA512": hash = CryptoJS.SHA512(text); break;
+                    case "SHA3": hash = CryptoJS.SHA3(text); break;
+                }
+
+                const result = this.upper ? hash.toString().toUpperCase() : hash.toString();
+                this.displayResult(result, "Text", this.alg.value);
+            }
+
+            async hashFile(file) {
+                if (!file) return;
+                this.progress.value = 0;
+                const chunkSize = 1024 * 1024 * 2;
+                const chunks = Math.ceil(file.size / chunkSize);
+                let offset = 0;
+                let hasher = CryptoJS.algo.SHA256.create();
+
+                for (let i = 0; i < chunks; i++) {
+                    const blob = file.slice(offset, offset + chunkSize);
+                    const buffer = await blob.arrayBuffer();
+                    const wordArray = CryptoJS.lib.WordArray.create(buffer);
+                    hasher.update(wordArray);
+                    offset += chunkSize;
+                    this.progress.value = Math.floor((i / chunks) * 100);
+                }
+
+                const finalHash = hasher.finalize().toString();
+                this.progress.value = 100;
+                this.displayResult(this.upper ? finalHash.toUpperCase() : finalHash, "File: " + file.name, "SHA256");
+            }
+
+            displayResult(result, source, algo) {
+                this.output.textContent = result;
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('results').classList.remove('hidden');
+                this.saveHistory(source, algo, result);
+                this.compareHash();
+            }
+
+            toggleCase() {
+                this.upper = !this.upper;
+                if(this.output.textContent) {
+                    this.output.textContent = this.upper ? this.output.textContent.toUpperCase() : this.output.textContent.toLowerCase();
+                }
+            }
+
+            copy() {
+                navigator.clipboard.writeText(this.output.textContent);
+                alert("Hash copied to clipboard!");
+            }
+
+            compareHash() {
+                if (!this.compare.value) {
+                    this.compareResult.textContent = "";
+                    return;
+                }
+                const match = this.compare.value.trim().toLowerCase() === this.output.textContent.trim().toLowerCase();
+                this.compareResult.textContent = match ? "✓ Match Found" : "✗ No Match";
+                this.compareResult.style.color = match ? "#2ecc71" : "#e74c3c";
+            }
+
+            makeQR() {
+                this.qrBox.innerHTML = "";
+                if (!this.output.textContent) return;
+                new QRCode(this.qrBox, {
+                    text: this.output.textContent,
+                    width: 128,
+                    height: 128,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff"
+                });
+            }
+
+            saveHistory(source, algo, hash) {
+                this.history.unshift({ time: new Date().toLocaleTimeString(), source, algo, hash });
+                this.history = this.history.slice(0, 10);
+                localStorage.setItem("hashHistory", JSON.stringify(this.history));
+                this.renderHistory();
+            }
+
+            renderHistory() {
+                this.historyBox.innerHTML = this.history.map(h => `
+                    <div style="border-bottom: 1px solid var(--border-color); padding: 5px 0;">
+                        <strong>${h.algo}</strong> <small>(${h.time})</small><br>
+                        <code style="font-size: 0.7rem; color: var(--primary-color); word-break: break-all;">${h.hash}</code>
+                    </div>
+                `).join("");
+            }
+
+            exportCSV() {
+                let csv = "Time,Source,Algorithm,Hash\n";
+                this.history.forEach(h => { csv += `"${h.time}","${h.source}","${h.algo}","${h.hash}"\n`; });
+                const blob = new Blob([csv], { type: "text/csv" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "hash-history.csv";
+                a.click();
+            }
+
+            clearHistory() {
+                if (confirm("Clear history?")) {
+                    this.history = [];
+                    localStorage.removeItem("hashHistory");
+                    this.renderHistory();
+                }
+            }
+        }
+
+        const tool = new SmartHashTool();
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

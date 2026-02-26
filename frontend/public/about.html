@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | About</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.2) 100%);
+            border-radius: var(--radius-lg);
+            padding: 60px 20px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .milestone-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .milestone-date {
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in" style="max-width: 1000px; margin: 0 auto; padding-top: 20px;">
+
+                    <div class="about-hero stagger-1 text-center">
+                        <div style="position: relative; z-index: 1;">
+                            <i class="fa-solid fa-microchip"
+                                style="font-size: 4rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+                            <h1 style="font-size: 3rem; margin-bottom: 15px; font-weight: 800;">Smart Hub <span
+                                    class="accent-text" style="color: var(--primary-color);">Evolution</span></h1>
+                            <p
+                                style="font-size: 1.2rem; opacity: 0.9; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+                                Building the future of unified utility software. One precision tool at a time.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid fade-in delay-1">
+                        <div class="stat-item">
+                            <span class="stat-number">85+</span>
+                            <span class="stat-label">Smart Tools</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">System Uptime</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">Real-time</span>
+                            <span class="stat-label">Multiplayer</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Privacy Focused</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-2-col"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; margin-bottom: 40px;">
+                        <article class="cat-card fade-in delay-2" style="margin: 0;">
+                            <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-bullseye"
+                                    style="margin-right: 10px; color: var(--primary-color);"></i> Our Mission</h3>
+                            <div style="line-height: 1.8; opacity: 0.9;">
+                                <p>Smart Hub was born from a simple idea: <strong>Why should efficiency be
+                                        scattered?</strong></p>
+                                <p style="margin-top: 15px;">We provide a centralized platform where you can calculate
+                                    construction materials, debug network protocols, and solve complex mathematical
+                                    equations without ever switching tabs. Our focus remains on high-performance local
+                                    processing and user privacy.</p>
+                            </div>
+                        </article>
+
+                        <article class="cat-card fade-in delay-2" style="margin: 0;">
+                            <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-gamepad"
+                                    style="margin-right: 10px; color: var(--accent-purple);"></i> Recent Milestone: Game
+                                Hub</h3>
+                            <div style="line-height: 1.8; opacity: 0.9;">
+                                <p>We've recently integrated a robust <strong>Multiplayer Game Hub</strong>. Leveraging
+                                    Socket.io, we now support real-time competition across various brain-teasers and
+                                    logic games.</p>
+                                <ul style="margin-top: 15px; list-style: none; padding: 0;">
+                                    <li><i class="fa-solid fa-check" style="color: #10b981; margin-right: 10px;"></i>
+                                        Real-time Matchmaking</li>
+                                    <li><i class="fa-solid fa-check" style="color: #10b981; margin-right: 10px;"></i>
+                                        Competitive Leaderboards</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="category-grid fade-in delay-3"
+                        style="margin-top: 30px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                        <div class="cat-card">
+                            <div class="cat-header"
+                                style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                <div class="cat-icon_wrapper indigo-theme" style="margin: 0;"><i
+                                        class="fa-solid fa-code"></i></div>
+                                <h3 style="margin: 0; border: none;">Modern Stack</h3>
+                            </div>
+                            <ul style="list-style: none; padding: 0; font-size: 0.95rem;">
+                                <li style="margin-bottom: 12px;"><i class="fa-brands fa-node-js"
+                                        style="color: #68a063; width: 25px;"></i> Node.js & Express</li>
+                                <li style="margin-bottom: 12px;"><i class="fa-solid fa-database"
+                                        style="color: #4db33d; width: 25px;"></i> MongoDB Atlas</li>
+                                <li style="margin-bottom: 12px;"><i class="fa-brands fa-js"
+                                        style="color: #f7df1e; width: 25px;"></i> ES6+ JavaScript</li>
+                                <li><i class="fa-solid fa-bolt" style="color: #3b82f6; width: 25px;"></i> Socket.io /
+                                    WebSockets</li>
+                            </ul>
+                        </div>
+
+                        <div class="cat-card">
+                            <div class="cat-header"
+                                style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                <div class="cat-icon_wrapper cyan-theme" style="margin: 0;"><i
+                                        class="fa-solid fa-star"></i></div>
+                                <h3 style="margin: 0; border: none;">Core Features</h3>
+                            </div>
+                            <ul style="list-style: none; padding: 0; font-size: 0.95rem;">
+                                <li style="margin-bottom: 12px;"><i class="fa-solid fa-check"
+                                        style="color: #10b981; margin-right: 10px;"></i> Glassmorphism Component System
+                                </li>
+                                <li style="margin-bottom: 12px;"><i class="fa-solid fa-check"
+                                        style="color: #10b981; margin-right: 10px;"></i> PWA / Offline Intelligence</li>
+                                <li style="margin-bottom: 12px;"><i class="fa-solid fa-check"
+                                        style="color: #10b981; margin-right: 10px;"></i> Secure History Synchronization
+                                </li>
+                                <li><i class="fa-solid fa-check" style="color: #10b981; margin-right: 10px;"></i>
+                                    Adaptive Theme Engine</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="text-center fade-in delay-3"
+                        style="margin-top: 80px; padding-bottom: 60px; opacity: 0.7; font-size: 0.9rem;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">Version 3.2.0 | Deployment: Production Stable
+                        </p>
+                        <p>Crafted with precision by <a href="https://github.com/siddhantnaik909" target="_blank"
+                                style="color: var(--primary-color); font-weight: 700;">siddhantnaik909</a></p>
+                        <div
+                            style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
+                            <a href="#"><i class="fa-brands fa-github"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                        </div>
+                        <p style="margin-top: 30px; font-size: 0.8rem;">© 2026 Smart Hub Products. All rights reserved.
+                        </p>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script>
+        document.addEventListener('componentsLoaded', () => {
+            // Highlight active sidebar link
+            const currentLink = document.querySelector('.side-menu a[href*="about.html"]');
+            if (currentLink) currentLink.classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

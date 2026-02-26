@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Unified Logic Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white; padding: 60px 20px; border-radius: 24px;
+            margin-bottom: 40px; text-align: center; position: relative;
+        }
+        #calcSearch {
+            width: 90%; max-width: 700px; margin: -35px auto 40px;
+            display: block; padding: 18px 30px; border-radius: 50px;
+            border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            font-size: 1.1rem; position: relative; z-index: 10; outline: none;
+        }
+        .category-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;
+        }
+        .cat-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 24px; transition: 0.3s;
+        }
+        .cat-card:hover { transform: translateY(-8px); border-color: var(--primary-color); }
+        .sub-link {
+            display: flex; justify-content: space-between; padding: 10px;
+            margin: 2px 0; border-radius: 8px; color: var(--text-main);
+            text-decoration: none; font-size: 0.85rem; transition: 0.2s;
+        }
+        .sub-link:hover { background: rgba(37, 99, 235, 0.08); color: var(--primary-color); }
+        .cat-badge { font-size: 0.7rem; background: var(--primary-color); color: white; padding: 2px 8px; border-radius: 10px; float: right; }
+        .cat-header i { font-size: 1.5rem; color: var(--primary-color); margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="hero-section">
+                    <h1>Your Professional <span style="color: #fcd34d;">Logic</span> Suite</h1>
+                    <p>85 Specialized Tools Organized by Industry Complexity</p>
+                </section>
+
+                <input type="text" id="calcSearch" placeholder="Search 85 tools (e.g., 'Ohm', 'MD5', 'EMI')..." onkeyup="filterTools()">
+
+                <div class="category-grid" id="toolsGrid">
+                    </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+<script>
+const CALCULATORS_DATA = [
+    { category: "Construction", icon: "fas fa-hard-hat", items: [
+        { name: "Concrete Calculator", link: "/calculators/construction/calc_concrete.html" },
+        { name: "Flooring Calculator", link: "/calculators/construction/calc_flooring.html" },
+        { name: "Fuel Cost Calculator", link: "/calculators/construction/calc_fuel.html" },
+        { name: "Ohm's Law (Construction)", link: "/calculators/construction/calc_ohm.html" },
+        { name: "Paint Calculator", link: "/calculators/construction/calc_paint.html" },
+        { name: "Wall Stud Calculator", link: "/calculators/construction/calc_wall_stud.html" }
+    ]},
+    { category: "Cryptography", icon: "fas fa-vault", items: [
+        { name: "MD5 Generator", link: "/calculators/cryptography/tool_md5_generator.html" }
+    ]},
+    { category: "Date & Time", icon: "fas fa-calendar-alt", items: [
+        { name: "Age Calculator", link: "/calculators/date-time/calc_age.html" },
+        { name: "Countdown Timer", link: "/calculators/date-time/calc_countdown.html" },
+        { name: "Date Difference", link: "/calculators/date-time/calc_date_diff.html" },
+        { name: "Hours Worked", link: "/calculators/date-time/calc_hours_worked.html" },
+        { name: "Leap Year Checker", link: "/calculators/date-time/calc_leap_year.html" },
+        { name: "Time Addition", link: "/calculators/date-time/calc_time_add.html" },
+        { name: "Time Zone Converter", link: "/calculators/date-time/calc_time_zone.html" },
+        { name: "Working Days", link: "/calculators/date-time/calc_working_days.html" }
+    ]},
+    { category: "Electronics", icon: "fas fa-microchip", items: [
+        { name: "555 Timer", link: "/calculators/electronics/calc_555_timer.html" },
+        { name: "Capacitor Code", link: "/calculators/electronics/calc_capacitor_code.html" },
+        { name: "LED Resistor", link: "/calculators/electronics/calc_led_resistor_calculator.html" },
+        { name: "Ohm's Law", link: "/calculators/electronics/calc_ohm.html" },
+        { name: "Resistor Color Code", link: "/calculators/electronics/calc_resistor_color_code.html" }
+    ]},
+    { category: "Finance", icon: "fas fa-landmark", items: [
+        { name: "Car Loan", link: "/calculators/finance/calc_car_loan.html" },
+        { name: "Compound Interest (Simple)", link: "/calculators/finance/calc_compound.html" },
+        { name: "Compound Interest (Advanced)", link: "/calculators/finance/calc_compound_interest.html" },
+        { name: "Currency Converter", link: "/calculators/finance/calc_currency.html" },
+        { name: "Discount Calculator", link: "/calculators/finance/calc_discount.html" },
+        { name: "General Loan", link: "/calculators/finance/calc_loan.html" },
+        { name: "Loan EMI", link: "/calculators/finance/calc_loan_emi.html" },
+        { name: "Mortgage Calculator", link: "/calculators/finance/calc_mortgage.html" },
+        { name: "ROI Calculator", link: "/calculators/finance/calc_roi.html" },
+        { name: "Salary Calculator", link: "/calculators/finance/calc_salary.html" },
+        { name: "Savings Goal", link: "/calculators/finance/calc_savings_goal.html" },
+        { name: "Tax / GST", link: "/calculators/finance/calc_tax_gst.html" },
+        { name: "Tip Calculator", link: "/calculators/finance/calc_tip_calculator.html" }
+    ]},
+    { category: "General Math", icon: "fas fa-calculator", items: [
+        { name: "Average Calculator", link: "/calculators/general-math/calc_average.html" },
+        { name: "Fractions Calculator", link: "/calculators/general-math/calc_fractions.html" },
+        { name: "Math Toolkit", link: "/calculators/general-math/calc_math_toolkit.html" },
+        { name: "Percentage Calculator", link: "/calculators/general-math/calc_percentage.html" },
+        { name: "Programmer Calculator", link: "/calculators/general-math/calc_programmer.html" },
+        { name: "Scientific Calculator", link: "/calculators/general-math/calc_scientific.html" },
+        { name: "Standard Calculator", link: "/calculators/general-math/calc_standard.html" },
+        { name: "Password Generator", link: "/calculators/general-math/tool_password.html" }
+    ]},
+    { category: "Health & Fitness", icon: "fas fa-heart-pulse", items: [
+        { name: "BMI Calculator", link: "/calculators/health-fitness/calc_bmi.html" },
+        { name: "BMR Calculator", link: "/calculators/health-fitness/calc_bmr.html" },
+        { name: "Body Fat Percentage", link: "/calculators/health-fitness/calc_body_fat.html" },
+        { name: "Calorie Calculator", link: "/calculators/health-fitness/calc_calorie.html" },
+        { name: "Calorie Tracker Pro", link: "/calculators/health-fitness/calc_calorie-calculator.html" },
+        { name: "Ovulation Calculator", link: "/calculators/health-fitness/calc_ovulation.html" },
+        { name: "Pregnancy Due Date", link: "/calculators/health-fitness/calc_pregnancy.html" },
+        { name: "Water Intake", link: "/calculators/health-fitness/calc_water.html" }
+    ]},
+    { category: "Network", icon: "fas fa-network-wired", items: [
+        { name: "DNS Lookup", link: "/calculators/network/tool_dns_lookup.html" },
+        { name: "IP Geolocation", link: "/calculators/network/tool_ip_geo.html" },
+        { name: "Ping Test", link: "/calculators/network/tool_ping.html" },
+        { name: "Port Scanner", link: "/calculators/network/tool_port_scanner.html" },
+        { name: "Subnet Calculator", link: "/calculators/network/calc_subnet.html" },
+        { name: "Traceroute Tool", link: "/calculators/network/tool_traceroute.html" },
+        { name: "Whois Lookup", link: "/calculators/network/tool_whois.html" }
+    ]},
+    { category: "Students", icon: "fas fa-user-graduate", items: [
+        { name: "Geometry Calculator", link: "/calculators/students/calc_geometry.html" },
+        { name: "GPA Calculator", link: "/calculators/students/calc_gpa.html" },
+        { name: "Weighted Grade", link: "/calculators/students/calc_grade_weighted.html" },
+        { name: "Mensuration", link: "/calculators/students/calc_mensuration.html" },
+        { name: "Pomodoro Timer", link: "/calculators/students/calc_pomodoro.html" },
+        { name: "Quadratic Equation", link: "/calculators/students/calc_quadratic.html" },
+        { name: "Statistics", link: "/calculators/students/calc_statistics.html" },
+        { name: "Unit Conv", link: "/calculators/students/calc_unit_conv.html" }
+    ]},
+    { category: "Text & Web", icon: "fas fa-file-code", items: [
+        { name: "Case Converter", link: "/calculators/text-web/tool_case_converter.html" },
+        { name: "Lorem Ipsum Generator", link: "/calculators/text-web/tool_lorem_ipsum.html" },
+        { name: "Password Strength", link: "/calculators/text-web/tool_password.html" },
+        { name: "Word Counter", link: "/calculators/text-web/tool_word_counter.html" }
+    ]},
+    { category: "Fun", icon: "fas fa-face-grin-tears", items: [
+        { name: "Coin Flipper", link: "/calculators/fun/calc_coin_flipper.html" },
+        { name: "Compatibility Test", link: "/calculators/fun/calc_compatibility.html" },
+        { name: "Dice Roller", link: "/calculators/fun/calc_dice_roller.html" },
+        { name: "FLAMES Game", link: "/calculators/fun/calc_flames.html" },
+        { name: "Fortune Cookie", link: "/calculators/fun/calc_fortune_cookie.html" },
+        { name: "Love Calculator", link: "/calculators/fun/calc_love.html" },
+        { name: "Magic 8 Ball", link: "/calculators/fun/calc_magic_8_ball.html" },
+        { name: "Number Guesser", link: "/calculators/fun/calc_number_guesser.html" },
+        { name: "Random Number", link: "/calculators/fun/calc_random_number.html" },
+        { name: "Rock Paper Scissors", link: "/calculators/fun/calc_rock_paper_scissors.html" },
+        { name: "Zodiac Sign", link: "/calculators/fun/calc_zodiac.html" }
+    ]}
+];
+
+function initCalculators() {
+    const grid = document.getElementById('toolsGrid');
+    grid.innerHTML = CALCULATORS_DATA.map(cat => `
+        <div class="cat-card">
+            <div class="cat-header">
+                <i class="${cat.icon}"></i>
+                <span class="cat-badge">${cat.items.length} Tools</span>
+                <h3>${cat.category}</h3>
+            </div>
+            <div class="sub-cat-list">
+                ${cat.items.map(item => `
+                    <a href="${item.link}" class="sub-link">
+                        ${item.name} <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; opacity:0.3;"></i>
+                    </a>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterTools() {
+    const term = document.getElementById('calcSearch').value.toLowerCase();
+    document.querySelectorAll('.cat-card').forEach(card => {
+        const links = card.querySelectorAll('.sub-link');
+        let matchCount = 0;
+        links.forEach(link => {
+            const match = link.innerText.toLowerCase().includes(term);
+            link.style.display = match ? 'flex' : 'none';
+            if (match) matchCount++;
+        });
+        card.style.display = matchCount > 0 ? 'block' : 'none';
+    });
+}
+document.addEventListener('DOMContentLoaded', initCalculators);
+</script>
+<script src="/js/component-loader.js"></script>
+<script type="module" src="/js/script.js"></script>
+</body>
+</html>

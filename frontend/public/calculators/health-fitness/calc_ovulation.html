@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exact Vedic Rashi Calculator</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+}
+.container{max-width:650px;margin:auto;}
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:14px;
+    margin-top:20px;
+}
+input,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:none;
+    font-size:16px;
+}
+button{
+    background:#6366f1;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+.result{margin-top:15px;padding:10px;border-top:1px solid #1f2937;}
+.center{text-align:center;}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="card">
+<h2>🇮🇳 Exact Vedic Rashi Calculator</h2>
+
+<label>Birth Date</label>
+<input type="date" id="dob">
+
+<label>Birth Time</label>
+<input type="time" id="tob">
+
+<label>Birth Place (India)</label>
+<input type="text" id="place" placeholder="City name (optional)">
+
+<button id="calc">Calculate Exact Rashi</button>
+</div>
+
+<div id="output" class="card" style="display:none"></div>
+
+</div>
+
+<script>
+// ============================
+// 🌙 CONSTANT DATA
+// ============================
+
+const rashis = [
+"Mesh (Aries) ♈","Vrishabh (Taurus) ♉","Mithun (Gemini) ♊",
+"Karka (Cancer) ♋","Simha (Leo) ♌","Kanya (Virgo) ♍",
+"Tula (Libra) ♎","Vrishchik (Scorpio) ♏","Dhanu (Sagittarius) ♐",
+"Makar (Capricorn) ♑","Kumbha (Aquarius) ♒","Meena (Pisces) ♓"
+];
+
+const nakshatras = [
+"Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra",
+"Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni",
+"Uttara Phalguni","Hasta","Chitra","Swati","Vishakha",
+"Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha",
+"Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada",
+"Uttara Bhadrapada","Revati"
+];
+
+// ============================
+// 📐 JULIAN DATE
+// ============================
+
+function toJulian(date){
+    return date / 86400000 + 2440587.5;
+}
+
+// ============================
+// 🌙 MOON LONGITUDE (HIGH ACCURACY APPROX)
+// ============================
+
+function moonLongitude(jd){
+    const T = (jd - 2451545.0)/36525;
+
+    let L0 = 218.3164477 + 481267.88123421*T;
+    let M  = 134.9633964 + 477198.8675055*T;
+    let D  = 297.8501921 + 445267.1114034*T;
+
+    // normalize
+    L0 = ((L0%360)+360)%360;
+    M  = ((M%360)+360)%360;
+    D  = ((D%360)+360)%360;
+
+    // main periodic terms
+    let lon = L0
+        + 6.289 * Math.sin(M*Math.PI/180)
+        + 1.274 * Math.sin((2*D - M)*Math.PI/180)
+        + 0.658 * Math.sin(2*D*Math.PI/180)
+        + 0.214 * Math.sin(2*M*Math.PI/180)
+        + 0.11  * Math.sin(D*Math.PI/180);
+
+    return ((lon%360)+360)%360;
+}
+
+// ============================
+// 🇮🇳 AYANAMSA (LAHIRI)
+// ============================
+
+function lahiriAyanamsa(jd){
+    const t = (jd - 2451545.0)/36525;
+    return 22.460148 + 1.396042*t + 0.000308*t*t;
+}
+
+// ============================
+// 🎯 MAIN CALC
+// ============================
+
+document.getElementById("calc").onclick = () => {
+
+    const dob = document.getElementById("dob").value;
+    const tob = document.getElementById("tob").value;
+
+    if(!dob || !tob){
+        alert("Enter date and time");
+        return;
+    }
+
+    // timezone-safe IST handling
+    const [y,m,d] = dob.split("-").map(Number);
+    const [hh,mm] = tob.split(":").map(Number);
+
+    // IST → UTC
+    const utc = Date.UTC(y, m-1, d, hh-5, mm-30, 0);
+
+    const jd = toJulian(utc);
+
+    // 🌙 moon
+    const moonLon = moonLongitude(jd);
+
+    // 🇮🇳 sidereal
+    const ayan = lahiriAyanamsa(jd);
+    let sidereal = moonLon - ayan;
+    sidereal = ((sidereal%360)+360)%360;
+
+    // 🧭 rashi
+    const rashiIndex = Math.floor(sidereal / 30);
+    const rashi = rashis[rashiIndex];
+
+    // ⭐ nakshatra
+    const nakIndex = Math.floor(sidereal / (360/27));
+    const nak = nakshatras[nakIndex];
+
+    // pada
+    const pada = Math.floor((sidereal % (360/27)) / (360/108)) + 1;
+
+    document.getElementById("output").style.display="block";
+    document.getElementById("output").innerHTML = `
+        <div class="center">
+            <h2>🔮 Exact Vedic Result</h2>
+            <h3>${rashi}</h3>
+        </div>
+        <div class="result"><b>Nakshatra:</b> ${nak}</div>
+        <div class="result"><b>Pada:</b> ${pada}</div>
+        <div class="result"><b>Moon Degree:</b> ${sidereal.toFixed(2)}°</div>
+    `;
+};
+</script>
+</body>
+</html>

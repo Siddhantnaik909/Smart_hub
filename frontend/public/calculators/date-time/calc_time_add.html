@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Time Adder Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .time-input-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .time-field {
+            text-align: center;
+            padding: 10px !important;
+        }
+        .btn-remove {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-remove:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .total-display-hero {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 204, 0.05);
+            border-radius: 12px;
+            border: 1px dashed var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-clock-rotate-left"></i> Time Adder</h2>
+                            <p>Sum multiple time durations (Hours, Minutes, Seconds) with automatic carry-over.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list" id="rowsContainer">
+                            </div>
+
+                        <button class="sub-link" onclick="addRow()" style="background: transparent; border: 1px dashed var(--accent-color); color: var(--accent-color); justify-content: center; margin-top: 15px; width: 100%;">
+                            <i class="fa fa-plus"></i> &nbsp; Add New Duration Row
+                        </button>
+                    </div>
+
+                    <div class="cat-card stagger-2" style="margin-top: 20px;">
+                        <div class="sub-cat-list">
+                            <button class="btn-calc" onclick="calculateTime()">Calculate Total Sum</button>
+                            <button class="sub-link" onclick="resetForm()" style="justify-content: center; opacity: 0.7;">Reset All Fields</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-3 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Cumulative Result</h3>
+                        <div class="total-display-hero">
+                            <span id="totalTime" style="font-size: 2.8rem; font-weight: 800; color: var(--accent-color); line-height: 1;">00:00:00</span>
+                            <div id="totalDecimal" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;"></div>
+                        </div>
+                        
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save Cumulative Result
+                        </button>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            addRow(); 
+            addRow(); 
+        });
+
+        function addRow() {
+            const container = document.getElementById('rowsContainer');
+            const div = document.createElement('div');
+            div.className = 'sub-link fade-in';
+            div.innerHTML = `
+                <div class="time-input-row">
+                    <input type="number" placeholder="HH" class="h-input form-control time-field" min="0">
+                    <span style="font-weight: bold;">:</span>
+                    <input type="number" placeholder="MM" class="m-input form-control time-field" min="0" max="59">
+                    <span style="font-weight: bold;">:</span>
+                    <input type="number" placeholder="SS" class="s-input form-control time-field" min="0" max="59">
+                    <button class="btn-remove" onclick="removeRow(this)"><i class="fa fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeRow(btn) {
+            const rows = document.querySelectorAll('.time-input-row');
+            if (rows.length > 1) { 
+                btn.closest('.sub-link').remove(); 
+            } else { 
+                const inputs = btn.closest('.sub-link').querySelectorAll('input'); 
+                inputs.forEach(i => i.value = ''); 
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('rowsContainer').innerHTML = '';
+            addRow(); 
+            addRow();
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function calculateTime() {
+            let totalSeconds = 0;
+            const rows = document.querySelectorAll('.time-input-row');
+            let entries = 0;
+
+            rows.forEach(row => {
+                const h = parseInt(row.querySelector('.h-input').value) || 0;
+                const m = parseInt(row.querySelector('.m-input').value) || 0;
+                const s = parseInt(row.querySelector('.s-input').value) || 0;
+                if(h > 0 || m > 0 || s > 0) entries++;
+                totalSeconds += (h * 3600) + (m * 60) + s;
+            });
+
+            if(totalSeconds === 0) {
+                alert("Please enter at least one duration.");
+                return;
+            }
+
+            const hOut = Math.floor(totalSeconds / 3600);
+            const mOut = Math.floor((totalSeconds % 3600) / 60);
+            const sOut = totalSeconds % 60;
+
+            const display = `${hOut}:${mOut.toString().padStart(2, '0')}:${sOut.toString().padStart(2, '0')}`;
+            
+            document.getElementById('totalTime').innerText = display;
+            document.getElementById('totalDecimal').innerText = `${hOut}h ${mOut}m ${sOut}s Total`;
+            
+            const resBox = document.getElementById('results');
+            resBox.style.display = 'block';
+            resBox.classList.remove('hidden');
+
+            // Setup Save Logic
+            document.getElementById('save-btn').onclick = () => {
+                if(typeof saveCalculation === 'function') {
+                    saveCalculation('Time Adder', `Summed ${entries} durations`, display);
+                    alert("Time entry saved to History.");
+                }
+            };
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

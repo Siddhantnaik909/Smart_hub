@@ -1,0 +1,11 @@
+{
+  "name": "my-project-root",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npm start --prefix backend"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "socket.io-client": "^4.8.3"
+  }
+}

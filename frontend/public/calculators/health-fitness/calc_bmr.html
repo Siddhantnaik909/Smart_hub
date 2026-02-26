@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | BMR Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-fire-flame-curved"></i> BMR Calculator</h2>
+                            <p>Calculate your Basal Metabolic Rate using the Mifflin-St Jeor Equation.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Gender</span>
+                                <select id="bmrGender" class="form-control">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Age</span>
+                                <input type="number" id="bmrAge" class="form-control" placeholder="Years">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Height (cm)</span>
+                                <input type="number" id="bmrHeight" class="form-control" placeholder="Centimeters">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Weight (kg)</span>
+                                <input type="number" id="bmrWeight" class="form-control" placeholder="Kilograms">
+                            </div>
+                            
+                            <button id="calc-bmr-btn" class="btn-calc">Calculate BMR</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Metabolic Profile</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        
+                        <button id="save-bmr" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-bmr-btn').addEventListener('click', () => {
+            const gender = document.getElementById('bmrGender').value;
+            const age = parseFloat(document.getElementById('bmrAge').value);
+            const height = parseFloat(document.getElementById('bmrHeight').value);
+            const weight = parseFloat(document.getElementById('bmrWeight').value);
+            const resArea = document.getElementById('result-display-area');
+            const resDiv = document.getElementById('results');
+
+            if (!age || !height || !weight) {
+                alert("Please fill in all fields correctly.");
+                return;
+            }
+
+            // Mifflin-St Jeor Equation
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+
+            resArea.innerHTML = `
+                <div class="sub-link">
+                    <span>Base Metabolic Rate</span>
+                    <strong style="color: var(--primary-color); font-size: 1.2rem;">${Math.round(bmr)} kcal/day</strong>
+                </div>
+                <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                    <span style="margin-bottom: 5px;">What this means:</span>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                        This is the energy your body requires to function at complete rest.
+                    </p>
+                </div>
+            `;
+
+            resDiv.style.display = 'block';
+            resDiv.classList.remove('hidden');
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Magic 8-Ball</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .magic-8-ball-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .magic-ball {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, #475569, #0f172a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .magic-ball:active { transform: scale(0.95); }
+        .ball-inner {
+            width: 90px;
+            height: 90px;
+            background: #1e293b;
+            border: 4px solid #334155;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        #ball-display {
+            color: #67e8f9;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 8px rgba(103, 232, 249, 0.5);
+        }
+        .shake-anim {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-crystal-ball"></i> Magic 8-Ball</h2>
+                            <p>Focus on your question and shake the ball for guidance.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Your Question</span>
+                                <input type="text" id="8ball-question" class="form-control" placeholder="Will I strike it rich?">
+                            </div>
+                            
+                            <div class="magic-8-ball-wrapper">
+                                <div class="magic-ball" id="main-ball">
+                                    <div class="ball-inner">
+                                        <span id="ball-display">8</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="shake-btn" class="btn-calc">Ask the Oracle</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>The Oracle Speaks</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-prediction" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Prediction
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const answers = [
+            "It is certain.", "It is decidedly so.", "Without a doubt.", "Yes definitely.",
+            "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.",
+            "Yes.", "Signs point to yes.", "Reply hazy, try again.", "Ask again later.",
+            "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.",
+            "Don't count on it.", "My reply is no.", "My sources say no.",
+            "Outlook not so good.", "Very doubtful."
+        ];
+
+        const shakeBtn = document.getElementById('shake-btn');
+        const ball = document.getElementById('main-ball');
+        const display = document.getElementById('ball-display');
+        const results = document.getElementById('results');
+        const resArea = document.getElementById('result-display-area');
+
+        shakeBtn.addEventListener('click', () => {
+            const question = document.getElementById('8ball-question').value.trim();
+            
+            if (!question) {
+                alert("Please ask a question first!");
+                return;
+            }
+
+            // Animation
+            ball.classList.add('shake-anim');
+            display.style.opacity = '0';
+            
+            setTimeout(() => {
+                const randomIdx = Math.floor(Math.random() * answers.length);
+                const answer = answers[randomIdx];
+                
+                display.textContent = "●";
+                display.style.opacity = '1';
+                ball.classList.remove('shake-anim');
+
+                // Reveal Result Card
+                resArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Question</span>
+                        <span style="font-style: italic;">"${question}"</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Answer</span>
+                        <strong style="color: var(--primary-color);">${answer}</strong>
+                    </div>
+                `;
+                
+                results.style.display = 'block';
+                results.classList.remove('hidden');
+            }, 600);
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

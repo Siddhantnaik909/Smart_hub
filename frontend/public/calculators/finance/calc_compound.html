@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Dual-Engine Wealth Architect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-vault"></i> Dual-Engine Wealth Architect</h2>
+                            <p>Calculate static principal growth and dynamic recurring investments in one place.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 10px;">
+                                <span style="font-weight: bold; color: var(--accent-cyan);"><i class="fa-solid fa-piggy-bank"></i> 1. Static Principal (Normal)</span>
+                            </div>
+                            <div class="sub-link">
+                                <span>Initial Investment Amount</span>
+                                <input type="number" id="principal" class="form-control" placeholder="e.g. 5000">
+                            </div>
+
+                            <div class="sub-link" style="background: rgba(255,255,255,0.03); border-radius: 8px; margin-top: 15px; margin-bottom: 10px;">
+                                <span style="font-weight: bold; color: var(--accent-cyan);"><i class="fa-solid fa-hand-holding-dollar"></i> 2. Recurring Contribution</span>
+                            </div>
+                            <div class="sub-link">
+                                <span>Add Money Every Period</span>
+                                <input type="number" id="contribution" class="form-control" placeholder="e.g. 200">
+                            </div>
+                            <div class="sub-link">
+                                <span>Frequency of Contribution</span>
+                                <select id="frequency" class="form-control">
+                                    <option value="365">Daily</option>
+                                    <option value="12" selected>Monthly</option>
+                                    <option value="1">Yearly</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link" style="background: rgba(255,255,255,0.03); border-radius: 8px; margin-top: 15px; margin-bottom: 10px;">
+                                <span style="font-weight: bold; color: var(--accent-cyan);"><i class="fa-solid fa-sliders"></i> 3. Shared Parameters</span>
+                            </div>
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Annual Rate (%)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="7.5" step="0.1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Investment Period (Years)</span>
+                                <input type="number" id="years" class="form-control" placeholder="15">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="calculateGrowth()">Generate Financial Model</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Growth Analysis Report</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-gem"></i> Wealth Hack</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Strategy
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function calculateGrowth() {
+            const P = parseFloat(document.getElementById('principal').value) || 0;
+            const PMT = parseFloat(document.getElementById('contribution').value) || 0;
+            const freq = parseFloat(document.getElementById('frequency').value);
+            const r = parseFloat(document.getElementById('rate').value) / 100;
+            const t = parseFloat(document.getElementById('years').value);
+            const currencyCode = document.getElementById('currency').value;
+            
+            if (!t || (P <= 0 && PMT <= 0)) {
+                alert("Please enter a timeframe and at least one investment amount.");
+                return;
+            }
+
+            // Calculations
+            const n = freq; // Compounding frequency matches contribution frequency for maximum accuracy
+            const totalPeriods = n * t;
+            const periodicRate = r / n;
+
+            // Engine 1: Principal Growth
+            const fvPrincipal = P * Math.pow(1 + periodicRate, totalPeriods);
+            
+            // Engine 2: Contribution Growth (Future Value of Annuity)
+            const fvAnnuity = PMT * (Math.pow(1 + periodicRate, totalPeriods) - 1) / periodicRate;
+            
+            const totalWealth = fvPrincipal + fvAnnuity;
+            const totalInvested = P + (PMT * totalPeriods);
+            const totalInterest = totalWealth - totalInvested;
+
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currencyCode,
+            });
+
+            const resArea = document.getElementById('result-display-area');
+            resArea.innerHTML = `
+                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 20px 0;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Projected Portfolio Value</span>
+                    <strong style="font-size: 2.2rem; color: var(--accent-cyan);">${formatter.format(totalWealth)}</strong>
+                </div>
+                <div class="sub-link"><span>Value from Principal</span><strong>${formatter.format(fvPrincipal)}</strong></div>
+                <div class="sub-link"><span>Value from Contributions</span><strong>${formatter.format(fvAnnuity)}</strong></div>
+                <div class="sub-link"><span>Total Capital Invested</span><strong>${formatter.format(totalInvested)}</strong></div>
+                <div class="sub-link"><span>Total Interest Earned</span><strong style="color: #10b981;">${formatter.format(totalInterest)}</strong></div>
+            `;
+
+            // Dynamic Tip
+            const freqWord = freq === 365 ? 'daily' : (freq === 12 ? 'monthly' : 'yearly');
+            const interestPercentage = ((totalInterest / totalWealth) * 100).toFixed(1);
+            
+            document.getElementById('pro-tip').innerHTML = `Over <strong>${t} years</strong>, your ${freqWord} discipline resulted in interest making up <strong>${interestPercentage}%</strong> of your wealth. This highlights how small, frequent additions are often more powerful than a large initial lump sum!`;
+
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Programmer Logic Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-microchip"></i> Programmer Logic Pro</h2>
+                            <p>Multi-base system converter with support for 64-bit integers and bitwise analysis.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Decimal (DEC)</span>
+                                <input type="text" id="dec" class="form-control" placeholder="0" oninput="convertFrom('dec')">
+                            </div>
+                            <div class="sub-link">
+                                <span>Hexadecimal (HEX)</span>
+                                <input type="text" id="hex" class="form-control" placeholder="0x0" style="text-transform: uppercase;" oninput="convertFrom('hex')">
+                            </div>
+                            <div class="sub-link">
+                                <span>Octal (OCT)</span>
+                                <input type="text" id="oct" class="form-control" placeholder="0" oninput="convertFrom('oct')">
+                            </div>
+                            <div class="sub-link">
+                                <span>Binary (BIN)</span>
+                                <input type="text" id="bin" class="form-control" placeholder="0000" oninput="convertFrom('bin')">
+                            </div>
+                            
+                            <button class="btn-calc" onclick="clearAll()" style="margin-top: 10px; background: var(--bg-main); opacity: 0.8;">
+                                <i class="fa-solid fa-eraser"></i> Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Bitwise Analysis</h3>
+                        
+                        
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-terminal"></i> Debugger Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Constants
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function convertFrom(type) {
+            let input = document.getElementById(type).value.trim();
+            const resCard = document.getElementById('results');
+            const resArea = document.getElementById('result-display-area');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (!input) {
+                clearAll();
+                return;
+            }
+
+            try {
+                let dec;
+                // Using BigInt for professional 64-bit support
+                if (type === 'dec') dec = BigInt(input);
+                else if (type === 'hex') dec = BigInt('0x' + input.replace(/^0x/i, ''));
+                else if (type === 'oct') dec = BigInt('0o' + input.replace(/^0o/i, ''));
+                else if (type === 'bin') dec = BigInt('0b' + input.replace(/^0b/i, ''));
+
+                // Update Fields
+                if (type !== 'dec') document.getElementById('dec').value = dec.toString(10);
+                if (type !== 'hex') document.getElementById('hex').value = dec.toString(16).toUpperCase();
+                if (type !== 'oct') document.getElementById('oct').value = dec.toString(8);
+                if (type !== 'bin') document.getElementById('bin').value = dec.toString(2);
+
+                // Show Advanced Analysis
+                resCard.style.display = 'block';
+                resCard.classList.remove('hidden');
+
+                const binStr = dec.toString(2).padStart(8, '0');
+                const bitCount = binStr.length;
+
+                resArea.innerHTML = `
+                    <div class="sub-link"><span>Total Bits</span><strong>${bitCount}-bit</strong></div>
+                    <div class="sub-link"><span>2's Complement (8-bit)</span><strong>${(BigInt.asIntN(8, dec)).toString(10)}</strong></div>
+                    <div class="sub-link"><span>Byte Length</span><strong>${Math.ceil(bitCount / 8)} Bytes</strong></div>
+                `;
+
+                tipArea.innerHTML = `Each Hex digit represents exactly <strong>4 bits</strong> (a nibble). To quickly convert, break binary into groups of four: <code>${binStr.slice(-4)}</code> is <code>0x${dec.toString(16).toUpperCase().slice(-1)}</code>.`;
+
+            } catch (e) {
+                // Ignore incomplete inputs while typing
+            }
+        }
+
+        function clearAll() {
+            ['dec', 'hex', 'oct', 'bin'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

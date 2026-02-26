@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Number Guesser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .guess-feedback {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 12px;
+            background: var(--bg-card-2);
+            transition: all 0.3s;
+        }
+
+        .feedback-high {
+            color: #f97316;
+            border: 2px solid #f97316;
+        }
+
+        .feedback-low {
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .feedback-win {
+            color: #10b981;
+            border: 2px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .guess-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .history-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in">
+                    <!-- MULTIPLAYER STATUS -->
+                    <div id="mp-lobby-container" class="cat-card"
+                        style="display: none; margin-bottom: 20px; border: 2px dashed var(--primary-color);">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-globe"></i> Online Multiplayer</h2>
+                            <p>You are connected via Hub Server.</p>
+                        </div>
+                        <div id="mp-active-view"
+                            style="padding: 15px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary-color); display:flex; justify-content:space-between; align-items:center;">
+                            <div><span style="font-size:0.8rem; opacity:0.7;">ROOM CODE</span><br><strong
+                                    style="font-size:1.5rem;" id="mp-active-code"></strong></div>
+                            <div style="text-align:right;"><span
+                                    style="font-size:0.8rem; opacity:0.7;">OPPONENT</span><br><strong
+                                    style="font-size:1.2rem; color: var(--accent-green);"
+                                    id="mp-opponent-name">Waiting... <i class="fa fa-spinner fa-spin"></i></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cat-card">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-clipboard-question"></i> Number Guesser Pro</h2>
+                            <p>I am thinking of a number between 1 and 100. Let's see how fast you can find it.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Your Current Guess</span>
+                                <input type="number" id="user-guess" class="form-control" placeholder="Enter 1-100"
+                                    min="1" max="100">
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button id="guess-btn" class="btn-calc" onclick="makeGuess()" style="flex: 1;">Submit
+                                    Guess</button>
+                                <button id="reset-game-btn" class="btn-secondary" onclick="resetGame()"
+                                    style="flex: 0.5;">Restart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card hidden" style="display: none; margin-top: 20px;">
+                        <h3>Observation Deck</h3>
+
+                        <div id="feedback-display" class="guess-feedback">Awaiting Guess</div>
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Total Attempts</span>
+                                <strong id="attempt-counter">0</strong>
+                            </div>
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span style="margin-bottom: 5px; opacity: 0.7;">Guess Pipeline</span>
+                                <div id="guess-history-area" class="guess-history">
+                                    <span class="history-pill">No guesses yet</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sub-link"
+                            style="background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; margin-top: 15px; padding: 15px;">
+                            <span style="color: #3b82f6; font-weight: bold;"><i class="fa-solid fa-brain"></i> Strategy
+                                Tip</span>
+                            <p style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">Use a binary search
+                                strategy! Always guess the exact middle of the remaining possible range to slice your
+                                probability pool in half every time.</p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save Match Log
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        let targetNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        let pastGuesses = [];
+        let gameWon = false;
+
+        // Multiplayer State
+        let mpClient = null;
+        let isMultiplayer = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.MultiplayerClient) {
+                mpClient = new window.MultiplayerClient("Number Guesser",
+                    (players) => { // On Player Joined
+                        const opp = players.find(p => p.id !== mpClient.socket.id);
+                        if (opp) {
+                            document.getElementById('mp-lobby-container').style.display = 'block';
+                            document.getElementById('mp-active-code').textContent = mpClient.roomCode;
+                            document.getElementById('mp-opponent-name').innerHTML = `${opp.username}`;
+                            isMultiplayer = true;
+
+                            if (mpClient.isHost) {
+                                mpClient.sendAction('sync_target', targetNumber); // Keep game fair
+                            }
+                        } else {
+                            // We created the room, waiting for someone to join
+                            document.getElementById('mp-lobby-container').style.display = 'block';
+                            document.getElementById('mp-active-code').textContent = mpClient.roomCode;
+                            document.getElementById('mp-opponent-name').innerHTML = `Waiting... <i class="fa fa-spinner fa-spin"></i>`;
+                            isMultiplayer = true;
+                        }
+                    },
+                    (data) => { // On Opponent Action
+                        if (data.action === 'sync_target') {
+                            targetNumber = data.payload;
+                        }
+                        if (data.action === 'opponent_won') {
+                            gameWon = true;
+                            const feedbackUI = document.getElementById('feedback-display');
+                            feedbackUI.innerText = "Opponent Won! Num =" + targetNumber;
+                            feedbackUI.className = 'guess-feedback feedback-high';
+                            const resCard = document.getElementById('results');
+                            resCard.style.display = 'block';
+                            resCard.classList.remove('hidden');
+                        }
+                    },
+                    (data) => { // On Opponent Left
+                        alert(data.message);
+                        location.reload();
+                    }
+                );
+            }
+        });
+
+        document.getElementById('user-guess').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') makeGuess();
+        });
+
+        function makeGuess() {
+            if (gameWon) return; // Prevent playing after win
+
+            const guessInput = document.getElementById('user-guess');
+            const guess = parseInt(guessInput.value);
+            const resCard = document.getElementById('results');
+            const feedbackUI = document.getElementById('feedback-display');
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                alert("Please enter a valid number between 1 and 100.");
+                return;
+            }
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            attempts++;
+            pastGuesses.push(guess);
+
+            // Clean slate classes
+            feedbackUI.className = 'guess-feedback';
+
+            if (guess === targetNumber) {
+                feedbackUI.innerText = "Target Eliminated! 🎯";
+                feedbackUI.classList.add('feedback-win');
+                gameWon = true;
+
+                if (isMultiplayer && mpClient) {
+                    mpClient.sendAction('opponent_won', true);
+                }
+
+                // Expose to calculators.js global history engine
+                if (window.setLastCalc) {
+                    window.setLastCalc("Number Guesser", `Target: ${targetNumber}`, `Guessed in ${attempts} tries`);
+                }
+            } else if (guess > targetNumber) {
+                feedbackUI.innerText = "Too High! 🔻";
+                feedbackUI.classList.add('feedback-high');
+            } else {
+                feedbackUI.innerText = "Too Low! 🔺";
+                feedbackUI.classList.add('feedback-low');
+            }
+
+            document.getElementById('attempt-counter').innerText = attempts;
+            document.getElementById('guess-history-area').innerHTML = pastGuesses.map(g => `<span class="history-pill">${g}</span>`).join('');
+
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        function resetGame() {
+            targetNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            pastGuesses = [];
+            gameWon = false;
+
+            document.getElementById('user-guess').value = '';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('feedback-display').innerText = 'Awaiting Guess';
+            document.getElementById('feedback-display').className = 'guess-feedback';
+            document.getElementById('attempt-counter').innerText = '0';
+            document.getElementById('guess-history-area').innerHTML = '<span class="history-pill">No guesses yet</span>';
+        }
+    </script>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="/js/multiplayerClient.js"></script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

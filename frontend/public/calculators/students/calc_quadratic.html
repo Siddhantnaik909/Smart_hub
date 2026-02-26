@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Quadratic Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-square-root-variable"></i> Quadratic Equation Solver</h2>
+                            <p>Solve for x in the form: $ax^2 + bx + c = 0$</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Coefficient (a)</span>
+                                <input type="number" id="valA" class="form-control" placeholder="e.g. 1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Coefficient (b)</span>
+                                <input type="number" id="valB" class="form-control" placeholder="e.g. -5">
+                            </div>
+                            <div class="sub-link">
+                                <span>Coefficient (c)</span>
+                                <input type="number" id="valC" class="form-control" placeholder="e.g. 6">
+                            </div>
+
+                            <button id="calc-quadratic-btn" class="btn-calc">Solve Equation</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Calculated Roots</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                        </div>
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Calculation
+                        </button>
+                    </div>
+
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <h3><i class="fa-solid fa-book-open"></i> Understanding the Formula</h3>
+
+                        <p style="margin-top: 15px; font-size: 0.9rem; line-height: 1.5;">
+                            The solution uses the standard quadratic formula:
+                            $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+                            The value inside the square root ($b^2 - 4ac$) is known as the
+                            <strong>Discriminant</strong>.
+                        </p>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('calc-quadratic-btn');
+            const resultsDiv = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            btn.addEventListener('click', () => {
+                const a = parseFloat(document.getElementById('valA').value);
+                const b = parseFloat(document.getElementById('valB').value);
+                const c = parseFloat(document.getElementById('valC').value);
+
+                if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                    alert("Please enter valid numbers for all coefficients.");
+                    return;
+                }
+
+                if (a === 0) {
+                    alert("Coefficient 'a' cannot be zero in a quadratic equation.");
+                    return;
+                }
+
+                const discriminant = (b * b) - (4 * a * c);
+                let resHtml = '';
+
+                if (discriminant > 0) {
+                    const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                    const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                    resHtml = `
+                        <div class="sub-link"><span>Root x₁ (Real)</span><strong>${x1.toFixed(4)}</strong></div>
+                        <div class="sub-link"><span>Root x₂ (Real)</span><strong>${x2.toFixed(4)}</strong></div>
+                        <div class="sub-link"><span>Discriminant (D)</span><strong>${discriminant}</strong></div>
+                    `;
+                } else if (discriminant === 0) {
+                    const x = -b / (2 * a);
+                    resHtml = `
+                        <div class="sub-link"><span>Root x (Repeated)</span><strong>${x.toFixed(4)}</strong></div>
+                        <div class="sub-link"><span>Discriminant (D)</span><strong>0</strong></div>
+                    `;
+                } else {
+                    const realPart = (-b / (2 * a)).toFixed(4);
+                    const imaginaryPart = (Math.sqrt(-discriminant) / (2 * a)).toFixed(4);
+                    resHtml = `
+                        <div class="sub-link"><span>Root x₁ (Complex)</span><strong>${realPart} + ${imaginaryPart}i</strong></div>
+                        <div class="sub-link"><span>Root x₂ (Complex)</span><strong>${realPart} - ${imaginaryPart}i</strong></div>
+                        <div class="sub-link"><span>Discriminant (D)</span><strong>${discriminant}</strong></div>
+                    `;
+                }
+
+                displayArea.innerHTML = resHtml;
+                resultsDiv.style.display = 'block';
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+                if (window.setLastCalc) {
+                    window.setLastCalc("Quadratic Solver", `Eq: ${a}x² + ${b}x + ${c} = 0`, `Roots Found: D=${discriminant}`);
+                }
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

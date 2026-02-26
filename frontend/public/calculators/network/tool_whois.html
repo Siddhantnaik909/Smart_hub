@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Whois</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-address-book"></i> Advanced Whois Lookup</h2>
+                            <p>Select a mode to retrieve specific registration and ownership data.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Lookup Mode</span>
+                                <select id="whoisMode" class="form-control" style="background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);">
+                                    <option value="domain">Domain Mode (Ownership)</option>
+                                    <option value="registrar">Registrar Mode (Authority)</option>
+                                    <option value="network">Network Mode (IP/ASN)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Target (Domain/IP)</span>
+                                <input type="text" id="whoisInput" class="form-control" placeholder="example.com or 8.8.8.8">
+                            </div>
+                            
+                            <button id="btn-whois-execute" class="btn-calc">Run Deep Query</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3 id="result-title">Query Results</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Intelligence Report
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('btn-whois-execute').addEventListener('click', async () => {
+            const mode = document.getElementById('whoisMode').value;
+            const target = document.getElementById('whoisInput').value.trim();
+            const displayArea = document.getElementById('result-display-area');
+            const resultsCard = document.getElementById('results');
+            const btn = document.getElementById('btn-whois-execute');
+
+            if(!target) return alert("Please enter a target.");
+
+            btn.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart fa-spin"></i> Querying...';
+            displayArea.innerHTML = '';
+
+            try {
+                // Use RDAP (Registration Data Access Protocol) - The modern, JSON-based successor to WHOIS
+                // Free public endpoint: https://rdap.org/
+                let url = '';
+                if(mode === 'network') {
+                    url = `https://rdap.org/ip/${target}`;
+                } else {
+                    url = `https://rdap.org/domain/${target}`;
+                }
+
+                const response = await fetch(url);
+                if(!response.ok) throw new Error("Lookup failed or target not found.");
+                const data = await response.json();
+                
+                let html = '';
+
+                if(mode === 'network') {
+                    // IP Network Data
+                    const range = (data.startAddress && data.endAddress) ? `${data.startAddress} - ${data.endAddress}` : 'N/A';
+                    const name = data.name || 'N/A';
+                    const type = data.type || 'N/A';
+                    const country = data.country || 'N/A';
+                    
+                    html = `
+                        <div class="sub-link"><span>NetRange</span><strong>${range}</strong></div>
+                        <div class="sub-link"><span>NetName</span><strong>${name}</strong></div>
+                        <div class="sub-link"><span>NetType</span><strong>${type}</strong></div>
+                        <div class="sub-link"><span>Country</span><strong>${country}</strong></div>
+                        <div class="sub-link"><span>Handle</span><strong>${data.handle || 'N/A'}</strong></div>
+                    `; 
+                } else {
+                    // Domain Data
+                    const domainName = data.ldhName || target;
+                    const status = data.status ? data.status[0] : 'Active';
+                    
+                    // Extract Dates
+                    let created = 'N/A', updated = 'N/A', expires = 'N/A';
+                    if (data.events) {
+                        data.events.forEach(e => {
+                            if (e.eventAction === 'registration') created = new Date(e.eventDate).toLocaleDateString();
+                            if (e.eventAction === 'last changed') updated = new Date(e.eventDate).toLocaleDateString();
+                            if (e.eventAction === 'expiration') expires = new Date(e.eventDate).toLocaleDateString();
+                        });
+                    }
+
+                    // Extract Registrar
+                    let registrar = 'N/A';
+                    if (data.entities) {
+                        const regEntity = data.entities.find(e => e.roles && e.roles.includes('registrar'));
+                        if (regEntity && regEntity.vcardArray) {
+                            const fn = regEntity.vcardArray[1].find(x => x[0] === 'fn');
+                            if (fn) registrar = fn[3];
+                        }
+                    }
+
+                    html = `
+                        <div class="sub-link"><span>Domain Name</span><strong>${domainName}</strong></div>
+                        <div class="sub-link"><span>Registrar</span><strong>${registrar}</strong></div>
+                        <div class="sub-link"><span>Status</span><strong>${status}</strong></div>
+                        <div class="sub-link"><span>Updated</span><strong>${updated}</strong></div>
+                        <div class="sub-link"><span>Created</span><strong>${created}</strong></div>
+                        <div class="sub-link"><span>Expires</span><strong>${expires}</strong></div>
+                    `;
+                }
+
+                displayArea.innerHTML = html;
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            } catch (e) {
+                displayArea.innerHTML = `<div class="sub-link"><span>Error</span><strong>${e.message}</strong></div>`;
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            } finally {
+                btn.innerText = "Run Deep Query";
+            }
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+</body>
+</html>

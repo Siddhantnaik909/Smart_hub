@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Admin Command Center</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        // Immediate Auth Check
+        (function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!isLoggedIn || user.role !== 'admin') {
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+    <style>
+        .admin-nav-scroll {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        .admin-nav-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Modal for Editor */
+        #editor-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #editor-modal.active {
+            display: flex;
+        }
+
+        .editor-container {
+            width: 95%;
+            height: 90%;
+            background: #282a36;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="text-center" style="margin: 30px 0;">
+                        <h1><i class="fa-solid fa-user-shield accent-text"></i> Command <span
+                                class="accent-text">Center</span></h1>
+                        <p class="hero-subtitle1">System Version: 2.7.5 | Production Stable</p>
+                    </div>
+
+                    <div class="admin-nav-scroll">
+                        <button class="btn-calc" onclick="switchTab('overview')"><i class="fa-solid fa-chart-line"></i>
+                            Overview</button>
+                        <button class="btn-save" onclick="switchTab('files')"><i class="fa-solid fa-folder-tree"></i>
+                            File Manager</button>
+                        <button class="btn-save" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> User
+                            Access</button>
+                        <button class="btn-save" onclick="switchTab('logs')"><i class="fa-solid fa-terminal"></i> Server
+                            Logs</button>
+                        <button class="btn-save" onclick="switchTab('settings')"><i class="fa-solid fa-gears"></i>
+                            System Settings</button>
+                    </div>
+
+                    <div id="tab-overview" class="tab-content active">
+                        <div class="category-grid">
+                            <article class="cat-card">
+                                <h3>Total Users</h3>
+                                <p id="stat-users"
+                                    style="font-size: 2.5rem; font-weight: 800; color: var(--primary-color);">0</p>
+                            </article>
+                            <article class="cat-card">
+                                <h3>Active Calculators</h3>
+                                <p id="stat-tools"
+                                    style="font-size: 2.5rem; font-weight: 800; color: var(--primary-color);">85</p>
+                            </article>
+                        </div>
+
+                        <div class="cat-card" style="margin-top: 25px;">
+                            <h3>Quick System Actions</h3>
+                            <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn-save" style="background: #10b981;"
+                                    onclick="editFile('css/style.css')"><i class="fa-solid fa-paint-roller"></i> Edit
+                                    Global CSS</button>
+                                <button class="btn-save" style="background: #3b82f6;"
+                                    onclick="editFile('js/script.js')"><i class="fa-solid fa-code"></i> Edit Global
+                                    JS</button>
+                                <button class="btn-save" onclick="triggerSystemAction('clear_cache')"><i
+                                        class="fa-solid fa-broom"></i> Flush Cache</button>
+                                <button class="btn-save" style="background: #f59e0b;"
+                                    onclick="triggerSystemAction('maintenance_toggle')"><i
+                                        class="fa-solid fa-hammer"></i> Maintenance Mode</button>
+                                <button class="btn-save" style="background: #ef4444;"
+                                    onclick="triggerSystemAction('restart_services')"><i
+                                        class="fa-solid fa-power-off"></i> Reboot API</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-files" class="tab-content">
+                        <div class="cat-card">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h2>File Manager</h2>
+                                <div>
+                                    <button class="btn-calc" onclick="createFileFolder('file')"
+                                        style="padding: 6px 12px;"><i class="fa-solid fa-plus"></i> File</button>
+                                    <button class="btn-calc" onclick="createFileFolder('folder')"
+                                        style="padding: 6px 12px; margin-left: 5px;"><i
+                                            class="fa-solid fa-folder-plus"></i> Folder</button>
+                                    <button class="btn-calc" onclick="fetchAssetFiles()"
+                                        style="padding: 6px 12px; margin-left: 5px;"><i class="fa-solid fa-rotate"></i>
+                                        Sync</button>
+                                </div>
+                            </div>
+                            <div id="file-manager-path"
+                                style="padding: 10px; background: var(--border-color); border-radius: 6px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; font-weight: bold; overflow-x: auto;">
+                                /.</div>
+                            <div id="file-manager-container">
+                                <p class="text-center">Loading server directory...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-logs" class="tab-content">
+                        <div class="cat-card">
+                            <h2>Live Server Logs</h2>
+                            <div id="server-logs-output"
+                                style="background: #1e1e2e; color: #a6e22e; padding: 20px; border-radius: 8px; font-family: monospace; height: 400px; overflow-y: auto; margin-top: 15px;">
+                                [System] Connection established. Listening for log stream...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-users" class="tab-content">
+                        <div class="cat-card">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2><i class="fa-solid fa-users"></i> User Management</h2>
+                                <button class="btn-calc" onclick="fetchUsers()"><i class="fa-solid fa-rotate"></i>
+                                    Refresh</button>
+                            </div>
+                            <div id="users-list-container">
+                                <p class="text-center" style="color: var(--text-muted);">Users overview module coming
+                                    soon.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-settings" class="tab-content">
+                        <div class="cat-card" style="animation: slideIn 0.3s ease;">
+                            <h2><i class="fa-solid fa-gears"></i> Application Settings</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 20px;">Manage global application settings
+                                applied across all users.</p>
+
+                            <div style="display: grid; gap: 20px;">
+                                <div
+                                    style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <div>
+                                        <h4 style="margin: 0;">Global Dark Mode</h4>
+                                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                            Force dark mode as default for all visitors.</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="setting-dark-mode" onchange="saveGlobalSettings()">
+                                        <div class="slider"></div>
+                                    </label>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <div>
+                                        <h4 style="margin: 0;">Maintenance Mode</h4>
+                                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                            Restrict access to non-admin users.</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="setting-maintenance" onchange="saveGlobalSettings()">
+                                        <div class="slider"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="editor-modal">
+        <div class="editor-container">
+            <div
+                style="padding: 15px; background: #191a21; display: flex; justify-content: space-between; align-items: center;">
+                <span id="editor-filename" style="color: #6272a4; font-weight: bold;">editor.html</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-calc" style="padding: 5px 15px; background: #f59e0b;"
+                        onclick="restorePageDefault()">Restore Default</button>
+                    <button class="btn-calc" style="padding: 5px 15px;" onclick="savePageChanges()">Save &
+                        Deploy</button>
+                    <button class="btn-save" style="padding: 5px 15px; background: #ff5555;"
+                        onclick="closeEditor()">Close</button>
+                </div>
+            </div>
+            <textarea id="code-editor"></textarea>
+        </div>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        // API Configuration
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+            ? 'http://localhost:3000'
+            : 'https://smart-calculator-hub.onrender.com';
+
+        // Global State
+        let editorInstance = null;
+        let currentEditingFile = null;
+        let logInterval = null;
+
+        // Helper to handle auth errors globally
+        async function secureFetch(url, options = {}) {
+            const res = await fetch(url, options);
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/login.html';
+                throw new Error("Unauthorized access");
+            }
+            return res;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CodeMirror
+            const editorElement = document.getElementById('code-editor');
+            if (editorElement) {
+                editorInstance = CodeMirror.fromTextArea(editorElement, {
+                    lineNumbers: true,
+                    mode: 'htmlmixed',
+                    theme: 'dracula',
+                    lineWrapping: true
+                });
+            }
+
+            // Load initial stats
+            fetchSystemStats();
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Clear intervals if leaving logs tab
+            if (tabId !== 'logs' && logInterval) {
+                clearInterval(logInterval);
+                logInterval = null;
+            }
+
+            // Trigger specific data loads
+            if (tabId === 'files') fetchAssetFiles();
+            if (tabId === 'logs') fetchServerLogs();
+        }
+
+        async function fetchSystemStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (document.getElementById('stat-users')) document.getElementById('stat-users').innerText = data.users || 0;
+                    if (document.getElementById('stat-tools')) document.getElementById('stat-tools').innerText = data.tools || 85;
+                }
+            } catch (e) { console.error("Stats load failed", e); }
+        }
+
+        async function triggerSystemAction(action) {
+            if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action })
+                });
+                const data = await res.json();
+                alert(data.message || 'Action executed');
+            } catch (e) { alert('Action failed: ' + e.message); }
+        }
+
+        let currentAdminDir = '.';
+
+        async function fetchAssetFiles(dir = currentAdminDir) {
+            currentAdminDir = dir;
+            const container = document.getElementById('file-manager-container');
+            const pathDisplay = document.getElementById('file-manager-path');
+            if (!container) return;
+
+            if (pathDisplay) pathDisplay.innerText = '/' + currentAdminDir;
+            container.innerHTML = '<p class="text-center"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</p>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files?dir=${encodeURIComponent(currentAdminDir)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch files");
+                const files = await res.json();
+
+                if (!Array.isArray(files)) throw new Error("Invalid response");
+
+                container.innerHTML = files.map(file => `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; align-items: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <span style="cursor: ${file.isDir ? 'pointer' : 'default'}; flex: 1;" onclick="${file.isDir ? `fetchAssetFiles('${file.path.replace(/\\/g, '\\\\')}')` : ''}">
+                            <i class="fa-solid ${file.isDir ? 'fa-folder' : 'fa-file-code'}" style="color: ${file.isDir ? '#f59e0b' : 'inherit'}; width: 25px;"></i> 
+                            <span style="${file.name === '..' ? 'font-weight:bold; color:#6366f1;' : ''}">${file.name}</span>
+                        </span>
+                        <div style="display:flex; gap: 5px;">
+                            ${!file.isDir && file.name !== '..' ? `<button class="btn-save" style="padding: 4px 10px; font-size: 11px; margin:0;" onclick="editFile('${file.path.replace(/\\/g, '\\\\')}')"><i class="fas fa-edit"></i> Edit</button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Rename/Move" onclick="renameFile('${file.path.replace(/\\/g, '\\\\')}', '${file.name}')"><i class="fas fa-random"></i></button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Copy" onclick="copyFile('${file.path.replace(/\\/g, '\\\\')}')"><i class="fas fa-copy"></i></button>` : ''}
+                            ${file.name !== '..' ? `<button class="btn-danger" style="padding: 4px 10px; font-size: 11px; margin:0;" title="Delete" onclick="deleteFile('${file.path.replace(/\\/g, '\\\\')}', ${file.isDir})"><i class="fas fa-trash"></i></button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-center" style="color: #ef4444;">Failed to load files. Ensure backend is running.</p>';
+            }
+        }
+
+        async function createFileFolder(type) {
+            const name = prompt(`Enter ${type} name:`);
+            if (!name) return;
+            const fullPath = currentAdminDir === '.' ? name : `${currentAdminDir}/${name}`;
+
+            try {
+                const token = localStorage.getItem('token');
+                if (type === 'folder') {
+                    await secureFetch(`${API_URL}/api/admin/files/folder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ path: fullPath })
+                    });
+                } else {
+                    await secureFetch(`${API_URL}/api/admin/files/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ path: fullPath, content: '' })
+                    });
+                }
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function renameFile(oldPath, oldName) {
+            const newName = prompt('Enter new path/name:', oldPath);
+            if (!newName || newName === oldPath) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ oldPath, newPath: newName })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function copyFile(sourcePath) {
+            const targetPath = prompt('Enter destination path/name:', sourcePath + '_copy');
+            if (!targetPath || targetPath === sourcePath) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/copy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ source: sourcePath, target: targetPath })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function deleteFile(path, isDir) {
+            if (!confirm(`Are you sure you want to delete ${isDir ? 'folder and its contents' : 'file'} "${path}"?`)) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/files/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ path })
+                });
+                fetchAssetFiles(currentAdminDir);
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function editFile(filePath) {
+            currentEditingFile = filePath;
+            const filenameDisplay = document.getElementById('editor-filename');
+            if (filenameDisplay) filenameDisplay.innerText = filePath;
+
+            document.getElementById('editor-modal').classList.add('active');
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/content?path=${encodeURIComponent(filePath)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Failed to load content");
+                const content = await res.text();
+                if (editorInstance) {
+                    editorInstance.setValue(content);
+                    setTimeout(() => editorInstance.refresh(), 100);
+                }
+            } catch (e) {
+                alert("Could not load file content");
+                closeEditor();
+            }
+        }
+
+        async function savePageChanges() {
+            if (!currentEditingFile || !editorInstance) return;
+            const content = editorInstance.getValue();
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ path: currentEditingFile, content })
+                });
+
+                if (res.ok) {
+                    alert("File saved successfully!");
+                    closeEditor();
+                } else {
+                    throw new Error("Save failed");
+                }
+            } catch (e) { alert(e.message); }
+        }
+
+        function closeEditor() {
+            document.getElementById('editor-modal').classList.remove('active');
+            currentEditingFile = null;
+            if (editorInstance) editorInstance.setValue('');
+        }
+
+        async function restorePageDefault() {
+            if (!currentEditingFile) return;
+            if (!confirm(`Are you sure you want to restore "${currentEditingFile}" to its core original unedited state? This will wipe recent changes.`)) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/files/restore`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ path: currentEditingFile })
+                });
+
+                if (res.ok) {
+                    alert("System file successfully restored to default!");
+                    editFile(currentEditingFile); // Reload
+                } else {
+                    const error = await res.json();
+                    alert(error.error || "Failed to restore.");
+                }
+            } catch (e) { alert("Error connecting to server restore sequence."); }
+        }
+
+        async function fetchUsers() {
+            const container = document.getElementById('users-list-container');
+            if (!container) return;
+            container.innerHTML = '<p class="text-center"><i class="fa-solid fa-spinner fa-spin"></i> Loading users from database...</p>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await secureFetch(`${API_URL}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error("Failed to load users");
+                const users = await res.json();
+
+                container.innerHTML = `
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                                        <th style="padding: 10px;">Username</th>
+                                        <th style="padding: 10px;">Email</th>
+                                        <th style="padding: 10px;">Role</th>
+                                        <th style="padding: 10px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${users.map(u => `
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <td style="padding: 10px; font-weight: bold;">${u.username}</td>
+                                            <td style="padding: 10px; color: var(--text-muted);">${u.email}</td>
+                                            <td style="padding: 10px;">
+                                                <select onchange="updateUserRole('${u._id}', this.value)" style="padding:4px; font-size:0.85rem; border-radius:4px; background:var(--bg-main); color:var(--text-header); border:1px solid var(--border-color);">
+                                                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>User (Std)</option>
+                                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 10px;">
+                                                <button class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem; background: #ef4444; flex-shrink: 0;" onclick="deleteUser('${u._id}', '${u.username}')"><i class="fas fa-trash"></i> Delete User</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                `;
+            } catch (e) {
+                container.innerHTML = '<p class="text-center" style="color: #ef4444;">Failed to load users. Connection Error.</p>';
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ role: newRole })
+                });
+                showGlobalToast("User permission level instantly updated!", "success");
+            } catch (e) { alert("Failed to update role"); fetchUsers(); }
+        }
+
+        async function deleteUser(userId, username) {
+            if (!confirm(`WARNING: CRITICAL DELETION. Are you positive you want to completely erase the account for [ ${username} ]?`)) return;
+            try {
+                const token = localStorage.getItem('token');
+                await secureFetch(`${API_URL}/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                showGlobalToast("User fully purged from database.", "info");
+                fetchUsers();
+            } catch (e) { alert("Failed to delete user"); }
+        }
+
+        async function saveGlobalSettings() {
+            const isDarkMode = document.getElementById('setting-dark-mode').checked;
+            const isMaintenance = document.getElementById('setting-maintenance').checked;
+
+            try {
+                // In a real scenario, this would POST to /api/admin/settings
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                if (isDarkMode) document.body.classList.add('dark-mode');
+                else document.body.classList.remove('dark-mode');
+
+                alert('Settings saved successfully! Changes applied.');
+            } catch (e) {
+                alert('Failed to save settings.');
+            }
+        }
+
+        function fetchServerLogs() {
+            const output = document.getElementById('server-logs-output');
+            if (!output) return;
+
+            if (logInterval) clearInterval(logInterval);
+
+            const loadLogs = async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await secureFetch(`${API_URL}/api/admin/logs`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const logs = await res.text();
+                        output.innerText = logs || "No recent logs.";
+                        output.scrollTop = output.scrollHeight;
+                    }
+                } catch (e) { output.innerText = "Error connecting to log stream."; }
+            };
+
+            loadLogs();
+            logInterval = setInterval(loadLogs, 5000);
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

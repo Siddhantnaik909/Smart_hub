@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Decision Architect Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .coin-container {
+            perspective: 1000px;
+            width: 140px;
+            height: 140px;
+            margin: 20px auto;
+        }
+        .coin-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .coin-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: 5px solid var(--accent-cyan);
+            background: radial-gradient(circle at 30% 30%, var(--bg-card-2), var(--bg-main));
+            box-shadow: inset 0 0 20px rgba(0, 255, 242, 0.2);
+        }
+        .heads { transform: rotateY(0deg); color: var(--accent-cyan); }
+        .tails { transform: rotateY(180deg); color: var(--primary-color); border-color: var(--primary-color); }
+        
+        @keyframes flip-heads { 
+            0% { transform: rotateY(0) scale(1) translateY(0); }
+            50% { transform: rotateY(1080deg) scale(1.5) translateY(-150px); }
+            100% { transform: rotateY(2160deg) scale(1) translateY(0); }
+        }
+        @keyframes flip-tails { 
+            0% { transform: rotateY(0) scale(1) translateY(0); }
+            50% { transform: rotateY(1260deg) scale(1.5) translateY(-150px); }
+            100% { transform: rotateY(2340deg) scale(1) translateY(0); }
+        }
+        .animate-heads { animation: flip-heads 1.5s forwards; }
+        .animate-tails { animation: flip-tails 1.5s forwards; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-shuffle"></i> Decision Architect Pro</h2>
+                            <p>Customized coin flipping for probability analysis and binary decision making.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Label for "Heads"</span>
+                                <input type="text" id="label-heads" class="form-control" value="Yes" maxlength="10">
+                            </div>
+                            <div class="sub-link">
+                                <span>Label for "Tails"</span>
+                                <input type="text" id="label-tails" class="form-control" value="No" maxlength="10">
+                            </div>
+                            <div class="sub-link">
+                                <span>Batch Size</span>
+                                <select id="coin-count" class="form-control">
+                                    <option value="1">Single Decision</option>
+                                    <option value="5">Probability Batch (5)</option>
+                                    <option value="10">Statistical Batch (10)</option>
+                                </select>
+                            </div>
+                            
+                            <button id="flip-btn" class="btn-calc">Initiate Randomization</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Simulation Outcome</h3>
+                        
+                        <div id="coin-display-area" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 20px;">
+                            </div>
+
+                        
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span id="text-heads">Yes</span> Counts
+                                <strong id="heads-count">0</strong>
+                            </div>
+                            <div class="sub-link">
+                                <span id="text-tails">No</span> Counts
+                                <strong id="tails-count">0</strong>
+                            </div>
+                            <div class="sub-link" style="border-top: 1px solid var(--border-color); margin-top: 10px; padding-top: 15px;">
+                                <span>Session Bias</span>
+                                <strong id="bias-indicator">Neutral</strong>
+                            </div>
+                        </div>
+
+                        <div class="sub-link" style="background: rgba(168, 85, 247, 0.05); border-left: 4px solid #a855f7; margin-top: 15px; padding: 15px;">
+                            <span style="color: #a855f7; font-weight: bold;"><i class="fa-solid fa-microchip"></i> Randomness Logic</span>
+                            <p style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">
+                                This simulator uses <strong>Math.random()</strong>, which relies on a pseudo-random seed to generate high-entropy outcomes, mimicking physical quantum-level uncertainty.
+                            </p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Log Results
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let globalStats = { heads: 0, tails: 0 };
+
+        document.getElementById('flip-btn').addEventListener('click', function() {
+            const count = parseInt(document.getElementById('coin-count').value);
+            const headLabel = document.getElementById('label-heads').value.toUpperCase();
+            const tailLabel = document.getElementById('label-tails').value.toUpperCase();
+            const displayArea = document.getElementById('coin-display-area');
+            const resultCard = document.getElementById('results');
+            
+            displayArea.innerHTML = '';
+            resultCard.style.display = 'block';
+            resultCard.classList.remove('hidden');
+
+            for (let i = 0; i < count; i++) {
+                const isHeads = Math.random() < 0.5;
+                const coinHtml = `
+                    <div class="coin-container">
+                        <div class="coin-3d ${isHeads ? 'animate-heads' : 'animate-tails'}">
+                            <div class="coin-side heads">${headLabel}</div>
+                            <div class="coin-side tails">${tailLabel}</div>
+                        </div>
+                    </div>
+                `;
+                displayArea.insertAdjacentHTML('beforeend', coinHtml);
+                
+                if (isHeads) globalStats.heads++;
+                else globalStats.tails++;
+            }
+
+            document.getElementById('text-heads').innerText = headLabel;
+            document.getElementById('text-tails').innerText = tailLabel;
+            document.getElementById('heads-count').innerText = globalStats.heads;
+            document.getElementById('tails-count').innerText = globalStats.tails;
+
+            const bias = document.getElementById('bias-indicator');
+            if(globalStats.heads > globalStats.tails) {
+                bias.innerText = `Heavy ${headLabel}`;
+                bias.style.color = 'var(--accent-cyan)';
+            } else if (globalStats.tails > globalStats.heads) {
+                bias.innerText = `Heavy ${tailLabel}`;
+                bias.style.color = 'var(--primary-color)';
+            } else {
+                bias.innerText = "Perfect Equilibrium";
+                bias.style.color = "var(--text-white)";
+            }
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

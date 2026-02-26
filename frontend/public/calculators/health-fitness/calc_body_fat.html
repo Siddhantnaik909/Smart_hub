@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | US Navy Body Fat Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-child-reaching"></i> US Navy Body Fat Analyzer</h2>
+                            <p>Calculate body fat percentage using standard circumferences for fitness assessment.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Biological Gender</span>
+                                <select id="bfGender" class="form-control" onchange="toggleHips()">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Height (cm)</span>
+                                <input type="number" id="bfHeight" class="form-control" placeholder="e.g. 175">
+                            </div>
+                            <div class="sub-link">
+                                <span>Neck Circumference (cm)</span>
+                                <input type="number" id="bfNeck" class="form-control" placeholder="At narrowest point">
+                            </div>
+                            <div class="sub-link">
+                                <span>Waist Circumference (cm)</span>
+                                <input type="number" id="bfWaist" class="form-control" placeholder="At navel level">
+                            </div>
+                            <div class="sub-link" id="bfHipGroup" style="display: none;">
+                                <span>Hip Circumference (cm)</span>
+                                <input type="number" id="bfHip" class="form-control" placeholder="At widest point">
+                            </div>
+                            
+                            <button id="calc-bf-btn" class="btn-calc" onclick="calculateBodyFat()">Analyze Composition</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Body Composition Report</h3>
+                        
+                        <div style="text-align: center; padding: 20px 0;">
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Body Fat</span>
+                            <div id="bfResult" style="font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan);">0.0%</div>
+                            <strong id="bfCategory" style="font-size: 1.2rem; text-transform: uppercase;">-</strong>
+                        </div>
+
+                        
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-tape"></i> Measurement Tip</span>
+                            <p style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">
+                                Pull the tape measure so it sits on the skin surface, but do not compress the soft tissue. Measure on bare skin for the highest precision.
+                            </p>
+                        </div>
+
+                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button id="save-bf-btn" class="btn-save" style="flex: 1;">
+                                <i class="fa-solid fa-save"></i> Save to Log
+                            </button>
+                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
+                                <i class="fa-solid fa-print"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function toggleHips() {
+            const gender = document.getElementById('bfGender').value;
+            document.getElementById('bfHipGroup').style.display = (gender === 'female') ? 'flex' : 'none';
+        }
+
+        function calculateBodyFat() {
+            const gender = document.getElementById('bfGender').value;
+            const h = parseFloat(document.getElementById('bfHeight').value);
+            const n = parseFloat(document.getElementById('bfNeck').value);
+            const w = parseFloat(document.getElementById('bfWaist').value);
+            const hip = parseFloat(document.getElementById('bfHip').value) || 0;
+
+            if (!h || !n || !w || (gender === 'female' && !hip)) {
+                alert("Please fill in all required measurements.");
+                return;
+            }
+
+            let bfp = 0;
+            if (gender === 'male') {
+                bfp = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
+            } else {
+                bfp = 495 / (1.29579 - 0.35004 * Math.log10(w + hip - n) + 0.22100 * Math.log10(h)) - 450;
+            }
+
+            const finalBfp = bfp.toFixed(1);
+            const resCard = document.getElementById('results');
+            const resultDisplay = document.getElementById('bfResult');
+            const catDisplay = document.getElementById('bfCategory');
+            const resArea = document.getElementById('result-display-area');
+
+            // Category Logic (ACE Standards)
+            let category = "";
+            if (gender === 'male') {
+                if (bfp < 6) category = "Essential Fat";
+                else if (bfp < 14) category = "Athlete";
+                else if (bfp < 18) category = "Fitness";
+                else if (bfp < 25) category = "Average";
+                else category = "Obese";
+            } else {
+                if (bfp < 14) category = "Essential Fat";
+                else if (bfp < 21) category = "Athlete";
+                else if (bfp < 25) category = "Fitness";
+                else if (bfp < 32) category = "Average";
+                else category = "Obese";
+            }
+
+            resultDisplay.innerText = finalBfp + "%";
+            catDisplay.innerText = category;
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Methodology</span><strong>U.S. Navy Formula</strong></div>
+                <div class="sub-link"><span>Lean Body Mass</span><strong>${(100 - bfp).toFixed(1)}%</strong></div>
+                <div class="sub-link"><span>Fitness Level</span><strong>${category}</strong></div>
+            `;
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Capacitor Decoder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-microchip"></i> Advanced Capacitor Decoder</h2>
+                            <p>Enter the full marking (e.g., 104K) to decode value, tolerance, and characteristics.</p>
+                        </div>
+                        
+                        
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Capacitor Marking</span>
+                                <input type="text" id="cap-input" class="form-control" placeholder="e.g. 104K or 222J" style="text-transform: uppercase;">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Analyze Component</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Component Analysis</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-lightbulb"></i> Engineering Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save to Log
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-btn').addEventListener('click', function() {
+            const input = document.getElementById('cap-input').value.trim().toUpperCase();
+            const resultArea = document.getElementById('result-display-area');
+            const resultCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            // Regex to catch 3 digits + optional tolerance letter
+            const match = input.match(/^(\d{3})([A-Z])?$/);
+
+            if (match) {
+                const code = match[1];
+                const toleranceChar = match[2];
+                
+                const digits = code.split('').map(Number);
+                const baseValue = (digits[0] * 10) + digits[1];
+                const multiplier = digits[2];
+
+                const pf = baseValue * Math.pow(10, multiplier);
+                const nf = pf / 1000;
+                const uf = pf / 1000000;
+
+                // Tolerance Mapping
+                const toleranceMap = {
+                    'F': '±1%', 'G': '±2%', 'H': '±3%', 'J': '±5%', 
+                    'K': '±10%', 'M': '±20%', 'Z': '+80%/-20%'
+                };
+                const tolerance = (toleranceChar && toleranceMap[toleranceChar]) ? toleranceMap[toleranceChar] : "Standard (±20%)";
+
+                resultArea.innerHTML = `
+                    <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 0.9rem; opacity: 0.8;">Pico-farads (pF) - Base Unit</span>
+                        <strong style="font-size: 1.4rem; color: var(--accent-cyan);">${pf.toLocaleString()} pF</strong>
+                    </div>
+                    <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 0.9rem; opacity: 0.8;">Nano-farads (nF) - 1,000 pF</span>
+                        <strong style="font-size: 1.2rem;">${parseFloat(nf.toFixed(6))} nF</strong>
+                    </div>
+                    <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 0.9rem; opacity: 0.8;">Micro-farads (µF) - 1,000,000 pF</span>
+                        <strong style="font-size: 1.2rem;">${parseFloat(uf.toFixed(9))} µF</strong>
+                    </div>
+                    <div class="sub-link">
+                        <span>Tolerance (Accuracy)</span>
+                        <strong>${tolerance}</strong>
+                    </div>
+                `;
+
+                tipArea.innerHTML = `
+                    <strong>How it works:</strong><br>
+                    The code <strong>${code}</strong> follows the EIA standard:<br>
+                    1. <strong>Significant Digits:</strong> The first two numbers (${digits[0]}${digits[1]}) form the base value.<br>
+                    2. <strong>Multiplier:</strong> The third number (${multiplier}) is the power of 10 (number of zeros).<br>
+                    3. <strong>Calculation:</strong> ${digits[0]}${digits[1]} × 10<sup>${multiplier}</sup> = ${pf.toLocaleString()} pF.
+                    ${toleranceChar ? `<br>4. <strong>Tolerance:</strong> Letter '${toleranceChar}' means the actual value is within ${tolerance} of the rated value.` : ''}
+                `;
+
+                resultCard.style.display = 'block';
+                resultCard.classList.remove('hidden');
+            } else {
+                alert("Invalid format. Please enter 3 digits followed by an optional letter (e.g., 104K).");
+            }
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

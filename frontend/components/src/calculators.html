@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Calculators - Smart Calculator Hub</title>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+        --primary-color: #2563eb;
+        --sidebar-bg: rgba(255, 255, 255, 0.75);
+        --text-color: #334155;
+        --hover-bg: #f1f5f9;
+        --border-color: #e2e8f0;
+        --bg-color: #f8fafc;
+    }
+
+    body { 
+        margin: 0; 
+        font-family: system-ui, -apple-system, sans-serif; 
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    body.dark-mode {
+        --sidebar-bg: rgba(30, 41, 59, 0.85);
+        --text-color: #f1f5f9;
+        --hover-bg: #334155;
+        --border-color: #475569;
+        --bg-color: #0f172a;
+    }
+
+    /* --- Sidebar Styles (Integrated) --- */
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        position: fixed;
+        top: 0; left: 0;
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        backdrop-filter: blur(16px);
+        transition: transform 0.3s ease;
+    }
+
+    .brand-block {
+        padding: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: bold;
+        display: flex; align-items: center;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .side-menu { padding: 1rem 0; flex: 1; overflow-y: auto; }
+    .side-menu a {
+        display: flex; align-items: center; padding: 0.75rem 1.5rem;
+        color: var(--text-color); text-decoration: none;
+        transition: all 0.2s; margin: 4px 12px; border-radius: 8px;
+    }
+    .side-menu a:hover { background-color: white; color: var(--primary-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .side-menu i { width: 25px; text-align: center; margin-right: 10px; }
+
+    /* User Profile */
+    .user-profile {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .user-avatar {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: var(--primary-color); color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 1.2rem;
+    }
+    .user-info h4 { margin: 0; font-size: 0.95rem; color: var(--text-color); }
+    .user-info p { margin: 0; font-size: 0.8rem; color: #64748b; }
+
+    /* Sidebar Footer & Toggle */
+    .sidebar-footer { padding: 1rem; text-align: center; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid var(--border-color); margin-top: auto; }
+    .theme-switch-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .theme-switch { display: inline-block; height: 24px; position: relative; width: 50px; }
+    .theme-switch input { display: none; }
+    .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; }
+    .slider:before { background-color: #fff; bottom: 4px; content: ""; height: 16px; left: 4px; position: absolute; transition: .4s; width: 16px; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary-color); }
+    input:checked + .slider:before { transform: translateX(26px); }
+
+    /* --- Main Content & Grid Design --- */
+    .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        transition: margin-left 0.3s ease;
+    }
+
+    .content-header h1 { margin-top: 0; font-size: 2rem; color: #1e293b; }
+
+    /* Search Bar */
+    #calcSearch {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: white;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    #calcSearch:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+
+    /* Grid Layout */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Category Cards */
+    .cat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.1); }
+    .cat-card h3 { margin-top: 0; color: #1e293b; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+    .cat-card h3 i { color: var(--primary-color); background: #eff6ff; padding: 8px; border-radius: 8px; }
+
+    /* Dark Mode Card Overrides */
+    body.dark-mode .cat-card, body.dark-mode #calcSearch, body.dark-mode .recent-card { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+    body.dark-mode .cat-card h3 { color: #f1f5f9; border-color: #334155; }
+    body.dark-mode .cat-card h3 i { background: #334155; }
+    body.dark-mode .calc-link { color: #94a3b8; }
+    body.dark-mode .calc-link:hover { background: #334155; color: #60a5fa; }
+
+    /* Recent History */
+    .recent-section { margin-bottom: 2rem; }
+    .recent-grid { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: thin; }
+    .recent-card {
+        min-width: 180px; background: white; padding: 1rem; border-radius: 12px;
+        border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-decoration: none; color: var(--text-color); display: flex; flex-direction: column;
+        transition: transform 0.2s;
+    }
+    .recent-card:hover { transform: translateY(-3px); border-color: var(--primary-color); }
+    .recent-card i { font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem; }
+    .recent-card span { font-weight: 500; font-size: 0.9rem; }
+
+    /* Sub-links inside cards */
+    .sub-cat-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .calc-link {
+        text-decoration: none;
+        color: #64748b;
+        padding: 0.6rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 10px;
+        font-size: 0.95rem;
+    }
+    .calc-link:hover { background: var(--hover-bg); color: var(--primary-color); padding-left: 1rem; }
+    .calc-link i { font-size: 0.8rem; opacity: 0.7; }
+
+    /* --- Modal Styles --- */
+    .calc-modal { position: fixed; inset: 0; display: none; z-index: 9999; }
+    .calc-modal.show { display: block; }
+
+    .calc-modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+    }
+
+    .calc-modal-box {
+      max-width: 480px;
+      width: 92%;
+      margin: 12vh auto;
+      background: rgba(25,25,35,.95);
+      border-radius: 22px;
+      padding: 30px;
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,.7);
+      position: relative;
+    }
+
+    .calc-modal-header { display:flex; align-items:center; gap:14px; }
+    .calc-modal-icon {
+      width:50px;height:50px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.05);
+      color:var(--primary-color);
+      font-size:1.4rem;
+    }
+
+    .calc-close {
+      position:absolute; top:15px; right:18px;
+      background:none;border:none;font-size:26px;color:#aaa;cursor:pointer;
+    }
+
+    .modal-btn {
+      display:inline-block;margin-top:20px;
+      background:var(--primary-color);
+      padding:12px 20px;border-radius:12px;
+      color:white;text-decoration:none;
+      transition: background 0.3s;
+    }
+    .modal-btn:hover { background: #1d4ed8; }
+
+    /* Mobile Responsive */
+    .mobile-toggle { display: none; position: fixed; top: 1rem; right: 1rem; z-index: 1100; background: var(--primary-color); color: white; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900; }
+    .overlay.active { display: block; }
+
+    @media (max-width: 768px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); }
+        .main-content { margin-left: 0; padding-top: 4rem; }
+        .mobile-toggle { display: block; }
+    }
+  </style>
+</head>
+
+<body>
+
+    <!-- Mobile Toggle -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand-block">
+            <i class="fa-solid fa-microchip" style="color: var(--primary-color); margin-right: 12px; font-size: 1.5rem;"></i>
+            SMART HUB
+        </div>
+        <!-- User Profile -->
+        <div class="user-profile">
+            <div class="user-avatar">JD</div>
+            <div class="user-info">
+                <h4>John Doe</h4>
+                <p>Pro Member</p>
+            </div>
+        </div>
+        <nav class="side-menu">
+            <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/calculators.html" style="background: white; color: var(--primary-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><i class="fas fa-calculator"></i> Calculators list</a>
+            <a href="/history.html"><i class="fas fa-history"></i> History</a>
+            <a href="/settings.html"><i class="fas fa-cog"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" onchange="toggleDarkMode(this)">
+                    <div class="slider"></div>
+                </label>
+                <span style="margin-left: 10px; font-size: 0.9rem;">Dark Mode</span>
+            </div>
+            © 2026 Smart Hub
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="content-header">
+            <h1>All Calculators</h1>
+            <p style="color: #64748b; margin-bottom: 2rem;">Browse our collection of tools for every need.</p>
+        </header>
+
+        <div class="container">
+        <!-- Recent History Section -->
+        <div id="recentSection" class="recent-section" style="display:none;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-color);">Recent History</h3>
+            <div class="recent-grid" id="recentContainer"></div>
+        </div>
+
+        <input id="calcSearch"
+               class="form-control"
+                   placeholder="Search for a calculator (e.g., 'BMI', 'Loan', 'Date')...">
+
+        <div id="calculatorsContainer" class="category-grid"></div>
+
+        </div>
+    </main>
+
+<!-- MODAL -->
+<div id="calcModal" class="calc-modal">
+  <div class="calc-modal-backdrop"></div>
+
+  <div class="calc-modal-box">
+    <button class="calc-close" onclick="closeCalcModal()">×</button>
+
+    <div class="calc-modal-header">
+      <div id="calcIcon" class="calc-modal-icon"></div>
+      <h2 id="calcTitle"></h2>
+    </div>
+
+    <p id="calcDesc"></p>
+    <a id="calcLink" class="modal-btn">Open Calculator</a>
+  </div>
+</div>
+
+<script>
+/* ===============================
+   MOCK DATA (If external file missing)
+================================ */
+const MOCK_CALCULATORS = [
+    {
+        name: "Finance",
+        icon: "fas fa-coins",
+        items: [
+            { title: "Loan Calculator", desc: "Calculate monthly payments.", icon: "fas fa-file-invoice-dollar", link: "#" },
+            { title: "Currency Converter", desc: "Real-time exchange rates.", icon: "fas fa-exchange-alt", link: "#" },
+            { title: "Compound Interest", desc: "Grow your savings.", icon: "fas fa-chart-line", link: "#" }
+        ]
+    },
+    {
+        name: "Health",
+        icon: "fas fa-heartbeat",
+        items: [
+            { title: "BMI Calculator", desc: "Body Mass Index check.", icon: "fas fa-weight", link: "#" },
+            { title: "Calorie Counter", desc: "Track daily intake.", icon: "fas fa-apple-alt", link: "#" }
+        ]
+    }
+];
+
+/* ===============================
+   BUILD CALCULATORS PAGE
+================================ */
+function buildCalculators() {
+  const container = document.getElementById("calculatorsContainer");
+  // Use global CALCULATORS if available, else use MOCK
+  const data = (typeof CALCULATORS !== 'undefined') ? CALCULATORS : MOCK_CALCULATORS;
+
+  container.innerHTML = data.map(cat => `
+    <div class="cat-card">
+      <h3><i class="${cat.icon}"></i> ${cat.name}</h3>
+      <div class="sub-cat-list">
+        ${cat.items.map(item => `
+          <a href="${item.link}"
+             class="sub-link calc-link"
+             data-title="${item.title}"
+             data-desc="${item.desc}"
+             data-icon="${item.icon || 'fas fa-calculator'}"
+             onclick="addToHistory('${item.title}', '${item.link}', '${item.icon || 'fas fa-calculator'}')">
+             <i class="${item.icon || 'fas fa-calculator'}"></i> ${item.title}
+          </a>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+buildCalculators();
+
+/* ===============================
+   MODAL CONTROLLER
+================================ */
+document.addEventListener("click", e => {
+  const link = e.target.closest(".calc-link");
+  if (!link) return;
+
+  e.preventDefault();
+
+  document.getElementById("calcTitle").textContent = link.dataset.title;
+  document.getElementById("calcDesc").textContent = link.dataset.desc;
+  document.getElementById("calcIcon").innerHTML = `<i class="${link.dataset.icon}"></i>`;
+  document.getElementById("calcLink").href = link.href;
+
+  document.getElementById("calcModal").classList.add("show");
+  document.body.style.overflow = "hidden";
+});
+
+function closeCalcModal() {
+  document.getElementById("calcModal").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+document.querySelector(".calc-modal-backdrop").onclick = closeCalcModal;
+document.addEventListener("keydown", e => e.key === "Escape" && closeCalcModal());
+
+/* ===============================
+   SEARCH
+================================ */
+document.getElementById("calcSearch").addEventListener("input", e => {
+  const term = e.target.value.toLowerCase();
+  document.querySelectorAll(".calc-link").forEach(link => {
+    link.style.display = link.textContent.toLowerCase().includes(term) ? "" : "none";
+  });
+});
+
+/* ===============================
+   SIDEBAR TOGGLE
+================================ */
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('active');
+    document.querySelector('.overlay').classList.toggle('active');
+}
+
+/* ===============================
+   RECENT HISTORY LOGIC
+================================ */
+function addToHistory(title, link, icon) {
+    let history = JSON.parse(localStorage.getItem('calcHistory')) || [];
+    // Remove if exists to push to top
+    history = history.filter(item => item.title !== title);
+    // Add to front
+    history.unshift({ title, link, icon });
+    // Limit to 5
+    if (history.length > 5) history.pop();
+    localStorage.setItem('calcHistory', JSON.stringify(history));
+    renderHistory();
+}
+
+function renderHistory() {
+    const history = JSON.parse(localStorage.getItem('calcHistory')) || [];
+    const container = document.getElementById('recentContainer');
+    const section = document.getElementById('recentSection');
+
+    if (history.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = history.map(item => `
+        <a href="${item.link}" class="recent-card">
+            <i class="${item.icon}"></i>
+            <span>${item.title}</span>
+        </a>
+    `).join('');
+}
+
+// Init History
+renderHistory();
+
+/* ===============================
+   DARK MODE LOGIC
+================================ */
+function toggleDarkMode(checkbox) {
+    document.body.classList.toggle('dark-mode', checkbox.checked);
+    localStorage.setItem('theme', checkbox.checked ? 'dark' : 'light');
+}
+// Check preference
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('checkbox').checked = true;
+}
+</script>
+
+</body>
+</html>

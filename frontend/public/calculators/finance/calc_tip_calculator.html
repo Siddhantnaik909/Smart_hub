@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Tip & Split Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-utensils"></i> Tip & Split Pro</h2>
+                            <p>Calculate tips, split bills, and analyze dining costs across any currency.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Bill Amount</span>
+                                <input type="number" id="billAmount" class="form-control" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+                                    <span>Tip Percentage</span>
+                                    <strong id="tipPercentValue" style="color: var(--accent-cyan);">15%</strong>
+                                </div>
+                                <input type="range" id="tipSlider" class="form-control" min="0" max="50" value="15" style="width: 100%; cursor: pointer;">
+                            </div>
+                            <div class="sub-link">
+                                <span>Split Between (People)</span>
+                                <input type="number" id="people" class="form-control" value="1" min="1">
+                            </div>
+                            
+                            <button id="saveBtn" class="btn-calc">
+                                <i class="fa-solid fa-save"></i> Save Transaction
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2">
+                        <h3>Payment Breakdown</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Tip Amount</span>
+                                <strong id="tipAmount" style="color: var(--accent-cyan);">$0.00</strong>
+                            </div>
+                            <div class="sub-link" style="background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                                <span>Total with Tip</span>
+                                <strong id="totalBill">$0.00</strong>
+                            </div>
+                            <div class="sub-link" style="border-top: 1px solid var(--border-color); margin-top: 10px; padding-top: 15px;">
+                                <span style="font-weight: bold;">Each Person Pays</span>
+                                <strong id="perPerson" style="font-size: 1.5rem; color: var(--primary-color);">$0.00</strong>
+                            </div>
+                        </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-circle-info"></i> Dining Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const billInput = document.getElementById('billAmount');
+            const tipSlider = document.getElementById('tipSlider');
+            const peopleInput = document.getElementById('people');
+            const currencySelect = document.getElementById('currency');
+            
+            const tipPercentDisplay = document.getElementById('tipPercentValue');
+            const tipAmountEl = document.getElementById('tipAmount');
+            const totalBillEl = document.getElementById('totalBill');
+            const perPersonEl = document.getElementById('perPerson');
+            const tipBox = document.getElementById('pro-tip');
+
+            function updateUI() {
+                const bill = parseFloat(billInput.value) || 0;
+                const tipPercent = parseInt(tipSlider.value);
+                const people = parseInt(peopleInput.value) || 1;
+                const symbol = currencySelect.value;
+
+                const tipAmount = bill * (tipPercent / 100);
+                const total = bill + tipAmount;
+                const share = total / people;
+
+                tipPercentDisplay.textContent = `${tipPercent}%`;
+                tipAmountEl.textContent = `${symbol}${tipAmount.toFixed(2)}`;
+                totalBillEl.textContent = `${symbol}${total.toFixed(2)}`;
+                perPersonEl.textContent = `${symbol}${share.toFixed(2)}`;
+
+                // Dynamic Etiquette Tip
+                if (tipPercent < 10) {
+                    tipBox.innerHTML = "A tip under 10% is usually reserved for poor service. In many regions, 15-20% is the standard for good hospitality.";
+                } else if (tipPercent >= 20) {
+                    tipBox.innerHTML = `Generous! A <strong>${tipPercent}%</strong> tip is highly appreciated by staff for exceptional service.`;
+                } else {
+                    tipBox.innerHTML = `A <strong>${tipPercent}%</strong> tip is the "Sweet Spot"—balanced and fair for standard professional service.`;
+                }
+            }
+
+            [billInput, tipSlider, peopleInput, currencySelect].forEach(el => {
+                el.addEventListener('input', updateUI);
+            });
+
+            updateUI();
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

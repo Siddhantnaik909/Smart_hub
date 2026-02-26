@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Ohm's Law</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-bolt"></i> Electrical Pro: Ohm & Power</h2>
+                            <p>Enter any two values to solve for the missing electrical parameters.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Voltage (V)</span>
+                                <input type="number" id="volts" class="form-control" placeholder="Volts">
+                            </div>
+                            <div class="sub-link">
+                                <span>Current (I)</span>
+                                <div style="display: flex; gap: 5px; width: 60%;">
+                                    <input type="number" id="amps" class="form-control" placeholder="Value">
+                                    <select id="ampsUnit" class="form-control" style="width: 80px;">
+                                        <option value="1">A</option>
+                                        <option value="0.001">mA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="sub-link">
+                                <span>Resistance (R)</span>
+                                <div style="display: flex; gap: 5px; width: 60%;">
+                                    <input type="number" id="ohms" class="form-control" placeholder="Value">
+                                    <select id="ohmsUnit" class="form-control" style="width: 80px;">
+                                        <option value="1">Ω</option>
+                                        <option value="1000">kΩ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button id="calc-electrical-btn" class="btn-calc">Analyze Circuit</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Circuit Analysis Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-ohms-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Specs
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.getElementById('calc-electrical-btn').addEventListener('click', function() {
+            let V = parseFloat(document.getElementById('volts').value);
+            let I = parseFloat(document.getElementById('amps').value) * parseFloat(document.getElementById('ampsUnit').value);
+            let R = parseFloat(document.getElementById('ohms').value) * parseFloat(document.getElementById('ohmsUnit').value);
+            
+            let resultHTML = "";
+            let solvedCount = [V, I, R].filter(x => !isNaN(x)).length;
+
+            if (solvedCount < 2) {
+                alert("Please provide at least two values to calculate the circuit.");
+                return;
+            }
+
+            // Logic Core: Ohm's Law (V = IR) & Power Law (P = VI)
+            if (isNaN(V)) V = I * R;
+            else if (isNaN(I)) I = V / R;
+            else if (isNaN(R)) R = V / I;
+
+            const P = V * I; // Power in Watts
+
+            resultHTML = `
+                <div class="sub-link">
+                    <span>Potential (Voltage)</span>
+                    <strong class="accent-text">${V.toFixed(2)} V</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Intensity (Current)</span>
+                    <strong class="accent-text">${I >= 1 ? I.toFixed(3) : (I * 1000).toFixed(2) + ' m'} A</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Resistance</span>
+                    <strong class="accent-text">${R >= 1000 ? (R / 1000).toFixed(2) + ' k' : R.toFixed(2)} Ω</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Power Dissipation</span>
+                    <strong style="color: #e74c3c;">${P.toFixed(2)} Watts (W)</strong>
+                </div>
+            `;
+
+            const displayArea = document.getElementById('result-display-area');
+            displayArea.innerHTML = resultHTML;
+            
+            const resultsCard = document.getElementById('results');
+            resultsCard.style.display = 'block';
+            resultsCard.classList.remove('hidden');
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = "Advanced Electrical Calculator";
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

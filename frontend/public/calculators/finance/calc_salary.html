@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Salary Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-money-bill-transfer"></i> Salary Converter</h2>
+                            <p>Convert your pay between hourly, daily, weekly, and annual rates.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Pay Amount</span>
+                                <input type="number" id="amount" class="form-control" placeholder="50000">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Pay Frequency</span>
+                                <select id="frequency" class="form-control">
+                                    <option value="annually">per Year</option>
+                                    <option value="monthly">per Month</option>
+                                    <option value="weekly">per Week</option>
+                                    <option value="daily">per Day</option>
+                                    <option value="hourly">per Hour</option>
+                                </select>
+                            </div>
+                            
+                            <button id="calc-salary" class="btn-calc">Convert Salary</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Breakdown</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-salary" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Breakdown
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcBtn = document.getElementById('calc-salary');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            calcBtn.addEventListener('click', () => {
+                const amount = parseFloat(document.getElementById('amount').value) || 0;
+                const freq = document.getElementById('frequency').value;
+                const currencyCode = document.getElementById('currency').value;
+
+                if (amount <= 0) {
+                    alert("Please enter a valid amount.");
+                    return;
+                }
+
+                // Standard factors: 8h/day, 5d/week, 52w/year
+                const factors = { 
+                    weeks: 52, 
+                    days: 260, // 52 * 5
+                    hours: 2080 // 260 * 8
+                };
+
+                let annual = 0;
+                if (freq === 'annually') annual = amount;
+                else if (freq === 'monthly') annual = amount * 12;
+                else if (freq === 'weekly') annual = amount * factors.weeks;
+                else if (freq === 'daily') annual = amount * factors.days;
+                else if (freq === 'hourly') annual = amount * factors.hours;
+
+                const format = (val) => val.toLocaleString(undefined, { 
+                    style: 'currency', 
+                    currency: currencyCode 
+                });
+
+                // Rule 3: Inject results into #result-display-area using sub-link structure
+                displayArea.innerHTML = `
+                    <div class="sub-link"><span>Annual</span> <strong>${format(annual)}</strong></div>
+                    <div class="sub-link"><span>Monthly</span> <strong>${format(annual / 12)}</strong></div>
+                    <div class="sub-link"><span>Weekly</span> <strong>${format(annual / factors.weeks)}</strong></div>
+                    <div class="sub-link"><span>Daily</span> <strong>${format(annual / factors.days)}</strong></div>
+                    <div class="sub-link"><span>Hourly</span> <strong>${format(annual / factors.hours)}</strong></div>
+                `;
+
+                // Rule 3: Toggle display
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

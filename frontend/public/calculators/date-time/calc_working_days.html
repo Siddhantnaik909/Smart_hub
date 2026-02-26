@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Working Days Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .work-hero {
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px dashed var(--accent-color);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .work-val { font-size: 2.8rem; font-weight: 800; color: var(--accent-color); line-height: 1; }
+        .work-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; margin-top: 10px; }
+        
+        .stat-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .stat-bar-fill { height: 100%; background: var(--accent-color); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-briefcase"></i> Working Days Pro</h2>
+                            <p>Determine business days between dates, excluding weekends (Saturday & Sunday).</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Start Date</span>
+                                <input class="form-control" id="startDate" type="date">
+                            </div>
+                            <div class="sub-link">
+                                <span>End Date</span>
+                                <input class="form-control" id="endDate" type="date">
+                            </div>
+                            <button class="btn-calc" onclick="calculateWorkingDays()">Calculate Business Duration</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Timeline Breakdown</h3>
+                        
+                        <div class="work-hero">
+                            <span class="work-val" id="resWorkingDays">0</span>
+                            <span class="work-label">Business Days</span>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Total Calendar Days</span>
+                                <strong id="resTotalDays">0</strong>
+                            </div>
+                            <div class="sub-link">
+                                <span>Weekend Days</span>
+                                <strong id="resWeekendDays" style="color: #ff4444;">0</strong>
+                            </div>
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Workload Ratio</span>
+                                <div class="stat-bar-container"><div id="work-bar" class="stat-bar-fill"></div></div>
+                            </div>
+                        </div>
+
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save to Project Log
+                        </button>
+                    </div>
+
+                    
+                    <div class="cat-card stagger-3" style="margin-top: 20px; border-left: 4px solid var(--accent-color);">
+                        <p style="font-size: 0.85rem; opacity: 0.8; margin: 0; line-height: 1.5;">
+                            <strong>Note:</strong> Public holidays are not automatically excluded as they vary by region. This tool strictly calculates the Monday-Friday cycle.
+                        </p>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let lastCalc = null;
+
+        function calculateWorkingDays() {
+            const startStr = document.getElementById('startDate').value;
+            const endStr = document.getElementById('endDate').value;
+
+            if (!startStr || !endStr) { alert("Please select both dates"); return; }
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+
+            if (end < start) { alert("End date must be after start date"); return; }
+
+            let workDays = 0;
+            let totalDays = 0;
+            const cur = new Date(start);
+
+            while (cur <= end) {
+                const day = cur.getDay();
+                if (day !== 0 && day !== 6) workDays++;
+                totalDays++;
+                cur.setDate(cur.getDate() + 1);
+            }
+
+            const weekendDays = totalDays - workDays;
+            const ratio = (workDays / totalDays) * 100;
+
+            // UI Update
+            document.getElementById('resWorkingDays').innerText = workDays;
+            document.getElementById('resTotalDays').innerText = totalDays;
+            document.getElementById('resWeekendDays').innerText = weekendDays;
+            document.getElementById('work-bar').style.width = ratio + "%";
+
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.classList.remove('hidden');
+
+            lastCalc = {
+                range: `${startStr} to ${endStr}`,
+                result: `${workDays} Business Days`
+            };
+        }
+
+        document.getElementById('save-btn').onclick = function() {
+            if(!lastCalc) return;
+            if(typeof saveCalculation === 'function') {
+                saveCalculation('Working Days', lastCalc.range, lastCalc.result);
+                this.innerHTML = '<i class="fa-solid fa-check"></i> Logged Successfully';
+                setTimeout(() => { this.innerHTML = '<i class="fa-solid fa-save"></i> Save to Project Log'; }, 2000);
+            }
+        };
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

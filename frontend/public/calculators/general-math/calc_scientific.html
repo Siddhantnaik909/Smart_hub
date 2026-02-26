@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Scientific Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .sci-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .calc-btn {
+            padding: 15px 5px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card-2);
+            color: var(--text-header);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calc-btn:hover { background: var(--bg-hover); transform: translateY(-2px); }
+        .calc-btn.fn { background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); font-weight: 600; }
+        .calc-btn.op { background: rgba(99, 102, 241, 0.1); color: var(--primary-color); }
+        .calc-btn.equal { background: var(--primary-gradient); color: white; grid-column: span 2; font-weight: bold; }
+        
+        #display-container {
+            background: var(--bg-main);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+        #exp-view { font-size: 0.9rem; color: var(--text-muted); min-height: 1.2rem; }
+        #display { 
+            font-size: 2rem; 
+            color: var(--text-header); 
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            text-align: right;
+            border: none;
+            background: transparent;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1" style="max-width: 450px; margin: 0 auto;">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-calculator"></i> Scientific Engine</h2>
+                        </div>
+
+                        <div id="display-container">
+                            <div id="exp-view"></div>
+                            <input type="text" id="display" readonly value="0">
+                        </div>
+
+                        <div class="sci-grid">
+                            <button class="calc-btn fn" onclick="func('Math.sin')">sin</button>
+                            <button class="calc-btn fn" onclick="func('Math.cos')">cos</button>
+                            <button class="calc-btn fn" onclick="func('Math.tan')">tan</button>
+                            <button class="calc-btn fn" onclick="func('Math.log10')">log</button>
+                            <button class="calc-btn fn" onclick="func('Math.log')">ln</button>
+
+                            <button class="calc-btn fn" onclick="append('(')">(</button>
+                            <button class="calc-btn fn" onclick="append(')')">)</button>
+                            <button class="calc-btn fn" onclick="append('**')">^</button>
+                            <button class="calc-btn fn" onclick="func('Math.sqrt')">√</button>
+                            <button class="calc-btn" onclick="clearDisplay()" style="color:#ef4444;">AC</button>
+
+                            <button class="calc-btn" onclick="append('7')">7</button>
+                            <button class="calc-btn" onclick="append('8')">8</button>
+                            <button class="calc-btn" onclick="append('9')">9</button>
+                            <button class="calc-btn op" onclick="deleteLast()">DEL</button>
+                            <button class="calc-btn op" onclick="append('/')">÷</button>
+
+                            <button class="calc-btn" onclick="append('4')">4</button>
+                            <button class="calc-btn" onclick="append('5')">5</button>
+                            <button class="calc-btn" onclick="append('6')">6</button>
+                            <button class="calc-btn op" onclick="append('*')">×</button>
+                            <button class="calc-btn op" onclick="append('-')">-</button>
+
+                            <button class="calc-btn" onclick="append('1')">1</button>
+                            <button class="calc-btn" onclick="append('2')">2</button>
+                            <button class="calc-btn" onclick="append('3')">3</button>
+                            <button class="calc-btn op" onclick="append('+')">+</button>
+                            <button class="calc-btn op" onclick="append('Math.PI')">π</button>
+
+                            <button class="calc-btn" onclick="append('0')">0</button>
+                            <button class="calc-btn" onclick="append('.')">.</button>
+                            <button class="calc-btn op" onclick="append('Math.E')">e</button>
+                            <button class="calc-btn equal" onclick="solve()">=</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Calculation Summary</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save to Worksheet
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let expression = '';
+        const display = document.getElementById('display');
+        const expView = document.getElementById('exp-view');
+        const results = document.getElementById('results');
+        const resArea = document.getElementById('result-display-area');
+
+        function updateDisplay(val) {
+            display.value = val || '0';
+            expView.textContent = expression.replace(/Math\./g, '').replace(/\*\*/g, '^');
+        }
+
+        function append(val) {
+            if (expression === '0') expression = '';
+            expression += val;
+            updateDisplay(expression);
+        }
+
+        function func(fn) {
+            expression += fn + '(';
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            expression = '';
+            updateDisplay('0');
+            results.style.display = 'none';
+        }
+
+        function deleteLast() {
+            expression = expression.slice(0, -1);
+            updateDisplay();
+        }
+
+        function solve() {
+            try {
+                const finalResult = eval(expression);
+                const formattedExp = expression.replace(/Math\./g, '').replace(/\*\*/g, '^');
+                
+                resArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Expression</span>
+                        <code style="color: var(--primary-color);">${formattedExp}</code>
+                    </div>
+                    <div class="sub-link">
+                        <span>Result</span>
+                        <strong style="font-size: 1.2rem;">${finalResult}</strong>
+                    </div>
+                `;
+
+                expression = finalResult.toString();
+                updateDisplay(expression);
+                
+                results.style.display = 'block';
+                results.classList.remove('hidden');
+            } catch (e) {
+                display.value = 'Error';
+                expression = '';
+            }
+        }
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

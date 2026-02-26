@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Time Zone Converter Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .tz-result-hero {
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px dashed var(--accent-color);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .tz-time { font-size: 2.5rem; font-weight: 800; color: var(--accent-color); line-height: 1; }
+        .tz-date { font-size: 1rem; margin-top: 10px; font-weight: 600; opacity: 0.9; }
+        .tz-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-top: 5px; }
+        .swap-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--accent-color);
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .swap-btn:hover { background: var(--accent-color); color: #000; transform: rotate(180deg); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-earth-americas"></i> Time Zone Converter</h2>
+                            <p>Global temporal synchronization tool for scheduling and international coordination.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Reference Time</span>
+                                <input type="datetime-local" id="localTime" class="form-control">
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Source Zone</span>
+                                <select id="fromTz" class="form-control"></select>
+                            </div>
+
+                            <button class="swap-btn" onclick="swapZones()" title="Swap Zones">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+
+                            <div class="sub-link">
+                                <span>Target Zone</span>
+                                <select id="toTz" class="form-control"></select>
+                            </div>
+
+                            <button class="btn-calc" onclick="convertTime()">Convert Time</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Conversion Result</h3>
+                        
+                        <div class="tz-result-hero">
+                            <div class="tz-time" id="displayTime">--:--</div>
+                            <div class="tz-date" id="displayDate">---</div>
+                            <div class="tz-label" id="displayZone">---</div>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+
+                    
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.5; margin: 0;">
+                            <strong>Note:</strong> This tool accounts for Daylight Saving Time (DST) automatically based on the selected date and regional policies.
+                        </p>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const timezones = [
+            { label: "Mumbai/Delhi (IST)", value: "Asia/Kolkata" },
+            { label: "UTC (Universal)", value: "UTC" },
+            { label: "New York (EST/EDT)", value: "America/New_York" },
+            { label: "London (GMT/BST)", value: "Europe/London" },
+            { label: "Tokyo (JST)", value: "Asia/Tokyo" },
+            { label: "Sydney (AEST)", value: "Australia/Sydney" },
+            { label: "Los Angeles (PST)", value: "America/Los_Angeles" },
+            { label: "Dubai (GST)", value: "Asia/Dubai" },
+            { label: "Singapore (SGT)", value: "Asia/Singapore" },
+            { label: "Paris (CET)", value: "Europe/Paris" }
+        ];
+
+        let lastResult = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fromSel = document.getElementById('fromTz');
+            const toSel = document.getElementById('toTz');
+            const localInput = document.getElementById('localTime');
+
+            timezones.forEach(tz => {
+                fromSel.add(new Option(tz.label, tz.value));
+                toSel.add(new Option(tz.label, tz.value));
+            });
+
+            // Set current time
+            const now = new Date();
+            const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+            localInput.value = new Date(now.getTime() - offsetMs).toISOString().slice(0, 16);
+
+            const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            fromSel.value = userTz || "Asia/Kolkata"; 
+            toSel.value = (fromSel.value === "Asia/Kolkata") ? "America/New_York" : "Asia/Kolkata";
+        });
+
+        function swapZones() {
+            const from = document.getElementById('fromTz');
+            const to = document.getElementById('toTz');
+            const temp = from.value;
+            from.value = to.value;
+            to.value = temp;
+        }
+
+        function convertTime() {
+            const timeVal = document.getElementById('localTime').value;
+            const fromTz = document.getElementById('fromTz').value;
+            const toTz = document.getElementById('toTz').value;
+            const toLabel = document.getElementById('toTz').options[document.getElementById('toTz').selectedIndex].text;
+
+            if(!timeVal) return alert("Select a reference time.");
+
+            // Create date in source timezone
+            const sourceDate = new Date(timeVal);
+            
+            const options = {
+                timeZone: toTz,
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+            };
+
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            const parts = formatter.formatToParts(sourceDate);
+            
+            const getValue = (type) => parts.find(p => p.type === type).value;
+            
+            const timeStr = `${getValue('hour')}:${getValue('minute')} ${getValue('dayPeriod')}`;
+            const dateStr = `${getValue('weekday')}, ${getValue('month')} ${getValue('day')}, ${getValue('year')}`;
+
+            document.getElementById('displayTime').innerText = timeStr;
+            document.getElementById('displayDate').innerText = dateStr;
+            document.getElementById('displayZone').innerText = toLabel;
+            
+            const resBox = document.getElementById('results');
+            resBox.style.display = 'block';
+            resBox.classList.remove('hidden');
+
+            lastResult = {
+                input: `${timeVal.replace('T', ' ')} (${fromTz})`,
+                output: `${timeStr} in ${toLabel}`
+            };
+        }
+
+        document.getElementById('save-btn').onclick = function() {
+            if(!lastResult) return;
+            if(typeof saveCalculation === 'function') {
+                saveCalculation('Time Zone', lastResult.input, lastResult.output);
+                this.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+                setTimeout(() => { this.innerHTML = '<i class="fa-solid fa-save"></i> Save to History'; }, 2000);
+            }
+        };
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

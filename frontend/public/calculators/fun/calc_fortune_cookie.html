@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Fortune Cookie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .cookie-container {
+            text-align: center;
+            padding: 40px 0;
+            perspective: 1000px;
+        }
+        .cookie-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cookie-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .cookie-btn:active {
+            transform: scale(0.9);
+        }
+        .cookie-icon {
+            font-size: 6rem;
+            color: #f97316; /* Accent Orange */
+            filter: drop-shadow(0 10px 15px rgba(249, 115, 22, 0.2));
+        }
+        .cracked {
+            animation: crack 0.5s ease-in-out;
+        }
+        @keyframes crack {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2) rotate(-10deg); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-cookie-bite"></i> Fortune Cookie</h2>
+                            <p>Tap the golden cookie to reveal what the future holds for you.</p>
+                        </div>
+                        
+                        <div class="cookie-container">
+                            <button id="cookie-trigger" class="cookie-btn">
+                                <i class="fas fa-cookie-bite cookie-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Your Fortune</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-fortune" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Fortune
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cookieBtn = document.getElementById('cookie-trigger');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            const fortunes = [
+                "A beautiful, smart, and loving person will be coming into your life.",
+                "A fresh start will put you on your way to success.",
+                "A friend asks only for your time, not your money.",
+                "Adventure can be real happiness.",
+                "Believe in yourself and others will too.",
+                "Change is happening in your life, so go with the flow!",
+                "Don’t be afraid to take that big step.",
+                "Every day is a new beginning. Treat it that way.",
+                "Good things come to those who wait.",
+                "Your hard work will pay off in unexpected ways.",
+                "The sun always shines after the storm.",
+                "Fortune favors the bold."
+            ];
+
+            cookieBtn.addEventListener('click', () => {
+                // Add "Cracking" animation
+                cookieBtn.classList.add('cracked');
+                
+                // Logic: Pick random fortune
+                const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                
+                // Logic: Generate 3 Lucky Numbers
+                const luckyNums = Array.from({length: 3}, () => Math.floor(Math.random() * 99) + 1).join(', ');
+
+                // Rule 3: Inject results into #result-display-area using sub-link structure
+                displayArea.innerHTML = `
+                    <div class="sub-link" style="padding: 20px 15px;">
+                        <span class="fortune-text" style="font-style: italic; font-size: 1.1rem; color: var(--text-header); width: 100%; text-align: center;">
+                            "${randomFortune}"
+                        </span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Lucky Numbers</span>
+                        <span style="font-weight: 700; color: var(--primary-color);">${luckyNums}</span>
+                    </div>
+                `;
+
+                // Rule 3: Update visibility
+                setTimeout(() => {
+                    resultsCard.style.display = 'block';
+                    resultsCard.classList.remove('hidden');
+                    cookieBtn.classList.remove('cracked');
+                }, 400);
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

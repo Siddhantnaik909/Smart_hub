@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Multi-Currency ROI Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-chart-pie"></i> Multi-Currency ROI Pro</h2>
+                            <p>Global investment analysis with localized currency formatting and annualized growth tracking.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency-type" class="form-control">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="JPY">JPY (¥)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Initial Investment</span>
+                                <input type="number" id="initial" class="form-control" placeholder="e.g. 10000">
+                            </div>
+                            <div class="sub-link">
+                                <span>Final Value</span>
+                                <input type="number" id="final" class="form-control" placeholder="e.g. 15000">
+                            </div>
+                            <div class="sub-link">
+                                <span>Holding Period (Years)</span>
+                                <input type="number" id="holding-years" class="form-control" placeholder="1" value="1" step="0.1">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="calculateUniversalROI()">Analyze Investment</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Performance Report</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(168, 85, 247, 0.05); border-left: 4px solid #a855f7; margin-top: 15px; padding: 15px;">
+                            <span style="color: #a855f7; font-weight: bold;"><i class="fa-solid fa-earth-americas"></i> Market Context</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Global Analysis
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function calculateUniversalROI() {
+            const currency = document.getElementById('currency-type').value;
+            const initial = parseFloat(document.getElementById('initial').value);
+            const final = parseFloat(document.getElementById('final').value);
+            const years = parseFloat(document.getElementById('holding-years').value) || 1;
+            
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (isNaN(initial) || isNaN(final) || initial <= 0) {
+                alert("Please enter valid investment amounts.");
+                return;
+            }
+
+            // Calculations
+            const netProfit = final - initial;
+            const totalROI = (netProfit / initial) * 100;
+            const annualizedROI = (Math.pow((final / initial), (1 / years)) - 1) * 100;
+            const multiple = (final / initial).toFixed(2);
+
+            // Localization
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currency,
+            });
+
+            const profitColor = netProfit >= 0 ? "#10b981" : "#ef4444";
+
+            resArea.innerHTML = `
+                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 15px 0;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Total Return (ROI)</span>
+                    <strong style="font-size: 2.5rem; color: ${profitColor};">${totalROI.toFixed(2)}%</strong>
+                </div>
+                <div class="sub-link"><span>Net Profit/Loss</span><strong style="color: ${profitColor};">${formatter.format(netProfit)}</strong></div>
+                <div class="sub-link"><span>Annualized Rate</span><strong>${annualizedROI.toFixed(2)}% / year</strong></div>
+                <div class="sub-link"><span>Portfolio Multiple</span><strong>${multiple}x Value</strong></div>
+            `;
+
+            // Dynamic Tip Logic
+            if (annualizedROI > 15) {
+                tipArea.innerHTML = `A return of <strong>${annualizedROI.toFixed(1)}%</strong> is high-tier growth. Typically, high returns are paired with high risk; ensure your stop-losses are in place if this is a volatile asset like crypto or tech stocks.`;
+            } else if (annualizedROI > 5) {
+                tipArea.innerHTML = `Your investment is outperforming basic savings accounts and inflation. This is a solid, sustainable growth rate for diversified portfolios.`;
+            } else {
+                tipArea.innerHTML = `This return might be below the historical market average. Check if the <strong>${formatter.format(netProfit)}</strong> gain justifies the time and capital lock-up.`;
+            }
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

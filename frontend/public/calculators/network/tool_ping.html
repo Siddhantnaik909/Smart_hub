@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Ping Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-satellite-dish"></i> Ping Test</h2>
+                            <p>Check the latency and reachability of a specific host or IP address.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Host / IP Address</span>
+                                <input type="text" id="pingHost" class="form-control" placeholder="e.g. 8.8.8.8 or google.com">
+                            </div>
+                            
+                            <button id="btn-ping" class="btn-calc">Run Ping Test</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Latency Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn-ping" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pingBtn = document.getElementById('btn-ping');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+            const hostInput = document.getElementById('pingHost');
+
+            pingBtn.addEventListener('click', () => {
+                const host = hostInput.value.trim();
+                
+                if (!host) {
+                    alert("Please enter a valid Host or IP.");
+                    return;
+                }
+
+                pingBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pinging...';
+                displayArea.innerHTML = '';
+                
+                // Browser-based "Ping" using HTTP Fetch (ICMP is not possible in browser JS)
+                let url = host;
+                if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                }
+
+                const start = performance.now();
+                
+                // mode: 'no-cors' allows us to ping opaque targets (like google.com) without CORS errors, 
+                // though we can't read the response content, we can measure the time.
+                fetch(url, { mode: 'no-cors', cache: 'no-cache' })
+                .then(() => {
+                    const end = performance.now();
+                    const latency = Math.round(end - start);
+                    const status = latency > 200 ? "Slow" : "Excellent";
+                    const statusColor = latency > 200 ? "#ffc107" : "#28a745";
+
+                    const resultsHTML = `
+                        <div class="sub-link">
+                            <span>Target Host</span>
+                            <strong>${host}</strong>
+                        </div>
+                        <div class="sub-link">
+                            <span>HTTP Response Time</span>
+                            <strong>${latency} ms</strong>
+                        </div>
+                        <div class="sub-link">
+                            <span>Protocol</span>
+                            <strong>HTTPS (Web Ping)</strong>
+                        </div>
+                        <div class="sub-link">
+                            <span>Connection Quality</span>
+                            <strong style="color: ${statusColor};">${status}</strong>
+                        </div>
+                    `;
+
+                    displayArea.innerHTML = resultsHTML;
+                    resultsCard.style.display = 'block';
+                    resultsCard.classList.remove('hidden');
+                })
+                .catch(err => {
+                    displayArea.innerHTML = `
+                        <div class="sub-link"><span>Target</span><strong>${host}</strong></div>
+                        <div class="sub-link"><span>Status</span><strong style="color: #dc3545;">Unreachable / Blocked</strong></div>
+                        <div class="sub-link" style="font-size: 0.8rem; color: #888;">Note: Target may block browser requests.</div>
+                    `;
+                    resultsCard.style.display = 'block';
+                    resultsCard.classList.remove('hidden');
+                })
+                .finally(() => {
+                    pingBtn.innerText = "Run Ping Test";
+                });
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

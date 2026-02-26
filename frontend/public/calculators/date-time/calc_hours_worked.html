@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Hours Worked Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .res-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 255, 204, 0.05);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px dashed var(--accent-color);
+            margin-bottom: 15px;
+        }
+        .res-main-val {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1;
+        }
+        .res-sub-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-business-time"></i> Hours Worked Pro</h2>
+                            <p>Calculate total shift duration with precision, including automatic break deductions and overnight shift detection.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-clock-rotate-left"></i> Shift Start</span>
+                                <input type="time" id="startTime" class="form-control" value="09:00">
+                            </div>
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-clock"></i> Shift End</span>
+                                <input type="time" id="endTime" class="form-control" value="17:30">
+                            </div>
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-mug-saucer"></i> Break (Minutes)</span>
+                                <input type="number" id="breakTime" class="form-control" placeholder="30" value="30">
+                            </div>
+                            <button id="calc-btn" class="btn-calc" onclick="calculateHours()">Calculate Work Hours</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Shift Summary</h3>
+                        
+                        <div class="res-hero">
+                            <span class="res-main-val" id="resHours">0h 0m</span>
+                            <span class="res-sub-label">Total Work Duration</span>
+                        </div>
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Decimal Format</span>
+                                <strong id="resDecimal" style="color: var(--accent-color);">0.00 hours</strong>
+                            </div>
+                        </div>
+
+                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+
+                    <div class="cat-card stagger-3" style="margin-top: 20px; border-left: 4px solid var(--accent-color);">
+                        <p style="font-size: 0.9rem; margin: 0; opacity: 0.8; line-height: 1.5;">
+                            <strong>💡 Pro Tip:</strong> For overnight shifts (e.g., 10 PM to 6 AM), just enter the times normally. The calculator detects the transition to the next day automatically.
+                        </p>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        // Shared data for the save button
+        let lastCalculation = null;
+
+        function calculateHours() {
+            const startStr = document.getElementById('startTime').value;
+            const endStr = document.getElementById('endTime').value;
+            const breakMins = parseInt(document.getElementById('breakTime').value) || 0;
+
+            if (!startStr || !endStr) {
+                alert("Please enter both Start and End times.");
+                return;
+            }
+
+            // Using a dummy date to handle time objects
+            const dateRef = "2026-02-24T";
+            let start = new Date(`${dateRef}${startStr}`);
+            let end = new Date(`${dateRef}${endStr}`);
+
+            // Overnight Shift Detection: If end is before start, it's the next day
+            if (end <= start) {
+                end.setDate(end.getDate() + 1);
+            }
+
+            let diffMs = end - start;
+            let breakMs = breakMins * 60 * 1000;
+            let netMs = diffMs - breakMs;
+
+            if (netMs < 0) {
+                alert("Break time cannot exceed total shift duration.");
+                return;
+            }
+
+            const totalMins = netMs / (1000 * 60);
+            const hrs = Math.floor(totalMins / 60);
+            const mins = Math.round(totalMins % 60);
+            const decimal = (totalMins / 60).toFixed(2);
+
+            // UI Update
+            document.getElementById('resHours').innerText = `${hrs}h ${mins}m`;
+            document.getElementById('resDecimal').innerText = `${decimal} hours`;
+            
+            const resBox = document.getElementById('results');
+            resBox.style.display = 'block';
+            resBox.classList.remove('hidden');
+
+            // Store data for Save function
+            lastCalculation = {
+                tool: 'Hours Worked',
+                input: `${startStr} - ${endStr} (${breakMins}m break)`,
+                result: `${hrs}h ${mins}m (${decimal} hrs)`
+            };
+        }
+
+        // Integrated Save Button Logic
+        document.getElementById('save-btn').addEventListener('click', function() {
+            if (!lastCalculation) {
+                alert("No calculation to save. Please calculate first.");
+                return;
+            }
+
+            // Check if the global save function from calculators.js exists
+            if (typeof saveCalculation === 'function') {
+                saveCalculation(
+                    lastCalculation.tool,
+                    lastCalculation.input,
+                    lastCalculation.result
+                );
+                // Optional: Provide feedback that it saved
+                this.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+                this.style.background = '#28a745';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fa-solid fa-save"></i> Save to History';
+                    this.style.background = '';
+                }, 2000);
+            } else {
+                alert("Save system not found. Ensure /js/calculators.js is loaded.");
+            }
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

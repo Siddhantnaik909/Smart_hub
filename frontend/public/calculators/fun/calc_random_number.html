@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Entropy Generator Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .number-capsule-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .num-capsule {
+            background: var(--bg-main);
+            border: 2px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            min-width: 60px;
+            text-align: center;
+            animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-shuffle"></i> Entropy Generator Pro</h2>
+                            <p>Generate high-entropy random sequences with advanced range and uniqueness controls.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Range: Minimum Value</span>
+                                <input type="number" id="min-num" class="form-control" value="1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Range: Maximum Value</span>
+                                <input type="number" id="max-num" class="form-control" value="100">
+                            </div>
+                            <div class="sub-link">
+                                <span>Quantity to Generate</span>
+                                <input type="number" id="qty" class="form-control" value="1" min="1" max="50">
+                            </div>
+                            <div class="sub-link">
+                                <span>Unique Numbers Only</span>
+                                <select id="unique-toggle" class="form-control">
+                                    <option value="true">Enabled (No Duplicates)</option>
+                                    <option value="false">Disabled (Allow Repeats)</option>
+                                </select>
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="generateEntropy()">Generate Sequence</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Generated Sequence</h3>
+                        
+                        <div id="number-output" class="number-capsule-grid">
+                            </div>
+
+                        
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Sum of Sequence</span>
+                                <strong id="seq-sum">0</strong>
+                            </div>
+                            <div class="sub-link">
+                                <span>Theoretical Probability</span>
+                                <strong id="seq-prob">0%</strong>
+                            </div>
+                        </div>
+
+                        <div class="sub-link" style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; margin-top: 15px; padding: 15px;">
+                            <span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-microchip"></i> Entropy Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Sequence
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function generateEntropy() {
+            const min = parseInt(document.getElementById('min-num').value);
+            const max = parseInt(document.getElementById('max-num').value);
+            const qty = parseInt(document.getElementById('qty').value);
+            const unique = document.getElementById('unique-toggle').value === 'true';
+            
+            const output = document.getElementById('number-output');
+            const resCard = document.getElementById('results');
+
+            if (min >= max) {
+                alert("Maximum must be greater than Minimum.");
+                return;
+            }
+
+            if (unique && (max - min + 1) < qty) {
+                alert("Range is too small to generate " + qty + " unique numbers.");
+                return;
+            }
+
+            let numbers = [];
+            while(numbers.length < qty) {
+                let r = Math.floor(Math.random() * (max - min + 1)) + min;
+                if(unique && numbers.includes(r)) continue;
+                numbers.push(r);
+            }
+
+            // UI Injection
+            output.innerHTML = numbers.map(n => `<div class="num-capsule">${n}</div>`).join('');
+            
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const prob = ((1 / (max - min + 1)) * 100).toFixed(4);
+
+            document.getElementById('seq-sum').innerText = sum;
+            document.getElementById('seq-prob').innerText = `${prob}% per digit`;
+            
+            document.getElementById('pro-tip').innerHTML = `This sequence uses the <strong>PRNG</strong> (Pseudo-Random Number Generator) algorithm. For a range of <strong>${max - min + 1}</strong>, there are over <strong>${Math.pow(max - min + 1, qty).toExponential(2)}</strong> possible unique combinations of this length.`;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

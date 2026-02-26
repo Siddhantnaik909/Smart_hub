@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | 555 Timer Elite Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .electronics-hero {
+            background: rgba(255, 165, 0, 0.05);
+            border: 1px dashed var(--accent-orange);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .main-val { font-size: 2.5rem; font-weight: 800; color: var(--accent-orange); line-height: 1; }
+        .mode-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--accent-orange); background: transparent; color: var(--accent-orange); cursor: pointer; font-weight: 700; transition: 0.3s; }
+        .mode-btn.active { background: var(--accent-orange); color: #000; box-shadow: 0 0 15px rgba(255, 165, 0, 0.3); }
+        
+        .wave-container { width: 100%; height: 45px; background: rgba(0,0,0,0.3); border-radius: 8px; margin: 15px 0; display: flex; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .wave-high { height: 100%; background: var(--accent-orange); border-right: 2px solid #000; transition: width 0.5s ease; }
+        .wave-low { height: 100%; background: rgba(255,255,255,0.05); transition: width 0.5s ease; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-microchip" style="color: var(--accent-orange);"></i> 555 Timer Pro Analysis</h2>
+                            <p>Calculate precise frequency and timing for NE555 multivibrator circuits.</p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <button class="mode-btn active" id="btn-astable">Astable (Oscillator)</button>
+                            <button class="mode-btn" id="btn-monostable">Monostable (One-Shot)</button>
+                        </div>
+
+                        <div id="schematic-view" style="text-align: center; margin: 20px 0;">
+                            
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Resistor R1 (Ohms Ω)</span>
+                                <input type="number" id="r1" class="form-control" value="10000">
+                            </div>
+                            <div class="sub-link" id="r2-row">
+                                <span>Resistor R2 (Ohms Ω)</span>
+                                <input type="number" id="r2" class="form-control" value="10000">
+                            </div>
+                            <div class="sub-link">
+                                <span>Capacitor C1 (Farads F)</span>
+                                <input type="number" id="c1" class="form-control" value="0.000001">
+                            </div>
+                            <button id="calc-btn" class="btn-calc" style="background-color: var(--accent-orange);">Run Analysis Scan</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
+                        <h3>Simulation Results</h3>
+                        <div class="electronics-hero">
+                            <span class="main-val" id="primary-res">0 Hz</span>
+                            <span class="hero-label" id="primary-label">Output Frequency</span>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" id="duty-row">
+                                <span>Duty Cycle</span>
+                                <strong id="res-duty">0%</strong>
+                            </div>
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Waveform Visualization (Logic High vs Low)</span>
+                                
+                                <div class="wave-container">
+                                    <div id="wave-high" class="wave-high"></div>
+                                    <div id="wave-low" class="wave-low"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Log Technical Specs</button>
+                    </div>
+
+                    <div class="sub-link stagger-3" style="background: rgba(0, 255, 204, 0.05); border-left: 4px solid var(--accent-color); margin-top: 20px; padding: 15px; flex-direction: column; align-items: flex-start;">
+                        <span style="color: var(--accent-color); font-weight: bold;"><i class="fa-solid fa-lightbulb"></i> Pro Tip</span>
+                        <p id="mode-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">
+                            In <strong>Astable mode</strong>, the duty cycle will always be greater than 50% because $R_1 + R_2$ handles the charge cycle, while only $R_2$ handles the discharge.
+                        </p>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+
+    <script>
+        let state = { mode: 'astable', lastValid: null };
+
+        function setMode(m) {
+            state.mode = m;
+            document.getElementById('btn-astable').classList.toggle('active', m === 'astable');
+            document.getElementById('btn-monostable').classList.toggle('active', m === 'monostable');
+            const r2Row = document.getElementById('r2-row');
+            const schematic = document.getElementById('schematic-view');
+            const tip = document.getElementById('mode-tip');
+
+            if (m === 'astable') {
+                r2Row.style.display = 'flex';
+                schematic.innerHTML = '';
+                tip.innerHTML = `
+                    <strong>How Astable Works:</strong><br>
+                    The 555 timer oscillates continuously, producing a square wave.<br>
+                    1. <strong>Charge (High):</strong> Capacitor C1 charges through R1 + R2.<br>
+                    2. <strong>Discharge (Low):</strong> C1 discharges through R2 only.<br>
+                    3. <strong>Result:</strong> A steady stream of pulses (Clock).`;
+            } else {
+                r2Row.style.display = 'none';
+                schematic.innerHTML = '';
+                tip.innerHTML = `
+                    <strong>How Monostable Works:</strong><br>
+                    The 555 timer acts as a "One-Shot" pulse generator.<br>
+                    1. <strong>Trigger:</strong> A negative signal on Pin 2 starts the cycle.<br>
+                    2. <strong>Output:</strong> Pin 3 goes High for a specific duration ($T$).<br>
+                    3. <strong>Formula:</strong> $T = 1.1 \\times R1 \\times C1$.`;
+            }
+        }
+
+        function calculateCircuit() {
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value) || 0;
+            const c = parseFloat(document.getElementById('c1').value);
+            const results = document.getElementById('results');
+
+            if (!r1 || !c || r1 <= 0 || c <= 0) return alert("Please enter valid component values.");
+
+            if (state.mode === 'astable') {
+                if (r2 <= 0) return alert("R2 required for Astable mode.");
+                results.style.display = 'block';
+                const freq = 1.44 / ((r1 + 2 * r2) * c);
+                const duty = ((r1 + r2) / (r1 + 2 * r2)) * 100;
+
+                document.getElementById('primary-res').innerText = freq > 1000 ? (freq/1000).toFixed(2) + " kHz" : freq.toFixed(2) + " Hz";
+                document.getElementById('primary-label').innerHTML = "Frequency (f)<br><span style='font-size:0.8rem; font-weight:normal; opacity:0.7'>Cycles per second</span>";
+                document.getElementById('res-duty').innerText = duty.toFixed(1) + "%";
+                document.getElementById('duty-row').style.display = 'flex';
+                document.getElementById('wave-high').style.width = duty + "%";
+                document.getElementById('wave-low').style.width = (100 - duty) + "%";
+                state.lastValid = { tool: '555 Astable', res: freq.toFixed(2) + "Hz" };
+            } else {
+                results.style.display = 'block';
+                const tPulse = 1.1 * r1 * c;
+                document.getElementById('primary-res').innerText = tPulse.toFixed(4) + " s";
+                document.getElementById('primary-label').innerHTML = "Pulse Width (T)<br><span style='font-size:0.8rem; font-weight:normal; opacity:0.7'>Duration of High signal</span>";
+                document.getElementById('duty-row').style.display = 'none';
+                document.getElementById('wave-high').style.width = "100%";
+                document.getElementById('wave-low').style.width = "0%";
+                state.lastValid = { tool: '555 Monostable', res: tPulse.toFixed(4) + "s" };
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-astable').addEventListener('click', () => setMode('astable'));
+            document.getElementById('btn-monostable').addEventListener('click', () => setMode('monostable'));
+            document.getElementById('calc-btn').addEventListener('click', calculateCircuit);
+            
+            // Initialize default mode
+            setMode('astable');
+        });
+
+        document.getElementById('save-btn').addEventListener('click', function() {
+            if(state.lastValid && typeof saveCalculation === 'function') {
+                saveCalculation(state.lastValid.tool, "Circuit Scan", state.lastValid.res);
+                alert("Specifications logged to SMART HUB History.");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Chronos Analytics Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .stat-row { opacity: 0; transform: translateX(-20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .stat-row.show { opacity: 1; transform: translateX(0); }
+        
+        .forecast-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .forecast-table th { text-align: left; padding: 10px; border-bottom: 2px solid var(--accent-color); color: var(--accent-color); }
+        .forecast-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        .badge-day {
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+
+        .life-progress-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            height: 12px;
+            width: 100%;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .life-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #00ffcc);
+            width: 0%;
+            transition: width 2s cubic-bezier(0.65, 0, 0.35, 1);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .live-counter {
+            font-family: 'monospace';
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-infinity"></i> Chronos Analytics Elite</h2>
+                            <p>Deep-time mapping and real-time biological aging.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-cake-candles"></i> Birth Date</span>
+                                <input type="date" id="dob-input" class="form-control">
+                            </div>
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-clock"></i> Birth Time</span>
+                                <input type="time" id="tob-input" class="form-control" value="00:00">
+                            </div>
+                            <button id="run-elite-scan" class="btn-calc">Initialize Chronos Scan</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        
+                        <h3><i class="fa-solid fa-stopwatch"></i> Live Precise Age</h3>
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="justify-content: center; padding: 20px;">
+                                <div id="live-age-counter" class="live-counter">Select Birth Date...</div>
+                            </div>
+                        </div>
+
+                        <h3><i class="fa-solid fa-hourglass-half"></i> Life Remaining Analysis</h3>
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <div style="display:flex; justify-content: space-between; width:100%;">
+                                    <span>Life Path Progress (Based on 80y Average)</span>
+                                    <strong id="life-percent-text">0%</strong>
+                                </div>
+                                <div class="life-progress-container">
+                                    <div id="life-progress-bar" class="life-progress-bar"></div>
+                                </div>
+                                <small id="life-remaining-text" style="opacity: 0.7;"></small>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top:25px;"><i class="fa-solid fa-chart-line"></i> Timeline Stats</h3>
+                        <div class="sub-cat-list" id="elite-metrics"></div>
+
+                        <h3 style="margin-top:25px;"><i class="fa-solid fa-calendar-days"></i> 10-Year Birthday Forecast</h3>
+                        <table class="forecast-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Age</th>
+                                    <th>Day of Week</th>
+                                </tr>
+                            </thead>
+                            <tbody id="forecast-body"></tbody>
+                        </table>
+
+                        <button id="save-report" class="btn-save" style="margin-top:25px;">
+                            <i class="fa-solid fa-save"></i> Export Chronos Report
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let updateInterval;
+
+        document.getElementById('run-elite-scan').addEventListener('click', function() {
+            const dobVal = document.getElementById('dob-input').value;
+            const tobVal = document.getElementById('tob-input').value;
+            if (!dobVal) return;
+
+            const birth = new Date(`${dobVal}T${tobVal}`);
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.classList.remove('hidden');
+
+            // 1. Live Precise Age Counter
+            if(updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => {
+                const now = new Date();
+                const diff = now - birth;
+
+                const yrs = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+                const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
+                const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('live-age-counter').innerText = 
+                    `${yrs}Y ${days}D ${hrs}H ${mins}M ${secs}S`;
+            }, 1000);
+
+            // 2. Life Remaining Logic
+            const avgLife = 80;
+            const ageYears = (new Date() - birth) / (1000 * 60 * 60 * 24 * 365.25);
+            const progress = Math.min((ageYears / avgLife) * 100, 100);
+            
+            const bar = document.getElementById('life-progress-bar');
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = progress.toFixed(1) + '%';
+                document.getElementById('life-percent-text').innerText = progress.toFixed(1) + '%';
+            }, 100);
+
+            document.getElementById('life-remaining-text').innerText = 
+                `Approx. ${(avgLife - ageYears).toFixed(2)} years remaining in the standard life cycle.`;
+
+            // 3. Static Metrics & Forecast
+            renderMetrics(birth);
+            renderForecast(birth);
+        });
+
+        function renderMetrics(birth) {
+            const now = new Date();
+            const totalDays = Math.floor((now - birth) / 86400000);
+            const metrics = [
+                { l: "Total Leap Years", v: countLeaps(birth.getFullYear(), now.getFullYear()) },
+                { l: "Age in Martian Years", v: ((now-birth)/(1000*60*60*24*687)).toFixed(2) },
+                { l: "Day of Birth", v: birth.toLocaleDateString('en-US', {weekday: 'long'}) }
+            ];
+            const area = document.getElementById('elite-metrics');
+            area.innerHTML = '';
+            metrics.forEach((m, i) => {
+                const div = document.createElement('div');
+                div.className = 'sub-link stat-row';
+                div.innerHTML = `<span>${m.l}</span><strong>${m.v}</strong>`;
+                area.appendChild(div);
+                setTimeout(() => div.classList.add('show'), i * 150);
+            });
+        }
+
+        function renderForecast(birth) {
+            const body = document.getElementById('forecast-body');
+            body.innerHTML = '';
+            const currentYear = new Date().getFullYear();
+            for (let i = 1; i <= 10; i++) {
+                const yr = currentYear + i;
+                const day = new Date(yr, birth.getMonth(), birth.getDate()).toLocaleDateString('en-US', {weekday: 'long'});
+                const row = document.createElement('tr');
+                row.className = 'stat-row';
+                row.innerHTML = `<td>${yr}</td><td>${yr - birth.getFullYear()}</td><td><span class="badge-day">${day}</span></td>`;
+                body.appendChild(row);
+                setTimeout(() => row.classList.add('show'), (i + 4) * 100);
+            }
+        }
+
+        function countLeaps(s, e) {
+            let c = 0;
+            for (let i = s; i <= e; i++) {
+                if ((i % 4 === 0 && i % 100 !== 0) || (i % 400 === 0)) c++;
+            }
+            return c;
+        }
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

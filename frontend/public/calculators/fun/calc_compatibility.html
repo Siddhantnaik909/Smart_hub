@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Friendship Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-user-group"></i> Friendship Strength Test</h2>
+                            <p>Analyze the unique bond between two friends using name-frequency algorithms.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Your Name</span>
+                                <input type="text" id="name1" class="form-control" placeholder="Enter name">
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Friend's Name</span>
+                                <input type="text" id="name2" class="form-control" placeholder="Enter friend's name">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Analyze Bond</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Analysis Result</h3>
+                        
+                        <div style="padding: 20px; text-align: center;">
+                            <div id="score-text" style="font-size: 3.5rem; font-weight: 800; color: var(--primary-color);">0%</div>
+                            <div style="width: 100%; background: var(--bg-main); height: 12px; border-radius: 6px; margin: 15px 0; overflow: hidden;">
+                                <div id="strength-bar" style="width: 0%; height: 100%; background: var(--primary-color); transition: width 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcBtn = document.getElementById('calc-btn');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+            const strengthBar = document.getElementById('strength-bar');
+            const scoreText = document.getElementById('score-text');
+
+            calcBtn.addEventListener('click', () => {
+                const n1 = document.getElementById('name1').value.trim().toLowerCase();
+                const n2 = document.getElementById('name2').value.trim().toLowerCase();
+
+                if (!n1 || !n2) {
+                    alert("Please enter both names for analysis.");
+                    return;
+                }
+
+                // Symmetry Algorithm: Summing char codes ensures (A+B) is same as (B+A)
+                const combined = (n1 + n2).split('').sort().join('');
+                let sum = 0;
+                for (let i = 0; i < combined.length; i++) {
+                    sum += combined.charCodeAt(i) * (i + 1);
+                }
+                
+                const percentage = (sum % 41) + 60; // Returns 60% to 100% for positivity
+
+                let message = "";
+                if (percentage > 90) message = "Unstoppable Duo! 🌟";
+                else if (percentage > 80) message = "Inseparable Besties! 🤝";
+                else if (percentage > 70) message = "Great Connection! 😊";
+                else message = "Solid Friendship! ✨";
+
+                // Inject using sub-link structure
+                displayArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Bond Status</span>
+                        <span style="font-weight: 600;">${message}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Compatibility</span>
+                        <span>High</span>
+                    </div>
+                `;
+
+                // Update UI
+                scoreText.innerText = percentage + "%";
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+                
+                // Trigger animation
+                setTimeout(() => {
+                    strengthBar.style.width = percentage + "%";
+                }, 100);
+            });
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

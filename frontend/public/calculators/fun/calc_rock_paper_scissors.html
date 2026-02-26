@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Rock Paper Scissors</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .rps-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .rps-btn {
+            font-size: 2.5rem;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card-2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-header);
+        }
+
+        .rps-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+            background: var(--bg-main);
+        }
+
+        .rps-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        #rps-battleground {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--bg-main);
+            border-radius: 15px;
+        }
+
+        .choice-display {
+            font-size: 3rem;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+        }
+
+        .shake-anim {
+            animation: rps-shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes rps-shake {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .win-glow {
+            box-shadow: 0 0 20px var(--accent-green);
+            border-color: var(--accent-green);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <!-- MULTIPLAYER STATUS -->
+                    <div id="mp-lobby-container" class="cat-card"
+                        style="display: none; margin-bottom: 20px; border: 2px dashed var(--primary-color);">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-globe"></i> Online Multiplayer</h2>
+                            <p>You are connected via Hub Server.</p>
+                        </div>
+                        <div id="mp-active-view"
+                            style="padding: 15px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary-color); display:flex; justify-content:space-between; align-items:center;">
+                            <div><span style="font-size:0.8rem; opacity:0.7;">ROOM CODE</span><br><strong
+                                    style="font-size:1.5rem;" id="mp-active-code"></strong></div>
+                            <div style="text-align:right;"><span
+                                    style="font-size:0.8rem; opacity:0.7;">OPPONENT</span><br><strong
+                                    style="font-size:1.2rem; color: var(--accent-green);"
+                                    id="mp-opponent-name">Waiting... <i class="fa fa-spinner fa-spin"></i></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cat-card">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-hand-back-fist"></i> Battle Arena</h2>
+                            <p>Select your move and challenge the CPU.</p>
+                        </div>
+
+                        <div class="rps-options">
+                            <button class="rps-btn" id="rock-btn" onclick="playRPS('rock')">✊</button>
+                            <button class="rps-btn" id="paper-btn" onclick="playRPS('paper')">✋</button>
+                            <button class="rps-btn" id="scissors-btn" onclick="playRPS('scissors')">✌️</button>
+                        </div>
+
+                        <div id="rps-battleground">
+                            <div class="player-side">
+                                <div class="choice-display" id="p-display">?</div>
+                                <p style="text-align:center; margin-top:5px; font-weight:bold;">YOU</p>
+                            </div>
+                            <div class="vs-text" style="font-weight:900; font-size:1.5rem; opacity:0.5;">VS</div>
+                            <div class="cpu-side">
+                                <div class="choice-display" id="c-display">?</div>
+                                <p style="text-align:center; margin-top:5px; font-weight:bold;">CPU</p>
+                            </div>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Session Record</span>
+                                <span id="session-score">W: 0 | D: 0 | L: 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card hidden" style="display: none; margin-top: 20px;">
+                        <h3>Battle Outcome</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                        </div>
+                        <button id="save-game" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Match History
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        let stats = { w: 0, d: 0, l: 0 };
+        const emojiMap = { rock: '✊', paper: '✋', scissors: '✌️' };
+        let isMoving = false;
+
+        // Multiplayer State
+        let mpClient = null;
+        let pChoice = null;
+        let oChoice = null;
+        let isMultiplayer = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mp-active-view').style.display = 'none';
+            if (window.MultiplayerClient) {
+                mpClient = new window.MultiplayerClient("Battle Arena",
+                    (players) => { // On joined
+                        const opp = players.find(p => p.id !== mpClient.socket.id);
+                        if (opp) {
+                            document.getElementById('mp-lobby-container').style.display = 'block';
+                            document.getElementById('mp-active-view').style.display = 'flex';
+                            document.getElementById('mp-active-code').textContent = mpClient.roomCode;
+                            document.getElementById('mp-opponent-name').innerHTML = `${opp.username}`;
+                            document.querySelector('.cpu-side p').textContent = opp.username.toUpperCase();
+                            isMultiplayer = true;
+                        } else {
+                            // Waiting
+                            document.getElementById('mp-lobby-container').style.display = 'block';
+                            document.getElementById('mp-active-view').style.display = 'flex';
+                            document.getElementById('mp-active-code').textContent = mpClient.roomCode;
+                            isMultiplayer = true;
+                        }
+                    },
+                    (data) => { // On Opponent Action
+                        if (data.action === 'made_choice') {
+                            oChoice = data.payload;
+                            document.getElementById('c-display').textContent = 'READY';
+                            checkMpResolution();
+                        }
+                    },
+                    (data) => { // On left
+                        alert(data.message);
+                        location.reload();
+                    }
+                );
+            }
+        });
+
+
+
+        function playRPS(playerChoice) {
+            if (isMoving) return;
+            isMoving = true;
+            pChoice = playerChoice;
+
+            const pDisp = document.getElementById('p-display');
+            const cDisp = document.getElementById('c-display');
+
+            pDisp.textContent = emojiMap[playerChoice];
+            pDisp.classList.add('win-glow');
+
+            if (isMultiplayer) {
+                mpClient.sendAction('made_choice', playerChoice);
+                checkMpResolution();
+            } else {
+                cDisp.textContent = '✊';
+                cDisp.classList.add('shake-anim');
+                setTimeout(() => {
+                    cDisp.classList.remove('shake-anim');
+                    const choices = ['rock', 'paper', 'scissors'];
+                    oChoice = choices[Math.floor(Math.random() * 3)];
+                    cDisp.textContent = emojiMap[oChoice];
+                    resolveMatch();
+                }, 1200);
+            }
+        }
+
+        function checkMpResolution() {
+            if (pChoice && oChoice) {
+                const cDisp = document.getElementById('c-display');
+                cDisp.textContent = emojiMap[oChoice];
+                resolveMatch();
+            } else {
+                isMoving = false; // Wait for the other player
+            }
+        }
+
+        function resolveMatch() {
+            const cDisp = document.getElementById('c-display');
+            const pDisp = document.getElementById('p-display');
+            const resCard = document.getElementById('results');
+            const resArea = document.getElementById('result-display-area');
+
+            let outcome = '';
+            let statusClass = '';
+
+            if (pChoice === oChoice) {
+                outcome = "It's a Draw!";
+                stats.d++;
+                statusClass = 'tie';
+            } else if (
+                (pChoice === 'rock' && oChoice === 'scissors') ||
+                (pChoice === 'paper' && oChoice === 'rock') ||
+                (pChoice === 'scissors' && oChoice === 'paper')
+            ) {
+                outcome = "Victory!";
+                stats.w++;
+                statusClass = 'win';
+            } else {
+                outcome = "Defeat!";
+                stats.l++;
+                statusClass = 'lose';
+            }
+
+            document.getElementById('session-score').textContent = `W: ${stats.w} | D: ${stats.d} | L: ${stats.l}`;
+
+            resArea.innerHTML = `
+                <div class="sub-link">
+                    <span>Match Result</span>
+                    <strong class="${statusClass}">${outcome}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Move Breakdown</span>
+                    <span>${pChoice.toUpperCase()} vs ${oChoice.toUpperCase()}</span>
+                </div>
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            if (window.setLastCalc) {
+                window.setLastCalc(
+                    isMultiplayer ? "Online Battle Arena" : "Battle Arena VS CPU",
+                    `You: ${pChoice.toUpperCase()} | Opp: ${oChoice.toUpperCase()}`,
+                    outcome
+                );
+            }
+
+            // Cleanup for next round
+            setTimeout(() => {
+                pDisp.classList.remove('win-glow');
+                pChoice = null;
+                oChoice = null;
+                isMoving = false;
+            }, 1000);
+        }
+    </script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="/js/multiplayerClient.js"></script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

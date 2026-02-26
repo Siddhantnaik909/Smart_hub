@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Statistics Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-chart-line"></i> Statistics Analyzer</h2>
+                            <p>Analyze datasets for central tendency and dispersion.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Dataset (Values separated by commas or spaces)</span>
+                                <textarea id="dataSet" class="form-control" style="height: 100px; margin-top: 10px;"
+                                    placeholder="10, 20, 20, 35, 50"></textarea>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Deviation Mode</span>
+                                <select id="stdType" class="form-control">
+                                    <option value="population">Population (σ)</option>
+                                    <option value="sample">Sample (s)</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button id="calc-statistics-btn" class="btn-calc" style="flex: 3;">Analyze Data</button>
+                                <button id="helpBtn" class="btn-calc"
+                                    style="flex: 1; background: var(--text-secondary);">
+                                    <i class="fa-solid fa-question-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3><i class="fa-solid fa-square-poll-vertical"></i> Statistical Summary</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Save
+                                Analysis</button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="helpPanel" class="hidden"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding: 20px;">
+        <div class="cat-card" style="max-width: 500px; width: 100%;">
+            <h3>Population vs Sample</h3>
+            <p style="font-size: 0.9rem; line-height: 1.6;">
+                <strong>Population (σ):</strong> Use when you have data for the entire group. Calculations divide by
+                $N$.<br><br>
+                <strong>Sample (s):</strong> Use when the data is a subset of a larger group. Calculations divide by $N
+                - 1$ (Bessel's correction).
+            </p>
+            <button id="closeHelpBtn" class="btn-calc" style="margin-top: 15px;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        // Help Modal Logic
+        const helpBtn = document.getElementById('helpBtn');
+        const helpPanel = document.getElementById('helpPanel');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+
+        helpBtn.onclick = () => { helpPanel.style.display = 'flex'; helpPanel.classList.remove('hidden'); };
+        closeHelpBtn.onclick = () => { helpPanel.style.display = 'none'; helpPanel.classList.add('hidden'); };
+
+        document.getElementById('calc-statistics-btn').addEventListener('click', function () {
+            const rawData = document.getElementById('dataSet').value;
+            const type = document.getElementById('stdType').value;
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+
+            // Parsing logic
+            const numbers = rawData.split(/[,\s\n]+/).map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+
+            if (numbers.length === 0) {
+                alert("Please enter a valid dataset.");
+                return;
+            }
+
+            // Calculations
+            const n = numbers.length;
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const mean = sum / n;
+
+            const sorted = [...numbers].sort((a, b) => a - b);
+            const median = n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
+
+            const range = sorted[n - 1] - sorted[0];
+
+            // Standard Deviation
+            const sqDiffs = numbers.map(x => Math.pow(x - mean, 2));
+            const variance = sqDiffs.reduce((a, b) => a + b, 0) / (type === 'sample' ? (n - 1 || 1) : n);
+            const stdDev = Math.sqrt(variance);
+
+            // Display
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Count (n)</span><strong>${n}</strong></div>
+                <div class="sub-link"><span>Mean (x̄)</span><strong style="color:var(--accent-color)">${mean.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Median</span><strong>${median.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Range</span><strong>${range.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Std Deviation (${type === 'sample' ? 's' : 'σ'})</span><strong style="color:var(--accent-color)">${stdDev.toFixed(4)}</strong></div>
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            if (window.setLastCalc) {
+                window.setLastCalc("Statistics Analyzer", `${n} Datapoints`, `Mean: ${mean.toFixed(2)} | SD: ${stdDev.toFixed(2)}`);
+            }
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

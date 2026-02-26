@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Vedic Rashi Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-om"></i> Vedic Rashi Calculator</h2>
+                            <p>Determine your moon sign (Rashi) and Nakshatra using Lahiri Ayanamsa.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Birth Date</span>
+                                <input type="date" id="dob" class="form-control">
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Birth Time (IST)</span>
+                                <input type="time" id="tob" class="form-control">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Birth Place</span>
+                                <input type="text" id="place" class="form-control" placeholder="City Name">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Calculate Exact Rashi</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Vedic Astrological Profile</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-rashi" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Horoscope
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const rashis = [
+            "Mesh (Aries) ♈","Vrishabh (Taurus) ♉","Mithun (Gemini) ♊",
+            "Karka (Cancer) ♋","Simha (Leo) ♌","Kanya (Virgo) ♍",
+            "Tula (Libra) ♎","Vrishchik (Scorpio) ♏","Dhanu (Sagittarius) ♐",
+            "Makar (Capricorn) ♑","Kumbha (Aquarius) ♒","Meena (Pisces) ♓"
+        ];
+
+        const nakshatras = [
+            "Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra",
+            "Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni",
+            "Uttara Phalguni","Hasta","Chitra","Swati","Vishakha",
+            "Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha",
+            "Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada",
+            "Uttara Bhadrapada","Revati"
+        ];
+
+        // Math Utilities
+        const toJulian = (date) => date / 86400000 + 2440587.5;
+        
+        function moonLongitude(jd) {
+            const T = (jd - 2451545.0)/36525;
+            let L0 = 218.3164477 + 481267.88123421*T;
+            let M  = 134.9633964 + 477198.8675055*T;
+            let D  = 297.8501921 + 445267.1114034*T;
+            L0 = ((L0%360)+360)%360; M = ((M%360)+360)%360; D = ((D%360)+360)%360;
+            let lon = L0 + 6.289 * Math.sin(M*Math.PI/180) + 1.274 * Math.sin((2*D - M)*Math.PI/180);
+            return ((lon%360)+360)%360;
+        }
+
+        function lahiriAyanamsa(jd) {
+            const t = (jd - 2451545.0)/36525;
+            return 22.460148 + 1.396042*t;
+        }
+
+        document.getElementById("calc-btn").onclick = () => {
+            const dob = document.getElementById("dob").value;
+            const tob = document.getElementById("tob").value;
+            const resArea = document.getElementById("result-display-area");
+            const resCard = document.getElementById("results");
+
+            if(!dob || !tob) return alert("Please provide birth details.");
+
+            const [y,m,d] = dob.split("-").map(Number);
+            const [hh,mm] = tob.split(":").map(Number);
+            const utc = Date.UTC(y, m-1, d, hh-5, mm-30, 0); // IST to UTC
+            const jd = toJulian(utc);
+
+            const moonLon = moonLongitude(jd);
+            const ayan = lahiriAyanamsa(jd);
+            let sidereal = ((moonLon - ayan)%360 + 360)%360;
+
+            const rashi = rashis[Math.floor(sidereal / 30)];
+            const nak = nakshatras[Math.floor(sidereal / (360/27))];
+            const pada = Math.floor((sidereal % (360/27)) / (360/108)) + 1;
+
+            resArea.innerHTML = `
+                <div class="sub-link" style="justify-content: center; padding: 20px 0;">
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 0.8rem; color: var(--primary-color);">MOON SIGN (RASHI)</span>
+                        <strong style="font-size: 1.8rem;">${rashi}</strong>
+                    </div>
+                </div>
+                <div class="sub-link"><span>Nakshatra</span><strong>${nak}</strong></div>
+                <div class="sub-link"><span>Charan (Pada)</span><strong>${pada}</strong></div>
+                <div class="sub-link"><span>Sidereal Position</span><span>${sidereal.toFixed(2)}°</span></div>
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        };
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

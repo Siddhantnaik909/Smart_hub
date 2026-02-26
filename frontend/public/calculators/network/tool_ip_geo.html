@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | IP Geolocation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-earth-americas"></i> IP Geolocation</h2>
+                            <p>Locate IP addresses and retrieve ISP, Country, and Timezone info.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Target IP (Leave empty for yours)</span>
+                                <input type="text" id="geoIP" class="form-control" placeholder="e.g. 8.8.8.8">
+                            </div>
+                            
+                            <button id="btn-geo" class="btn-calc">Locate IP</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Location Data</h3>
+                        <div class="sub-cat-list" id="result-display-area"></div>
+                        
+                        <div id="map-container" style="margin-top: 20px; height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
+                            <iframe id="map-frame" width="100%" height="100%" frameborder="0" style="border:0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('btn-geo').addEventListener('click', async () => {
+            const ip = document.getElementById('geoIP').value.trim();
+            const btn = document.getElementById('btn-geo');
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const mapFrame = document.getElementById('map-frame');
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating...';
+            resArea.innerHTML = '';
+
+            try {
+                // Using ipapi.co (Free tier supports CORS, rate limited)
+                const url = ip ? `https://ipapi.co/${ip}/json/` : `https://ipapi.co/json/`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.reason || "Lookup failed");
+                const flagUrl = data.country_code ? `https://flagcdn.com/24x18/${data.country_code.toLowerCase()}.png` : '';
+
+                const html = `
+                    <div class="sub-link"><span>IP Address</span><strong>${data.ip}</strong></div>
+                    <div class="sub-link"><span>Type</span><strong>${data.version || 'IPv4'}</strong></div>
+                    <div class="sub-link"><span>Continent</span><strong>${data.continent_code}</strong></div>
+                    <div class="sub-link"><span>Country</span><strong>${data.country_name} <img src="${flagUrl}" style="width:20px; vertical-align:middle;"></strong></div>
+                    <div class="sub-link"><span>Region/City</span><strong>${data.region}, ${data.city}</strong></div>
+                    <div class="sub-link"><span>ISP</span><strong>${data.org}</strong></div>
+                    <div class="sub-link"><span>Coordinates</span><strong>${data.latitude}, ${data.longitude}</strong></div>
+                `;
+
+                resArea.innerHTML = html;
+                
+                // Embed OpenStreetMap
+                const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${data.longitude-0.1},${data.latitude-0.1},${data.longitude+0.1},${data.latitude+0.1}&layer=mapnik&marker=${data.latitude},${data.longitude}`;
+                mapFrame.src = mapUrl;
+
+                resCard.style.display = 'block';
+                resCard.classList.remove('hidden');
+
+            } catch (e) {
+                resArea.innerHTML = `<div class="sub-link"><span>Error</span><strong style="color:red;">${e.message}</strong></div>`;
+                resCard.style.display = 'block';
+                resCard.classList.remove('hidden');
+            } finally {
+                btn.innerText = "Locate IP";
+            }
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+</body>
+</html>

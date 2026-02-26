@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced Savings Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-piggy-bank"></i> Advanced Savings Calculator</h2>
+                            <p>Calculate growth with compound interest and regular monthly contributions.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Initial Deposit ($)</span>
+                                <input type="number" id="principal" class="form-control" placeholder="5000">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Monthly Contribution ($)</span>
+                                <input type="number" id="contribution" class="form-control" placeholder="200">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Annual Interest Rate (%)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="7">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Years to Grow</span>
+                                <input type="number" id="years" class="form-control" placeholder="20">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Compounding Interval</span>
+                                <select id="frequency" class="form-control">
+                                    <option value="12">Monthly</option>
+                                    <option value="4">Quarterly</option>
+                                    <option value="1">Annually</option>
+                                </select>
+                            </div>
+                            
+                            <button id="calc-btn-savings" class="btn-calc">Calculate Future Value</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Financial Projection</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-savings-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Projection
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-btn-savings').addEventListener('click', function() {
+            const P = parseFloat(document.getElementById('principal').value) || 0;
+            const PMT = parseFloat(document.getElementById('contribution').value) || 0;
+            const r = (parseFloat(document.getElementById('rate').value) || 0) / 100;
+            const t = parseFloat(document.getElementById('years').value) || 0;
+            const n = parseInt(document.getElementById('frequency').value);
+
+            if (t <= 0) {
+                alert("Please enter a valid time period.");
+                return;
+            }
+
+            // Formula for Compound Interest with Monthly Contributions:
+            // FV = [ P(1 + r/n)^(nt) ] + [ PMT * (((1 + r/n)^(nt) - 1) / (r/n)) ]
+            const periodicRate = r / n;
+            const totalPeriods = n * t;
+            
+            const compoundInterestPrincipal = P * Math.pow((1 + periodicRate), totalPeriods);
+            const futureValueSeries = PMT * ((Math.pow((1 + periodicRate), totalPeriods) - 1) / periodicRate);
+            
+            const totalFinalBalance = compoundInterestPrincipal + futureValueSeries;
+            const totalDeposits = P + (PMT * 12 * t);
+            const totalInterestEarned = totalFinalBalance - totalDeposits;
+
+            const displayArea = document.getElementById('result-display-area');
+            const resultsCard = document.getElementById('results');
+
+            displayArea.innerHTML = `
+                <div class="sub-link">
+                    <span>End Balance</span>
+                    <strong style="color: var(--primary-color);">$${totalFinalBalance.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Deposits</span>
+                    <strong>$${totalDeposits.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Interest</span>
+                    <strong style="color: #2ecc71;">$${totalInterestEarned.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Buying Power (Adjusted for 3% Inflation)</span>
+                    <small>$${(totalFinalBalance / Math.pow(1.03, t)).toLocaleString(undefined, {maximumFractionDigits: 2})}</small>
+                </div>
+            `;
+
+            resultsCard.style.display = 'block';
+            resultsCard.classList.remove('hidden');
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

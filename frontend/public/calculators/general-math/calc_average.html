@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Statistical Analyzer Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-chart-simple"></i> Statistical Analyzer Pro</h2>
+                            <p>Enter your dataset below. Supports commas, spaces, or new lines.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: stretch;">
+                                <span>Dataset Input</span>
+                                <textarea id="numbers" class="form-control" rows="5" placeholder="e.g., 12, 45, 67, 23, 89, 12" style="margin-top: 10px; resize: vertical;"></textarea>
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="analyzeData()">Analyze Dataset</button>
+                            <button class="btn-save" style="margin-top:10px; opacity:0.6;" onclick="document.getElementById('numbers').value=''">
+                                <i class="fa-solid fa-trash-can"></i> Clear Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Statistical Descriptive Profile</h3>
+                        
+                        
+
+[Image of Mean Median Mode and Range diagram]
+
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-microchip"></i> Analytics Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Analysis
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function analyzeData() {
+            const input = document.getElementById('numbers').value;
+            // Enhanced regex to handle all common delimiters and filter out non-numbers
+            const nums = input.split(/[\s,;\n\r]+/).map(n => n.trim()).filter(n => n !== "" && !isNaN(n)).map(Number);
+            
+            if (nums.length === 0) {
+                alert("Please enter a valid numeric dataset.");
+                return;
+            }
+
+            const resCard = document.getElementById('results');
+            const resArea = document.getElementById('result-display-area');
+            const tipArea = document.getElementById('pro-tip');
+
+            // Calculations
+            const count = nums.length;
+            const sum = nums.reduce((a, b) => a + b, 0);
+            const mean = sum / count;
+            
+            // Median
+            const sorted = [...nums].sort((a, b) => a - b);
+            const mid = Math.floor(count / 2);
+            const median = count % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+            // Mode
+            const freq = {};
+            let maxFreq = 0;
+            nums.forEach(n => {
+                freq[n] = (freq[n] || 0) + 1;
+                if (freq[n] > maxFreq) maxFreq = freq[n];
+            });
+            const modes = Object.keys(freq).filter(n => freq[n] === maxFreq);
+            const modeStr = maxFreq > 1 ? modes.join(', ') : "No unique mode";
+
+            // Advanced Stats: Variance & Std Deviation
+            const variance = nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / count;
+            const stdDev = Math.sqrt(variance);
+            const range = sorted[count - 1] - sorted[0];
+
+            // UI Update using required sub-link structure
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Mean (Arithmetic Average)</span><strong>${mean.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Median (Middle Value)</span><strong>${median}</strong></div>
+                <div class="sub-link"><span>Mode (Most Frequent)</span><strong>${modeStr}</strong></div>
+                <div class="sub-link"><span>Range (Max - Min)</span><strong>${range}</strong></div>
+                <div class="sub-link"><span>Standard Deviation (σ)</span><strong>${stdDev.toFixed(4)}</strong></div>
+                <div class="sub-link"><span>Variance (σ²)</span><strong>${variance.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Sample Size (n)</span><strong>${count}</strong></div>
+            `;
+
+            // Dynamic Tip Logic
+            if (stdDev > (range / 4)) {
+                tipArea.innerHTML = "Your data has high <strong>volatility</strong>. The high Standard Deviation relative to the range suggests the numbers are spread far from the mean.";
+            } else {
+                tipArea.innerHTML = "Your data is <strong>consistent</strong>. The values are clustered closely around the average, indicating a stable trend.";
+            }
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

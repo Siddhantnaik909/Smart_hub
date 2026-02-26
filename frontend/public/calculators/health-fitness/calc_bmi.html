@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Clinical BMI Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .health-gauge {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+        .gauge-segment { height: 100%; }
+        .underweight { background: #3b82f6; width: 18.5%; }
+        .normal { background: #10b981; width: 6.5%; } /* up to 25 */
+        .overweight { background: #f59e0b; width: 5%; } /* up to 30 */
+        .obese { background: #ef4444; width: 70%; }
+        
+        .gauge-pointer {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--text-primary);
+            border: 2px solid white;
+            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-weight-scale"></i> Clinical BMI Analyzer</h2>
+                            <p>Assess body mass index and receive personalized weight range recommendations.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Weight (kg)</span>
+                                <input type="number" id="bmiWeight" class="form-control" placeholder="e.g. 70" step="0.1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Height (cm)</span>
+                                <input type="number" id="bmiHeight" class="form-control" placeholder="e.g. 175">
+                            </div>
+                            
+                            <button id="calc-bmi-btn" class="btn-calc" onclick="analyzeHealth()">Calculate Analysis</button>
+                            <button id="clear-bmi-btn" class="btn-secondary" style="margin-top: 10px; opacity: 0.7;">Clear Data</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Health Profile Summary</h3>
+                        
+                        <div class="love-meter-container" style="text-align: center; padding: 20px 0;">
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">Current BMI Score</span>
+                            <div id="bmiResult" style="font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan);">0.0</div>
+                            <strong id="bmiCategory" style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">-</strong>
+                        </div>
+
+                        <div class="health-gauge">
+                            <div class="gauge-segment underweight"></div>
+                            <div class="gauge-segment normal"></div>
+                            <div class="gauge-segment overweight"></div>
+                            <div class="gauge-segment obese"></div>
+                            <div id="gauge-pointer" class="gauge-pointer" style="left: 0%;"></div>
+                        </div>
+
+                        
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; margin-top: 15px; padding: 15px;">
+                            <span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-heart-pulse"></i> Medical Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button id="save-bmi-btn" class="btn-save" style="flex: 1;">
+                                <i class="fa-solid fa-save"></i> Save Record
+                            </button>
+                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
+                                <i class="fa-solid fa-print"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function analyzeHealth() {
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            const heightCm = parseFloat(document.getElementById('bmiHeight').value);
+            const resCard = document.getElementById('results');
+
+            if (!weight || !heightCm) {
+                alert("Please enter both weight and height.");
+                return;
+            }
+
+            const heightM = heightCm / 100;
+            const bmi = (weight / (heightM * heightM)).toFixed(1);
+            
+            // UI Elements
+            const bmiText = document.getElementById('bmiResult');
+            const catText = document.getElementById('bmiCategory');
+            const pointer = document.getElementById('gauge-pointer');
+            const resArea = document.getElementById('result-display-area');
+            const tipArea = document.getElementById('pro-tip');
+
+            // Category Logic
+            let category = "";
+            let color = "";
+            let tip = "";
+            let pointerPos = (bmi / 40) * 100; // Simplified scale up to 40
+            if (pointerPos > 100) pointerPos = 98;
+
+            if (bmi < 18.5) {
+                category = "Underweight";
+                color = "#3b82f6";
+                tip = "Consider consulting a nutritionist to establish a healthy weight-gain plan focusing on nutrient-dense foods.";
+            } else if (bmi < 25) {
+                category = "Normal Weight";
+                color = "#10b981";
+                tip = "Excellent! You are within the healthy range. Maintain this with a balanced diet and at least 150 minutes of weekly activity.";
+            } else if (bmi < 30) {
+                category = "Overweight";
+                color = "#f59e0b";
+                tip = "You are slightly above the ideal range. Small lifestyle adjustments in portion control and daily steps can make a big difference.";
+            } else {
+                category = "Obese";
+                color = "#ef4444";
+                tip = "Your BMI suggests health risks. We recommend a check-up with a healthcare provider to discuss a safe cardiovascular plan.";
+            }
+
+            // Calculations for Ideal Weight (Robinson Formula approx)
+            const minIdeal = (18.5 * (heightM * heightM)).toFixed(1);
+            const maxIdeal = (24.9 * (heightM * heightM)).toFixed(1);
+
+            // Update UI
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+            bmiText.innerText = bmi;
+            bmiText.style.color = color;
+            catText.innerText = category;
+            catText.style.color = color;
+            pointer.style.left = pointerPos + "%";
+            
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Ideal Weight Range</span><strong>${minIdeal}kg - ${maxIdeal}kg</strong></div>
+                <div class="sub-link"><span>Height in Meters</span><strong>${heightM} m</strong></div>
+                <div class="sub-link"><span>Health Risk Level</span><strong>${bmi >= 30 ? 'Elevated' : 'Standard'}</strong></div>
+            `;
+            
+            tipArea.innerHTML = tip;
+        }
+
+        document.getElementById('clear-bmi-btn').addEventListener('click', () => {
+            document.getElementById('bmiWeight').value = '';
+            document.getElementById('bmiHeight').value = '';
+            document.getElementById('results').style.display = 'none';
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+</body>
+</html>

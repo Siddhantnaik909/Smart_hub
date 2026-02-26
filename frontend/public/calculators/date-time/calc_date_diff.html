@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>SMART HUB | Date Difference</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+<div class="dashboard-layout" id="dashboard-wrapper">
+<div class="overlay" id="mobile-overlay"></div>
+<div id="sidebar-placeholder"></div>
+<main class="main-content">
+    <div id="header-placeholder"></div>
+<div class="page-body">
+<section class="container grid-section fade-in delay-1">
+<div class="cat-card stagger-1">
+<h3>Select Dates</h3>
+<div class="sub-cat-list">
+<div class="sub-link">
+<span>Start Date</span>
+<input class="form-control" id="startDate" type="date"/>
+</div>
+<div class="sub-link">
+<span>End Date</span>
+<input class="form-control" id="endDate" type="date"/>
+</div>
+<button class="sub-link" onclick="calculateDifference()" style="background-color: var(--primary-color); color: var(--text-white); justify-content: center;">
+                                Calculate Difference
+                            </button>
+</div>
+</div>
+<div class="cat-card stagger-2" id="resultBox" style="display: none;">
+<h3>Duration</h3>
+<div class="sub-cat-list">
+<div class="sub-link" style="background-color: var(--bg-main);">
+<span>Years</span><span id="resYears" style="font-weight: bold; color: var(--primary-color);">0</span>
+</div>
+<div class="sub-link" style="background-color: var(--bg-main);">
+<span>Months</span><span id="resMonths" style="font-weight: bold; color: var(--primary-color);">0</span>
+</div>
+<div class="sub-link" style="background-color: var(--bg-main);">
+<span>Days</span><span id="resDays" style="font-weight: bold; color: var(--primary-color);">0</span>
+</div>
+<div class="sub-link">
+<span>Total Days</span><span id="totalDaysSummary" style="font-weight: bold;">0</span>
+</div>
+</div>
+</div>
+</section>
+    <div id="footer-placeholder"></div>
+</div>
+</main>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const lastMonth = new Date();
+            lastMonth.setMonth(today.getMonth() - 1);
+            document.getElementById('endDate').valueAsDate = today;
+            document.getElementById('startDate').valueAsDate = lastMonth;
+        });
+
+        function calculateDifference() {
+            const startVal = document.getElementById('startDate').value;
+            const endVal = document.getElementById('endDate').value;
+
+            if (!startVal || !endVal) { alert("Please select both dates"); return; }
+
+            const start = new Date(startVal);
+            const end = new Date(endVal);
+
+            let years = end.getFullYear() - start.getFullYear();
+            let months = end.getMonth() - start.getMonth();
+            let days = end.getDate() - start.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+            }
+            if (months < 0) { years--; months += 12; }
+
+            years = Math.abs(years);
+            months = Math.abs(months);
+            days = Math.abs(days);
+
+            const oneDay = 24 * 60 * 60 * 1000;
+            const totalDays = Math.round(Math.abs((end - start) / oneDay));
+
+            document.getElementById('resYears').innerText = years;
+            document.getElementById('resMonths').innerText = months;
+            document.getElementById('resDays').innerText = days;
+            document.getElementById('totalDaysSummary').innerHTML = `<b>${totalDays.toLocaleString()} days</b>`;
+            document.getElementById('resultBox').style.display = 'block';
+
+            saveCalculation('Date Diff', `Start: ${startVal}, End: ${endVal}`, `Result: ${totalDays} days`);
+        }
+    </script>
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/app.js"></script>
+    <script src="/js/custom.js"></script>
+    <script>
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = 'Date Difference';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Standard Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-grid-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .calc-btn {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-header);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calc-btn:hover { background: var(--bg-hover); transform: translateY(-2px); }
+        .calc-btn.operator { background: rgba(99, 102, 241, 0.1); color: var(--primary-color); font-weight: bold; }
+        .calc-btn.equal { background: var(--primary-gradient); color: white; grid-column: span 2; }
+        .calc-btn.clear { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        #display {
+            width: 100%;
+            padding: 20px;
+            font-size: 2rem;
+            text-align: right;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            background: var(--bg-main);
+            color: var(--text-header);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <div class="container" style="max-width: 400px;">
+                    <div class="calc-card fade-in">
+                        <input type="text" id="display" readonly value="0">
+                        <div class="calc-grid-buttons">
+                            <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+                            <button class="calc-btn operator" onclick="appendOperator('/')">÷</button>
+                            <button class="calc-btn operator" onclick="appendOperator('*')">×</button>
+                            <button class="calc-btn operator" onclick="deleteLast()"><i class="fas fa-backspace"></i></button>
+                            
+                            <button class="calc-btn" onclick="appendNumber('7')">7</button>
+                            <button class="calc-btn" onclick="appendNumber('8')">8</button>
+                            <button class="calc-btn" onclick="appendNumber('9')">9</button>
+                            <button class="calc-btn operator" onclick="appendOperator('-')">-</button>
+                            
+                            <button class="calc-btn" onclick="appendNumber('4')">4</button>
+                            <button class="calc-btn" onclick="appendNumber('5')">5</button>
+                            <button class="calc-btn" onclick="appendNumber('6')">6</button>
+                            <button class="calc-btn operator" onclick="appendOperator('+')">+</button>
+                            
+                            <button class="calc-btn" onclick="appendNumber('1')">1</button>
+                            <button class="calc-btn" onclick="appendNumber('2')">2</button>
+                            <button class="calc-btn" onclick="appendNumber('3')">3</button>
+                            <button class="calc-btn equal" onclick="calculate()">=</button>
+                            
+                            <button class="calc-btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                            <button class="calc-btn" onclick="appendNumber('.')">.</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+    <script>
+        let currentInput = '0';
+        
+        function updateDisplay() {
+            document.getElementById('display').value = currentInput;
+        }
+
+        function appendNumber(num) {
+            if (currentInput === '0' && num !== '.') currentInput = num;
+            else currentInput += num;
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            const lastChar = currentInput.slice(-1);
+            if (['+', '-', '*', '/'].includes(lastChar)) currentInput = currentInput.slice(0, -1);
+            currentInput += op;
+            updateDisplay();
+        }
+
+        function clearDisplay() { currentInput = '0'; updateDisplay(); }
+        function deleteLast() { currentInput = currentInput.slice(0, -1) || '0'; updateDisplay(); }
+        
+        function calculate() {
+            try {
+                currentInput = eval(currentInput).toString();
+                updateDisplay();
+            } catch { currentInput = 'Error'; updateDisplay(); setTimeout(clearDisplay, 1500); }
+        }
+    </script>
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/app.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

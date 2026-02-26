@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Prenatal Journey Architect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-baby"></i> Prenatal Journey Architect</h2>
+                            <p>Map out your pregnancy timeline, from conception milestones to your estimated due date.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>First Day of Last Period (LMP)</span>
+                                <input type="date" id="lmpDate" class="form-control">
+                            </div>
+                            
+                            <button id="calculateBtn" class="btn-calc" style="background-color: #8b5cf6;">Analyze Journey</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Pregnancy Summary</h3>
+                        
+                        <div style="text-align: center; padding: 20px 0; background: rgba(139, 92, 246, 0.05); border-radius: 12px; margin-bottom: 20px;">
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Delivery Date</span>
+                            <div id="dueDateDisplay" style="font-size: 2rem; font-weight: 800; color: #8b5cf6;">---</div>
+                            <strong id="trimesterDisplay" style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">-</strong>
+                        </div>
+
+                        
+
+[Image of fetal development stages by week]
+
+
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        
+
+[Image of baby size comparison to fruits by week]
+
+
+                        <div class="sub-link" style="background: rgba(139, 92, 246, 0.05); border-left: 4px solid #8b5cf6; margin-top: 15px; padding: 15px;">
+                            <span style="color: #8b5cf6; font-weight: bold;"><i class="fa-solid fa-wand-magic-sparkles"></i> Milestone Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button id="save-btn" class="btn-save" style="flex: 1;">
+                                <i class="fa-solid fa-save"></i> Save to Timeline
+                            </button>
+                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
+                                <i class="fa-solid fa-print"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const lmpInput = document.getElementById('lmpDate');
+            const lmpDate = new Date(lmpInput.value);
+            
+            if (isNaN(lmpDate.getTime())) {
+                alert("Please select a valid date.");
+                return;
+            }
+
+            const resCard = document.getElementById('results');
+            const resArea = document.getElementById('result-display-area');
+            const dueDisplay = document.getElementById('dueDateDisplay');
+            const trimDisplay = document.getElementById('trimesterDisplay');
+            const tipArea = document.getElementById('pro-tip');
+
+            // Due Date Calculation (LMP + 280 Days)
+            const dueDate = new Date(lmpDate);
+            dueDate.setDate(dueDate.getDate() + 280);
+
+            // Gestational Age
+            const today = new Date();
+            const diffDays = Math.floor((today - lmpDate) / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
+
+            // Milestones
+            const conception = new Date(lmpDate); conception.setDate(conception.getDate() + 14);
+            const heartbeat = new Date(lmpDate); heartbeat.setDate(heartbeat.getDate() + 42); // 6 weeks
+            const viability = new Date(lmpDate); viability.setDate(viability.getDate() + 168); // 24 weeks
+
+            // Trimester Logic
+            let trimester = "";
+            if (weeks < 13) trimester = "1st Trimester";
+            else if (weeks < 27) trimester = "2nd Trimester";
+            else trimester = "3rd Trimester";
+
+            // Formatting
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            dueDisplay.innerText = dueDate.toLocaleDateString('en-US', options);
+            trimDisplay.innerText = trimester;
+
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Current Progress</span><strong>${weeks} Weeks, ${days} Days</strong></div>
+                <div class="sub-link"><span>Est. Conception Date</span><strong>${conception.toLocaleDateString('en-US', options)}</strong></div>
+                <div class="sub-link"><span>Heartbeat Milestone</span><strong>${heartbeat.toLocaleDateString('en-US', options)}</strong></div>
+                <div class="sub-link"><span>Fetal Viability Date</span><strong>${viability.toLocaleDateString('en-US', options)}</strong></div>
+            `;
+
+            tipArea.innerHTML = weeks < 12 
+                ? "During the <strong>1st Trimester</strong>, the foundation for all major organs is being built. Ensure you are taking folic acid as recommended by your doctor."
+                : "Your baby is now about the size of a <strong>" + getFruit(weeks) + "</strong>! It's a great time to start documenting your journey.";
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+
+        function getFruit(w) {
+            if (w < 8) return "Raspberry";
+            if (w < 12) return "Lime";
+            if (w < 16) return "Avocado";
+            if (w < 20) return "Banana";
+            if (w < 24) return "Ear of Corn";
+            if (w < 28) return "Eggplant";
+            if (w < 32) return "Squash";
+            if (w < 36) return "Honeydew";
+            return "Watermelon";
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+</body>
+</html>

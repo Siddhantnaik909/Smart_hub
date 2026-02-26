@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Resistor Color Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .resistor-visualizer {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .resistor-body {
+            height: 40px;
+            width: 180px;
+            background: #d1b48c;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            position: relative;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+        .resistor-body::before, .resistor-body::after {
+            content: '';
+            position: absolute;
+            height: 4px;
+            width: 40px;
+            background: #888;
+            top: 18px;
+            z-index: -1;
+        }
+        .resistor-body::before { left: -40px; }
+        .resistor-body::after { right: -40px; }
+        .band-preview {
+            height: 100%;
+            width: 12px;
+            transition: background 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-palette"></i> 4-Band Resistor Decoder</h2>
+                            <p>Translate colored bands into precise resistance values.</p>
+                        </div>
+
+                        <div class="resistor-visualizer">
+                            <div class="resistor-body">
+                                <div id="b1-view" class="band-preview" style="background: brown; border-top-left-radius: 10px; border-bottom-left-radius: 10px;"></div>
+                                <div id="b2-view" class="band-preview" style="background: black;"></div>
+                                <div id="bm-view" class="band-preview" style="background: red;"></div>
+                                <div id="bt-view" class="band-preview" style="background: gold; border-top-right-radius: 10px; border-bottom-right-radius: 10px; margin-left: 20px;"></div>
+                            </div>
+                        </div>
+                        
+                        
+
+[Image of resistor color code chart]
+
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>1st Band (Digit)</span>
+                                <select id="band1" class="form-control" onchange="updateResistor()"></select>
+                            </div>
+                            <div class="sub-link">
+                                <span>2nd Band (Digit)</span>
+                                <select id="band2" class="form-control" onchange="updateResistor()"></select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Multiplier</span>
+                                <select id="band-mult" class="form-control" onchange="updateResistor()"></select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Tolerance</span>
+                                <select id="band-tol" class="form-control" onchange="updateResistor()"></select>
+                            </div>
+                            <button id="calc-trigger" class="btn-calc" onclick="showResults()">Calculate Value</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Calculated Resistance</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-circle-info"></i> Engineer's Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save to Inventory
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const colors = {
+            black: { val: 0, mult: 1, tol: null, hex: '#000000' },
+            brown: { val: 1, mult: 10, tol: 1, hex: '#8B4513' },
+            red: { val: 2, mult: 100, tol: 2, hex: '#FF0000' },
+            orange: { val: 3, mult: 1000, tol: null, hex: '#FFA500' },
+            yellow: { val: 4, mult: 10000, tol: null, hex: '#FFFF00' },
+            green: { val: 5, mult: 100000, tol: 0.5, hex: '#008000' },
+            blue: { val: 6, mult: 1000000, tol: 0.25, hex: '#0000FF' },
+            violet: { val: 7, mult: 10000000, tol: 0.1, hex: '#EE82EE' },
+            grey: { val: 8, mult: 100000000, tol: 0.05, hex: '#808080' },
+            white: { val: 9, mult: 1000000000, tol: null, hex: '#FFFFFF' },
+            gold: { val: null, mult: 0.1, tol: 5, hex: '#D4AF37' },
+            silver: { val: null, mult: 0.01, tol: 10, hex: '#C0C0C0' }
+        };
+
+        function init() {
+            const b1 = document.getElementById('band1');
+            const b2 = document.getElementById('band2');
+            const bm = document.getElementById('band-mult');
+            const bt = document.getElementById('band-tol');
+
+            Object.keys(colors).forEach(color => {
+                const name = color.charAt(0).toUpperCase() + color.slice(1);
+                if (colors[color].val !== null) {
+                    b1.add(new Option(name, color));
+                    b2.add(new Option(name, color));
+                }
+                bm.add(new Option(name, color));
+                if (colors[color].tol !== null) bt.add(new Option(name, color));
+            });
+
+            // Set defaults
+            b1.value = 'brown'; b2.value = 'black'; bm.value = 'red'; bt.value = 'gold';
+            updateResistor();
+        }
+
+        function updateResistor() {
+            document.getElementById('b1-view').style.background = colors[document.getElementById('band1').value].hex;
+            document.getElementById('b2-view').style.background = colors[document.getElementById('band2').value].hex;
+            document.getElementById('bm-view').style.background = colors[document.getElementById('band-mult').value].hex;
+            document.getElementById('bt-view').style.background = colors[document.getElementById('band-tol').value].hex;
+        }
+
+        function showResults() {
+            const b1 = colors[document.getElementById('band1').value].val;
+            const b2 = colors[document.getElementById('band2').value].val;
+            const mult = colors[document.getElementById('band-mult').value].mult;
+            const tol = colors[document.getElementById('band-tol').value].tol;
+
+            const ohms = (b1 * 10 + b2) * mult;
+            let displayValue = ohms >= 1e6 ? (ohms/1e6).toFixed(2) + ' MΩ' : 
+                               ohms >= 1e3 ? (ohms/1e3).toFixed(2) + ' kΩ' : ohms + ' Ω';
+
+            document.getElementById('result-display-area').innerHTML = `
+                <div class="sub-link"><span>Total Resistance</span><strong>${displayValue}</strong></div>
+                <div class="sub-link"><span>Tolerance Range</span><strong>±${tol}%</strong></div>
+                <div class="sub-link"><span>Ohmic Value</span><strong>${ohms.toLocaleString()} Ohms</strong></div>
+            `;
+
+            document.getElementById('pro-tip').innerHTML = `To read a real resistor, look for the band that is slightly separated or thicker—that is usually the <strong>Tolerance band</strong> (Gold/Silver). Hold that to the <strong>right</strong> and read from left to right.`;
+
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.classList.remove('hidden');
+        }
+
+        window.onload = init;
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

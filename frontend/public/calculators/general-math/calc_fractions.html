@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Fractions Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <div class="container">
+                    <div class="calc-card fade-in">
+                        <div class="calculator-header">
+                            <h2><i class="fas fa-divide"></i> Fractions Calculator</h2>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                            <div style="display: flex; flex-direction: column; width: 60px;">
+                                <input type="number" id="n1" class="form-control" style="text-align: center;">
+                                <hr style="width: 100%; border: 1px solid var(--text-muted); margin: 5px 0;">
+                                <input type="number" id="d1" class="form-control" style="text-align: center;">
+                            </div>
+                            
+                            <select id="op" class="form-control" style="width: 50px; padding: 5px;">
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                                <option value="*">×</option>
+                                <option value="/">÷</option>
+                            </select>
+
+                            <div style="display: flex; flex-direction: column; width: 60px;">
+                                <input type="number" id="n2" class="form-control" style="text-align: center;">
+                                <hr style="width: 100%; border: 1px solid var(--text-muted); margin: 5px 0;">
+                                <input type="number" id="d2" class="form-control" style="text-align: center;">
+                            </div>
+                        </div>
+
+                        <button class="btn-calc" onclick="calcFraction()" style="margin-top: 20px;">Calculate</button>
+                        
+                        <div id="result" class="result-box" style="text-align: center;"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+    <script>
+        function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+        function calcFraction() {
+            const n1 = parseInt(document.getElementById('n1').value);
+            const d1 = parseInt(document.getElementById('d1').value);
+            const n2 = parseInt(document.getElementById('n2').value);
+            const d2 = parseInt(document.getElementById('d2').value);
+            const op = document.getElementById('op').value;
+
+            if ([n1, d1, n2, d2].some(isNaN) || d1 === 0 || d2 === 0) {
+                alert("Please enter valid numbers (denominators cannot be 0).");
+                return;
+            }
+
+            let resN, resD;
+            if (op === '+') { resN = n1*d2 + n2*d1; resD = d1*d2; }
+            else if (op === '-') { resN = n1*d2 - n2*d1; resD = d1*d2; }
+            else if (op === '*') { resN = n1*n2; resD = d1*d2; }
+            else if (op === '/') { resN = n1*d2; resD = d1*n2; }
+
+            const common = gcd(Math.abs(resN), Math.abs(resD));
+            const finalN = resN / common;
+            const finalD = resD / common;
+
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result').innerHTML = `<h3>Result: ${finalN}/${finalD}</h3><p>Decimal: ${(finalN/finalD).toFixed(4)}</p>`;
+        }
+    </script>
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/app.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

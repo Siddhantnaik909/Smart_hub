@@ -1,0 +1,241 @@
+<aside class="sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebarCollapse()">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+    <div class="brand-block">
+        <i class="fa-solid fa-microchip"
+            style="color: var(--primary-color); margin-right: 12px; font-size: 1.5rem;"></i>
+        <span id="site-logo-text">SMART HUB</span>
+    </div>
+
+    <div class="user-profile">
+        <div class="user-avatar">JD</div>
+        <div class="user-info">
+            <h4>John Doe</h4>
+            <p>Pro Member</p>
+        </div>
+    </div>
+
+
+
+    <nav class="side-menu">
+        <a href="/index.html" data-title="Dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="/calculators.html" data-title="Calculators List"><i class="fas fa-calculator"></i> <span>Calculators
+                list</span></a>
+
+        <div class="dropdown" id="calculators-dropdown">
+            <a onclick="toggleDropdown('calculators-dropdown-content', this)" data-title="All Calculators">
+                <i class="fas fa-th-large"></i>
+                <span>All Calculators</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+            </a>
+
+            <div class="dropdown-content" id="calculators-dropdown-content">
+
+                <div class="dropdown" id="construction-dropdown">
+                    <a onclick="toggleDropdown('construction-dropdown-content', this)" data-title="Construction">
+                        <i class="fas fa-hard-hat"></i>
+                        <span>Construction</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="construction-dropdown-content">
+                        <a href="/calculators/construction/calc_concrete.html">Concrete Calculator</a>
+                        <a href="/calculators/construction/calc_flooring.html">Flooring Calculator</a>
+                        <a href="/calculators/construction/calc_fuel.html">Fuel Cost Calculator</a>
+                        <a href="/calculators/construction/calc_ohm.html">Ohm's Law (Construction)</a>
+                        <a href="/calculators/construction/calc_paint.html">Paint Calculator</a>
+                        <a href="/calculators/construction/calc_wall_stud.html">Wall Stud Calculator</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="crypto-dropdown">
+                    <a onclick="toggleDropdown('crypto-dropdown-content', this)" data-title="Cryptography">
+                        <i class="fas fa-vault"></i>
+                        <span>Cryptography</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="crypto-dropdown-content">
+                        <a href="/calculators/cryptography/tool_md5_generator.html">MD5 Generator</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="datetime-dropdown">
+                    <a onclick="toggleDropdown('datetime-dropdown-content', this)" data-title="Date & Time">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Date & Time</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="datetime-dropdown-content">
+                        <a href="/calculators/date-time/calc_age.html">Age Calculator</a>
+                        <a href="/calculators/date-time/calc_countdown.html">Countdown Timer</a>
+                        <a href="/calculators/date-time/calc_date_diff.html">Date Difference</a>
+                        <a href="/calculators/date-time/calc_hours_worked.html">Hours Worked</a>
+                        <a href="/calculators/date-time/calc_leap_year.html">Leap Year Checker</a>
+                        <a href="/calculators/date-time/calc_time_add.html">Time Addition</a>
+                        <a href="/calculators/date-time/calc_time_zone.html">Time Zone Converter</a>
+                        <a href="/calculators/date-time/calc_working_days.html">Working Days</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="electronics-dropdown">
+                    <a onclick="toggleDropdown('electronics-dropdown-content', this)" data-title="Electronics">
+                        <i class="fas fa-microchip"></i>
+                        <span>Electronics</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="electronics-dropdown-content">
+                        <a href="/calculators/electronics/calc_555_timer.html">555 Timer</a>
+                        <a href="/calculators/electronics/calc_capacitor_code.html">Capacitor Code</a>
+                        <a href="/calculators/electronics/calc_led_resistor_calculator.html">LED Resistor</a>
+                        <a href="/calculators/electronics/calc_ohm.html">Ohm's Law</a>
+                        <a href="/calculators/electronics/calc_resistor_color_code.html">Resistor Color Code</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="finance-dropdown">
+                    <a onclick="toggleDropdown('finance-dropdown-content', this)" data-title="Finance">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Finance</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="finance-dropdown-content">
+                        <a href="/calculators/finance/calc_car_loan.html">Car Loan</a>
+                        <a href="/calculators/finance/calc_compound.html">Compound Interest (Simple)</a>
+                        <a href="/calculators/finance/calc_compound_interest.html">Compound Interest (Advanced)</a>
+                        <a href="/calculators/finance/calc_currency.html">Currency Converter</a>
+                        <a href="/calculators/finance/calc_discount.html">Discount Calculator</a>
+                        <a href="/calculators/finance/calc_loan.html">General Loan</a>
+                        <a href="/calculators/finance/calc_loan_emi.html">Loan EMI</a>
+                        <a href="/calculators/finance/calc_mortgage.html">Mortgage Calculator</a>
+                        <a href="/calculators/finance/calc_roi.html">ROI Calculator</a>
+                        <a href="/calculators/finance/calc_salary.html">Salary Calculator</a>
+                        <a href="/calculators/finance/calc_savings_goal.html">Savings Goal</a>
+                        <a href="/calculators/finance/calc_tax_gst.html">Tax / GST</a>
+                        <a href="/calculators/finance/calc_tip_calculator.html">Tip Calculator</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="math-dropdown">
+                    <a onclick="toggleDropdown('math-dropdown-content', this)" data-title="General & Math">
+                        <i class="fas fa-calculator"></i>
+                        <span>General Math</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="math-dropdown-content">
+                        <a href="/calculators/general-math/calc_average.html">Average Calculator</a>
+                        <a href="/calculators/general-math/calc_fractions.html">Fractions Calculator</a>
+                        <a href="/calculators/general-math/calc_math_toolkit.html">Math Toolkit</a>
+                        <a href="/calculators/general-math/calc_percentage.html">Percentage Calculator</a>
+                        <a href="/calculators/general-math/calc_programmer.html">Programmer Calculator</a>
+                        <a href="/calculators/general-math/calc_scientific.html">Scientific Calculator</a>
+                        <a href="/calculators/general-math/calc_standard.html">Standard Calculator</a>
+                        <a href="/calculators/general-math/tool_password.html">Password Generator</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="health-dropdown">
+                    <a onclick="toggleDropdown('health-dropdown-content', this)" data-title="Health & Fitness">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Health & Fitness</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="health-dropdown-content">
+                        <a href="/calculators/health-fitness/calc_bmi.html">BMI Calculator</a>
+                        <a href="/calculators/health-fitness/calc_bmr.html">BMR Calculator</a>
+                        <a href="/calculators/health-fitness/calc_body_fat.html">Body Fat Percentage</a>
+                        <a href="/calculators/health-fitness/calc_calorie.html">Calorie Calculator</a>
+                        <a href="/calculators/health-fitness/calc_calorie-calculator.html">Calorie Tracker Pro</a>
+                        <a href="/calculators/health-fitness/calc_ovulation.html">Ovulation Calculator</a>
+                        <a href="/calculators/health-fitness/calc_pregnancy.html">Pregnancy Due Date</a>
+                        <a href="/calculators/health-fitness/calc_water.html">Water Intake</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="network-dropdown">
+                    <a onclick="toggleDropdown('network-dropdown-content', this)" data-title="Network">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Network</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="network-dropdown-content">
+                        <a href="/calculators/network/tool_dns_lookup.html">DNS Lookup</a>
+                        <a href="/calculators/network/tool_ip_geo.html">IP Geolocation</a>
+                        <a href="/calculators/network/tool_ping.html">Ping Test</a>
+                        <a href="/calculators/network/tool_port_scanner.html">Port Scanner</a>
+                        <a href="/calculators/network/calc_subnet.html">Subnet Calculator</a>
+                        <a href="/calculators/network/tool_traceroute.html">Traceroute Tool</a>
+                        <a href="/calculators/network/tool_whois.html">Whois Lookup</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="students-dropdown">
+                    <a onclick="toggleDropdown('students-dropdown-content', this)" data-title="Students">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Students</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="students-dropdown-content">
+                        <a href="/calculators/students/calc_geometry.html">Geometry Calculator</a>
+                        <a href="/calculators/students/calc_gpa.html">GPA Calculator</a>
+                        <a href="/calculators/students/calc_grade_weighted.html">Grade Weighted</a>
+                        <a href="/calculators/students/calc_mensuration.html">Mensuration</a>
+                        <a href="/calculators/students/calc_pomodoro.html">Pomodoro Timer</a>
+                        <a href="/calculators/students/calc_quadratic.html">Quadratic Equation</a>
+                        <a href="/calculators/students/calc_statistics.html">Statistics</a>
+                        <a href="/calculators/students/calc_unit_conv.html">Unit Conv</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="text-dropdown">
+                    <a onclick="toggleDropdown('text-dropdown-content', this)" data-title="Text & Web Utilities">
+                        <i class="fas fa-keyboard"></i>
+                        <span>Text & Web</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="text-dropdown-content">
+                        <a href="/calculators/text-web/tool_case_converter.html">Case Converter</a>
+                        <a href="/calculators/text-web/tool_lorem_ipsum.html">Lorem Ipsum Generator</a>
+                        <a href="/calculators/text-web/tool_password.html">Password Strength</a>
+                        <a href="/calculators/text-web/tool_word_counter.html">Word Counter</a>
+                    </div>
+                </div>
+
+                <div class="dropdown" id="fun-dropdown">
+                    <a onclick="toggleDropdown('fun-dropdown-content', this)" data-title="Fun">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Fun</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content" id="fun-dropdown-content">
+                        <a href="/calculators/fun/calc_coin_flipper.html">Coin Flipper</a>
+                        <a href="/calculators/fun/calc_compatibility.html">Compatibility Test</a>
+                        <a href="/calculators/fun/calc_dice_roller.html">Dice Roller</a>
+                        <a href="/calculators/fun/calc_flames.html">FLAMES Game</a>
+                        <a href="/calculators/fun/calc_fortune_cookie.html">Fortune Cookie</a>
+                        <a href="/calculators/fun/calc_love.html">Love Calculator</a>
+                        <a href="/calculators/fun/calc_magic_8_ball.html">Magic 8 Ball</a>
+                        <a href="/calculators/fun/calc_number_guesser.html">Number Guesser</a>
+                        <a href="/calculators/fun/calc_random_number.html">Random Number</a>
+                        <a href="/calculators/fun/calc_rock_paper_scissors.html">Rock Paper Scissors</a>
+                        <a href="/calculators/fun/calc_zodiac.html">Zodiac Sign</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <a href="/history.html" data-title="History"><i class="fas fa-history"></i> <span>History</span></a>
+        <a href="/settings.html" data-title="Settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+        <a href="/about.html" data-title="About"><i class="fas fa-info-circle"></i> <span>About</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="theme-switch-wrapper">
+            <label class="toggle-switch" for="theme-checkbox">
+                <input type="checkbox" id="theme-checkbox" onchange="toggleDarkMode(this)">
+                <div class="slider"></div>
+            </label>
+            <span style="margin-left: 10px; font-size: 0.9rem;">Dark Mode</span>
+        </div>
+        &copy; <span id="current-year"></span> Smart Hub
+    </div>
+</aside>

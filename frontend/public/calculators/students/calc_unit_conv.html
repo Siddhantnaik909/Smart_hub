@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Unit Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Universal Unit Converter</h2>
+                            <p>Switch between Metric and Imperial systems instantly.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Category</span>
+                                <select class="form-control" id="unit-category">
+                                    <option value="length">Length</option>
+                                    <option value="weight">Weight</option>
+                                    <option value="temperature">Temperature</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>From</span>
+                                <input type="number" id="fromValue" class="form-control" placeholder="Value" value="1">
+                                <select id="fromUnit" class="form-control"
+                                    style="width: 40%; margin-left: 10px;"></select>
+                            </div>
+
+                            <div class="sub-link" style="justify-content: center;">
+                                <button id="unit-swap-btn" class="btn-calc" style="width: auto; padding: 5px 20px;">
+                                    <i class="fa-solid fa-repeat"></i> Swap Units
+                                </button>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>To</span>
+                                <select id="toUnit" class="form-control"></select>
+                            </div>
+
+                            <button id="calc-convert-btn" class="btn-calc">Convert Now</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Conversion Result</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                        </div>
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+
+                    <div class="cat-card stagger-3" style="margin-top: 20px;">
+                        <h3><i class="fa-solid fa-info-circle"></i> Conversion Guide</h3>
+
+                        <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-body);">
+                            The Metric system uses base-10 logic. For example:
+                            10 millimeters = 1 centimeter | 100 centimeters = 1 meter.
+                        </p>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        const units = {
+            length: { 'Meters': 1, 'Kilometers': 0.001, 'Miles': 0.000621371, 'Feet': 3.28084, 'Inches': 39.3701 },
+            weight: { 'Kilograms': 1, 'Grams': 1000, 'Pounds': 2.20462, 'Ounces': 35.274 },
+            temperature: { 'Celsius': 'C', 'Fahrenheit': 'F', 'Kelvin': 'K' }
+        };
+
+        const categorySelect = document.getElementById('unit-category');
+        const fromUnitSelect = document.getElementById('fromUnit');
+        const toUnitSelect = document.getElementById('toUnit');
+
+        function populateUnits() {
+            const cat = categorySelect.value;
+            const options = Object.keys(units[cat]);
+            fromUnitSelect.innerHTML = options.map(u => `<option value="${u}">${u}</option>`).join('');
+            toUnitSelect.innerHTML = options.map(u => `<option value="${u}">${u}</option>`).join('');
+        }
+
+        categorySelect.addEventListener('change', populateUnits);
+        populateUnits();
+
+        document.getElementById('unit-swap-btn').addEventListener('click', () => {
+            const temp = fromUnitSelect.value;
+            fromUnitSelect.value = toUnitSelect.value;
+            toUnitSelect.value = temp;
+        });
+
+        document.getElementById('calc-convert-btn').addEventListener('click', () => {
+            const val = parseFloat(document.getElementById('fromValue').value);
+            const cat = categorySelect.value;
+            const from = fromUnitSelect.value;
+            const to = toUnitSelect.value;
+            let result;
+
+            if (cat === 'temperature') {
+                result = convertTemp(val, from, to);
+            } else {
+                const baseVal = val / units[cat][from];
+                result = baseVal * units[cat][to];
+            }
+
+            const displayArea = document.getElementById('result-display-area');
+            displayArea.innerHTML = `
+                <div class="sub-link">
+                    <span>${val} ${from} =</span>
+                    <strong style="color: var(--primary-color); font-size: 1.2rem;">${result.toFixed(4)} ${to}</strong>
+                </div>
+            `;
+            const resCard = document.getElementById('results');
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            if (window.setLastCalc) {
+                window.setLastCalc("Unit Converter", `${val} ${from}`, `${result.toFixed(4)} ${to}`);
+            }
+        });
+
+        function convertTemp(v, f, t) {
+            let c;
+            if (f === 'Celsius') c = v;
+            else if (f === 'Fahrenheit') c = (v - 32) * 5 / 9;
+            else c = v - 273.15;
+
+            if (t === 'Celsius') return c;
+            if (t === 'Fahrenheit') return (c * 9 / 5) + 32;
+            return c + 273.15;
+        }
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

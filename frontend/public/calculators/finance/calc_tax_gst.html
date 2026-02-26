@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Discount & Tax Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-tags"></i> Discount & Tax Pro</h2>
+                            <p>Professional price analysis including discounts, tax rates, and total savings.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Original Price</span>
+                                <input type="number" id="price" class="form-control" placeholder="100.00" step="0.01">
+                            </div>
+                            <div class="sub-link">
+                                <span>Discount Percentage (%)</span>
+                                <input type="number" id="discount" class="form-control" placeholder="20" step="1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Tax Rate (GST/VAT %)</span>
+                                <input type="number" id="tax" class="form-control" placeholder="0" step="0.1">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="calculateProDiscount()">Analyze Pricing</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Cost Breakdown</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(255, 193, 7, 0.05); border-left: 4px solid #ffc107; margin-top: 15px; padding: 15px;">
+                            <span style="color: #ffc107; font-weight: bold;"><i class="fa-solid fa-cart-shopping"></i> Smart Buyer Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Quote
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function calculateProDiscount() {
+            const symbol = document.getElementById('currency').value;
+            const originalPrice = parseFloat(document.getElementById('price').value) || 0;
+            const discountPercent = parseFloat(document.getElementById('discount').value) || 0;
+            const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+            
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (originalPrice <= 0) {
+                alert("Please enter a valid original price.");
+                return;
+            }
+
+            // Calculations
+            const discountAmount = originalPrice * (discountPercent / 100);
+            const discountedPrice = originalPrice - discountAmount;
+            const taxAmount = discountedPrice * (taxPercent / 100);
+            const finalPrice = discountedPrice + taxAmount;
+            const totalSaved = discountAmount;
+
+            resArea.innerHTML = `
+                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 15px 0;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Final Out-of-Pocket Price</span>
+                    <strong style="font-size: 2.2rem; color: var(--accent-cyan);">${symbol}${finalPrice.toFixed(2)}</strong>
+                </div>
+                <div class="sub-link"><span>Total Discount Saved</span><strong style="color: #10b981;">-${symbol}${discountAmount.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Estimated Tax Amount</span><strong style="color: #ef4444;">+${symbol}${taxAmount.toFixed(2)}</strong></div>
+                <div class="sub-link"><span>Effective Discount Rate</span><strong>${((totalSaved/originalPrice)*100).toFixed(1)}%</strong></div>
+            `;
+
+            // Pro Tip: Psychological Price Point
+            tipArea.innerHTML = `This discount reduces the price by <strong>${symbol}${discountAmount.toFixed(2)}</strong>. If you're buying for business, remember that the <strong>${symbol}${taxAmount.toFixed(2)}</strong> tax might be claimable as an input credit!`;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

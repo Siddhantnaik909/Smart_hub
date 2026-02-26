@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Dice Roller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .dice {
+            width: 60px;
+            height: 60px;
+            background-color: var(--bg-card-2);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            animation: roll 0.4s ease-out;
+        }
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+            100% { transform: rotate(360deg) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-dice"></i> Dice Roller</h2>
+                            <p>Generate random numbers for your games or decisions.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Number of Dice</span>
+                                <input type="number" id="dice-count" class="form-control" value="1" min="1" max="12">
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>Dice Sides (e.g., D6)</span>
+                                <select id="dice-type" class="form-control">
+                                    <option value="4">D4 (4-sided)</option>
+                                    <option value="6" selected>D6 (6-sided)</option>
+                                    <option value="8">D8 (8-sided)</option>
+                                    <option value="10">D10 (10-sided)</option>
+                                    <option value="12">D12 (12-sided)</option>
+                                    <option value="20">D20 (20-sided)</option>
+                                </select>
+                            </div>
+                            
+                            <button id="roll-btn" class="btn-calc">Roll Dice <i class="fa-solid fa-play"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Results</h3>
+                        <div class="dice-container" id="dice-visuals">
+                            </div>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-dice-result" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Roll
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('roll-btn').addEventListener('click', function() {
+            const count = parseInt(document.getElementById('dice-count').value) || 1;
+            const sides = parseInt(document.getElementById('dice-type').value);
+            const diceVisuals = document.getElementById('dice-visuals');
+            const resArea = document.getElementById('result-display-area');
+            const resultsCard = document.getElementById('results');
+            
+            let rolls = [];
+            let total = 0;
+            
+            diceVisuals.innerHTML = ''; // Clear previous
+
+            for(let i = 0; i < count; i++) {
+                const roll = Math.floor(Math.random() * sides) + 1;
+                rolls.push(roll);
+                total += roll;
+                
+                const diceElement = document.createElement('div');
+                diceElement.className = 'dice';
+                diceElement.textContent = roll;
+                diceVisuals.appendChild(diceElement);
+            }
+
+            resArea.innerHTML = `
+                <div class="sub-link">
+                    <span>Total Sum</span>
+                    <strong>${total}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Individual Rolls</span>
+                    <span>${rolls.join(', ')}</span>
+                </div>
+            `;
+
+            // Display Logic
+            resultsCard.style.display = 'block';
+            resultsCard.classList.remove('hidden');
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

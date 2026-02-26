@@ -1,0 +1,26 @@
+<div class="top-header">
+    <div class="header-container">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="mobile-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-branding" id="nav-logo-block">
+                <i class="fa-solid fa-microchip" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+                <span id="nav-site-logo-text"
+                    style="font-weight: 700; font-size: 1.1rem; background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">SMART
+                    HUB</span>
+            </div>
+            <div class="nav-title">
+                <span class="accent-text" id="page-title-display">Dashboard</span>
+            </div>
+        </div>
+
+        <div class="nav-actions" id="auth-actions">
+            <!-- Auth state is managed dynamically by updateUserInterface() in script.js -->
+            <div class="auth-btn-group">
+                <a href="login.html" class="btn-secondary">Login</a>
+                <a href="signup.html" class="btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</div>

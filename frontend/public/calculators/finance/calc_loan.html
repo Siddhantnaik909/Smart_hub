@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Multi-Currency Loan Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-comments-dollar"></i> Universal Loan Architect</h2>
+                            <p>Professional grade amortization with multi-currency support and savings analysis.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Preferred Currency</span>
+                                <select id="currency-type" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="¥">JPY (¥)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Principal Amount</span>
+                                <input type="number" id="loanAmount" class="form-control" placeholder="50000">
+                            </div>
+                            <div class="sub-link">
+                                <span>Annual Rate (%)</span>
+                                <input type="number" id="interestRate" class="form-control" placeholder="4.5" step="0.01">
+                            </div>
+                            <div class="sub-link">
+                                <span>Period (Years)</span>
+                                <input type="number" id="loanTerm" class="form-control" placeholder="15">
+                            </div>
+                            
+                            <button id="calc-loan-btn" class="btn-calc">Generate Financial Report</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Financial Breakdown</h3>
+                        
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(0, 123, 255, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-chart-line"></i> Strategic Growth Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-loan-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Export to PDF
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-loan-btn').addEventListener('click', function() {
+            const symbol = document.getElementById('currency-type').value;
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('interestRate').value);
+            const years = parseFloat(document.getElementById('loanTerm').value);
+            
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (!principal || !annualRate || !years) {
+                alert("Please complete all fields to generate the report.");
+                return;
+            }
+
+            const monthlyRate = (annualRate / 100) / 12;
+            const numberOfPayments = years * 12;
+            const x = Math.pow(1 + monthlyRate, numberOfPayments);
+            const monthly = (principal * x * monthlyRate) / (x - 1);
+            const totalPayment = monthly * numberOfPayments;
+            const totalInterest = totalPayment - principal;
+
+            const format = (val) => symbol + val.toLocaleString(undefined, {
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2
+            });
+
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Monthly Installment</span><strong>${format(monthly)}</strong></div>
+                <div class="sub-link"><span>Total Interest Due</span><strong>${format(totalInterest)}</strong></div>
+                <div class="sub-link"><span>Total Cost of Loan</span><strong>${format(totalPayment)}</strong></div>
+                <div class="sub-link"><span>Interest-to-Principal</span><strong>${((totalInterest/principal)*100).toFixed(1)}%</strong></div>
+            `;
+
+            // Advanced Improvement: Strategic Calculation Tip
+            const biWeekly = (monthly / 2).toFixed(2);
+            tipArea.innerHTML = `<strong>The Power of Bi-Weekly Payments:</strong> If you switch to paying <strong>${symbol}${biWeekly}</strong> every two weeks instead of monthly, you will effectively make one extra full payment per year. This could save you approximately <strong>${format(totalInterest * 0.18)}</strong> in interest over the life of this loan!`;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

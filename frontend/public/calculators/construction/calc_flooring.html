@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Flooring Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="cyan-theme">
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-border-all"></i> Tile Flooring Calculator</h2>
+                            <p>Calculate the number of tiles or planks needed for your room with waste estimation.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Room Length (ft)</span>
+                                <input type="number" id="roomLen" class="form-control" placeholder="0">
+                            </div>
+                            <div class="sub-link">
+                                <span>Room Width (ft)</span>
+                                <input type="number" id="roomWid" class="form-control" placeholder="0">
+                            </div>
+                            <div class="sub-link">
+                                <span>Tile Length (in)</span>
+                                <input type="number" id="tileLen" class="form-control" value="12">
+                            </div>
+                            <div class="sub-link">
+                                <span>Tile Width (in)</span>
+                                <input type="number" id="tileWid" class="form-control" value="12">
+                            </div>
+                            <div class="sub-link">
+                                <span>Waste / Spillage (%)</span>
+                                <input type="number" id="waste" class="form-control" value="10">
+                            </div>
+
+                            <button id="calc-tile-flooring-btn" class="btn-calc">Calculate Needed Tiles</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Calculation Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-tile-btn" class="btn-save" disabled>
+                            <i class="fa-solid fa-save"></i> Save to History
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.getElementById('calc-tile-flooring-btn').addEventListener('click', function() {
+            // Inputs
+            const roomLen = parseFloat(document.getElementById('roomLen').value);
+            const roomWid = parseFloat(document.getElementById('roomWid').value);
+            const tileLen = parseFloat(document.getElementById('tileLen').value);
+            const tileWid = parseFloat(document.getElementById('tileWid').value);
+            const wastePercent = parseFloat(document.getElementById('waste').value) || 0;
+
+            if (!roomLen || !roomWid || !tileLen || !tileWid) {
+                alert("Please enter all required dimensions.");
+                return;
+            }
+
+            // Calculations
+            const roomAreaSqFt = roomLen * roomWid;
+            const tileAreaSqIn = tileLen * tileWid;
+            const tileAreaSqFt = tileAreaSqIn / 144; // Convert sq inches to sq feet
+            
+            const rawTilesNeeded = roomAreaSqFt / tileAreaSqFt;
+            const totalWithWaste = rawTilesNeeded * (1 + (wastePercent / 100));
+            const totalAreaWithWaste = roomAreaSqFt * (1 + (wastePercent / 100));
+
+            // Display
+            const resultArea = document.getElementById('result-display-area');
+            resultArea.innerHTML = `
+                <div class="sub-link">
+                    <span>Actual Room Area:</span>
+                    <strong class="accent-text">${roomAreaSqFt.toFixed(2)} sq ft</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Area (Incl. Waste):</span>
+                    <strong class="accent-text">${totalAreaWithWaste.toFixed(2)} sq ft</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Tiles Required:</span>
+                    <strong class="accent-text" style="font-size: 1.2rem; color: var(--primary-color);">${Math.ceil(totalWithWaste)} pcs</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Tiles (Exact count):</span>
+                    <small>${rawTilesNeeded.toFixed(1)} pieces</small>
+                </div>
+            `;
+
+            // UI Transitions
+            const resultsCard = document.getElementById('results');
+            resultsCard.style.display = 'block';
+            resultsCard.classList.remove('hidden');
+            document.getElementById('save-tile-btn').disabled = false;
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = 'Flooring Calculator';
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

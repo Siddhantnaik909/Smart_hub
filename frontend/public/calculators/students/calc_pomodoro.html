@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Focus Pro Ultimate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .timer-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            stroke: var(--primary-color);
+            stroke-dasharray: 628.3;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container grid-section fade-in">
+
+                    <div class="cat-card stagger-1" style="text-align: center;">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-stopwatch"></i> Focus Pro</h2>
+                            <p>Sessions: <span id="session-count">0</span> | Total: <span id="total-minutes">0</span>m
+                            </p>
+                        </div>
+
+                        <div class="timer-container">
+                            <svg class="progress-ring" width="220" height="220">
+                                <circle class="progress-ring__circle" stroke-width="10" fill="transparent" r="100"
+                                    cx="110" cy="110" />
+                            </svg>
+                            <div class="timer-text" id="timerDisplay">25:00</div>
+                        </div>
+
+                        <div class="sub-cat-list" style="flex-direction: row; justify-content: center; gap: 10px;">
+                            <button class="btn-calc" id="pomodoro-start-btn" style="margin-top:0; width: 140px;"><i
+                                    class="fa fa-play"></i> Start</button>
+                            <button class="btn-save" id="pomodoro-reset-btn"
+                                style="margin-top:0; width: 140px; background-color: #ef4444;"><i
+                                    class="fa fa-rotate-left"></i> Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="cat-card stagger-2">
+                        <h3><i class="fa-solid fa-volume-high"></i> Audio Settings</h3>
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Built-in Alarm</span>
+                                <select id="built-in-sound" class="form-control">
+                                    <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Simple
+                                        Beep</option>
+                                    <option
+                                        value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">
+                                        Digital Alarm</option>
+                                    <option
+                                        value="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg">
+                                        School Bell</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Upload Custom Sound</span>
+                                <input type="file" id="file-upload" accept="audio/*" style="display:none;">
+                                <button class="btn-save" onclick="document.getElementById('file-upload').click()"
+                                    style="margin-top:0; width:100%;">
+                                    <i class="fa fa-upload"></i> Choose File
+                                </button>
+                            </div>
+                            <span id="file-status" style="font-size: 0.75rem; color: var(--primary-color);"></span>
+                        </div>
+                    </div>
+
+                    <div class="cat-card stagger-3">
+                        <h3><i class="fa-solid fa-history"></i> Study History</h3>
+
+                        <div id="history-log" style="max-height: 200px; overflow-y: auto; margin-top: 15px;">
+                            <p style="color: var(--text-muted); text-align: center;">No sessions logged today.</p>
+                        </div>
+                        <button class="btn-save" id="clear-history"
+                            style="width:100%; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted);">Clear
+                            Logs</button>
+                    </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <audio id="timer-audio" preload="auto"></audio>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let timer;
+            let totalTime = 25 * 60;
+            let timeLeft = totalTime;
+            let isRunning = false;
+            let sessionCount = 0;
+            let totalMins = 0;
+
+            const display = document.getElementById('timerDisplay');
+            const startBtn = document.getElementById('pomodoro-start-btn');
+            const audio = document.getElementById('timer-audio');
+            const circle = document.querySelector('.progress-ring__circle');
+            const circumference = 2 * Math.PI * 100;
+            const historyLog = document.getElementById('history-log');
+
+            // --- Timer Core ---
+            function setProgress(percent) {
+                circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
+            }
+
+            function updateDisplay() {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                setProgress((timeLeft / totalTime) * 100);
+            }
+
+            function toggleTimer() {
+                if (isRunning) {
+                    clearInterval(timer);
+                    startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
+                } else {
+                    startBtn.innerHTML = '<i class="fa fa-pause"></i> Pause';
+                    timer = setInterval(() => {
+                        if (timeLeft > 0) {
+                            timeLeft--;
+                            updateDisplay();
+                        } else {
+                            completeSession();
+                        }
+                    }, 1000);
+                }
+                isRunning = !isRunning;
+            }
+
+            function completeSession() {
+                clearInterval(timer);
+                isRunning = false;
+
+                // Play Sound
+                const builtIn = document.getElementById('built-in-sound').value;
+                if (!audio.src || audio.src === "") audio.src = builtIn;
+                audio.play();
+
+                // Log Session
+                const sessionMins = Math.floor(totalTime / 60);
+                totalMins += sessionMins;
+                sessionCount++;
+
+                document.getElementById('session-count').textContent = sessionCount;
+                document.getElementById('total-minutes').textContent = totalMins;
+
+                addHistoryEntry(sessionMins);
+
+                // Global History Logging
+                if (window.setLastCalc && window.saveCalculation) {
+                    window.setLastCalc("Focus Session", `${sessionMins}m Interval`, "Session Completed");
+                    window.saveCalculation("Focus Session", `${sessionMins}m Interval`, "Session Completed");
+                }
+
+                startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
+                alert("Session Complete!");
+            }
+
+            // --- History Logic ---
+            function addHistoryEntry(mins) {
+                if (sessionCount === 1) historyLog.innerHTML = '';
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `<span><i class="fa fa-check-circle" style="color:var(--success-color);"></i> Focus Session</span> <span>${mins}m @ ${now}</span>`;
+                historyLog.prepend(item);
+            }
+
+            // --- File Upload Logic ---
+            document.getElementById('file-upload').addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    audio.src = url;
+                    document.getElementById('file-status').textContent = "Loaded: " + file.name;
+                }
+            });
+
+            startBtn.addEventListener('click', toggleTimer);
+            document.getElementById('pomodoro-reset-btn').addEventListener('click', () => {
+                clearInterval(timer);
+                isRunning = false;
+                timeLeft = totalTime;
+                updateDisplay();
+                startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
+            });
+
+            document.getElementById('clear-history').addEventListener('click', () => {
+                historyLog.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No sessions logged today.</p>';
+                sessionCount = 0; totalMins = 0;
+                document.getElementById('session-count').textContent = '0';
+                document.getElementById('total-minutes').textContent = '0';
+            });
+
+            updateDisplay();
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

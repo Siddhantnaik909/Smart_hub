@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | 160+ Country Currency Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .search-container { position: relative; margin-bottom: 5px; }
+        .search-container i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--primary-color); opacity: 0.7; }
+        .search-input { padding-left: 35px !important; margin-bottom: 5px; height: 40px; }
+        .currency-select { height: 120px !important; overflow-y: auto; }
+        .symbol-badge { font-family: 'Courier New', monospace; font-weight: bold; color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-earth-africa"></i> Global Currency Converter</h2>
+                            <p>Real-time exchange rates for over 160 countries with full names and symbols.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Amount to Convert</span>
+                                <input type="number" id="amount" class="form-control" value="1.00" step="0.01">
+                            </div>
+
+                            <div class="sub-link" style="flex-direction: column; align-items: stretch;">
+                                <span>From Country / Currency</span>
+                                <div class="search-container">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="searchFrom" class="form-control search-input" placeholder="Search Country (e.g. India)...">
+                                </div>
+                                <select id="fromCurrency" class="form-control currency-select" size="4"></select>
+                            </div>
+
+                            <button id="swapBtn" class="btn-calc" style="background: var(--bg-main); color: var(--text-main); margin: 10px 0;">
+                                <i class="fas fa-exchange-alt"></i> Swap Currencies
+                            </button>
+
+                            <div class="sub-link" style="flex-direction: column; align-items: stretch;">
+                                <span>To Country / Currency</span>
+                                <div class="search-container">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="searchTo" class="form-control search-input" placeholder="Search Country (e.g. USA)...">
+                                </div>
+                                <select id="toCurrency" class="form-control currency-select" size="4"></select>
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Convert Currency</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Conversion Results</h3>
+                        <div class="sub-cat-list" id="result-display-area"></div>
+                        
+                        <div id="chart-wrapper" style="display:none; margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px;">
+                            <h4 style="margin: 0 0 15px 0; font-size: 0.9rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">30-Day Trend</h4>
+                            <div style="position: relative; height: 200px; width: 100%;"><canvas id="exchangeChart"></canvas></div>
+                        </div>
+
+                        <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Save Calculation</button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        // Full 160+ Dataset Mapping
+        const countryCurrencyMap = {
+            "USD": { n: "United States", s: "$" },
+            "EUR": { n: "Eurozone", s: "€" },
+            "GBP": { n: "United Kingdom", s: "£" },
+            "INR": { n: "India", s: "₹" },
+            "AUD": { n: "Australia", s: "A$" },
+            "CAD": { n: "Canada", s: "C$" },
+            "SGD": { n: "Singapore", s: "S$" },
+            "CHF": { n: "Switzerland", s: "CHF" },
+            "MYR": { n: "Malaysia", s: "RM" },
+            "JPY": { n: "Japan", s: "¥" },
+            "CNY": { n: "China", s: "¥" },
+            "NZD": { n: "New Zealand", s: "NZ$" },
+            "THB": { n: "Thailand", s: "฿" },
+            "HUF": { n: "Hungary", s: "Ft" },
+            "AED": { n: "United Arab Emirates", s: "د.إ" },
+            "HKD": { n: "Hong Kong", s: "HK$" },
+            "MXN": { n: "Mexico", s: "$" },
+            "ZAR": { n: "South Africa", s: "R" },
+            "PHP": { n: "Philippines", s: "₱" },
+            "SEK": { n: "Sweden", s: "kr" },
+            "IDR": { n: "Indonesia", s: "Rp" },
+            "SAR": { n: "Saudi Arabia", s: "﷼" },
+            "BRL": { n: "Brazil", s: "R$" },
+            "TRY": { n: "Turkey", s: "₺" },
+            "KES": { n: "Kenya", s: "KSh" },
+            "KRW": { n: "South Korea", s: "₩" },
+            "EGP": { n: "Egypt", s: "E£" },
+            "IQD": { n: "Iraq", s: "ع.د" },
+            "NOK": { n: "Norway", s: "kr" },
+            "KWD": { n: "Kuwait", s: "د.ك" },
+            "RUB": { n: "Russia", s: "₽" },
+            "DKK": { n: "Denmark", s: "kr" },
+            "PKR": { n: "Pakistan", s: "₨" },
+            "ILS": { n: "Israel", s: "₪" },
+            "PLN": { n: "Poland", s: "zł" },
+            "QAR": { n: "Qatar", s: "﷼" },
+            "XAU": { n: "Gold (troy ounce)", s: "oz" },
+            "XAG": { n: "Silver (troy ounce)", s: "oz" },
+            "OMR": { n: "Oman", s: "﷼" },
+            "COP": { n: "Colombia", s: "$" },
+            "CLP": { n: "Chile", s: "$" },
+            "TWD": { n: "Taiwan", s: "NT$" },
+            "ARS": { n: "Argentina", s: "$" },
+            "CZK": { n: "Czech Republic", s: "Kč" },
+            "VND": { n: "Vietnam", s: "₫" },
+            "MAD": { n: "Morocco", s: "د.م." },
+            "JOD": { n: "Jordan", s: "د.ا" },
+            "BHD": { n: "Bahrain", s: ".د.ب" },
+            "XOF": { n: "West Africa (CFA)", s: "Fr" },
+            "LKR": { n: "Sri Lanka", s: "Rs" },
+            "UAH": { n: "Ukraine", s: "₴" },
+            "NGN": { n: "Nigeria", s: "₦" },
+            "TND": { n: "Tunisia", s: "د.ت" },
+            "UGX": { n: "Uganda", s: "USh" },
+            "RON": { n: "Romania", s: "lei" },
+            "BDT": { n: "Bangladesh", s: "৳" },
+            "PEN": { n: "Peru", s: "S/" },
+            "GHS": { n: "Ghana", s: "GH₵" },
+            "DZD": { n: "Algeria", s: "دج" },
+            "AFN": { n: "Afghanistan", s: "؋" },
+            "ALL": { n: "Albania", s: "L" },
+            "AMD": { n: "Armenia", s: "֏" },
+            "ANG": { n: "Netherlands Antilles", s: "ƒ" },
+            "AOA": { n: "Angola", s: "Kz" },
+            "AWG": { n: "Aruba", s: "ƒ" },
+            "AZN": { n: "Azerbaijan", s: "₼" },
+            "BAM": { n: "Bosnia and Herzegovina", s: "KM" },
+            "BBD": { n: "Barbados", s: "$" },
+            "BGN": { n: "Bulgaria", s: "лв" },
+            "BIF": { n: "Burundi", s: "Fr" },
+            "BMD": { n: "Bermuda", s: "$" },
+            "BND": { n: "Brunei", s: "$" },
+            "BOB": { n: "Bolivia", s: "Bs." },
+            "BSD": { n: "Bahamas", s: "$" },
+            "BTN": { n: "Bhutan", s: "Nu." },
+            "BWP": { n: "Botswana", s: "P" },
+            "BYN": { n: "Belarus", s: "Br" },
+            "BZD": { n: "Belize", s: "$" },
+            "CDF": { n: "Congo (DRC)", s: "Fr" },
+            "CRC": { n: "Costa Rica", s: "₡" },
+            "CUP": { n: "Cuba", s: "$" },
+            "CVE": { n: "Cape Verde", s: "$" },
+            "DJF": { n: "Djibouti", s: "Fr" },
+            "DOP": { n: "Dominican Republic", s: "RD$" },
+            "ERN": { n: "Eritrea", s: "Nfk" },
+            "ETB": { n: "Ethiopia", s: "Br" },
+            "FJD": { n: "Fiji", s: "$" },
+            "FKP": { n: "Falkland Islands", s: "£" },
+            "GEL": { n: "Georgia", s: "₾" },
+            "GGP": { n: "Guernsey", s: "£" },
+            "GIP": { n: "Gibraltar", s: "£" },
+            "GMD": { n: "Gambia", s: "D" },
+            "GNF": { n: "Guinea", s: "Fr" },
+            "GTQ": { n: "Guatemala", s: "Q" },
+            "GYD": { n: "Guyana", s: "$" },
+            "HNL": { n: "Honduras", s: "L" },
+            "HRK": { n: "Croatia", s: "kn" },
+            "HTG": { n: "Haiti", s: "G" },
+            "IMP": { n: "Isle of Man", s: "£" },
+            "ISK": { n: "Iceland", s: "kr" },
+            "JEP": { n: "Jersey", s: "£" },
+            "JMD": { n: "Jamaica", s: "$" },
+            "KGS": { n: "Kyrgyzstan", s: "с" },
+            "KHR": { n: "Cambodia", s: "៛" },
+            "KMF": { n: "Comoros", s: "Fr" },
+            "KYD": { n: "Cayman Islands", s: "$" },
+            "KZT": { n: "Kazakhstan", s: "₸" },
+            "LAK": { n: "Laos", s: "₭" },
+            "LBP": { n: "Lebanon", s: "ل.ل" },
+            "LRD": { n: "Liberia", s: "$" },
+            "LSL": { n: "Lesotho", s: "L" },
+            "LYD": { n: "Libya", s: "ل.د" },
+            "MDL": { n: "Moldova", s: "L" },
+            "MGA": { n: "Madagascar", s: "Ar" },
+            "MKD": { n: "North Macedonia", s: "ден" },
+            "MMK": { n: "Myanmar", s: "K" },
+            "MNT": { n: "Mongolia", s: "₮" },
+            "MOP": { n: "Macau", s: "P" },
+            "MRU": { n: "Mauritania", s: "UM" },
+            "MUR": { n: "Mauritius", s: "₨" },
+            "MVR": { n: "Maldives", s: ".ރ" },
+            "MWK": { n: "Malawi", s: "MK" },
+            "MZN": { n: "Mozambique", s: "MT" },
+            "NAD": { n: "Namibia", s: "$" },
+            "NIO": { n: "Nicaragua", s: "C$" },
+            "NPR": { n: "Nepal", s: "₨" },
+            "PAB": { n: "Panama", s: "B/." },
+            "PGK": { n: "Papua New Guinea", s: "K" },
+            "PYG": { n: "Paraguay", s: "₲" },
+            "RSD": { n: "Serbia", s: "дин." },
+            "RWF": { n: "Rwanda", s: "Fr" },
+            "SBD": { n: "Solomon Islands", s: "$" },
+            "SCR": { n: "Seychelles", s: "₨" },
+            "SDG": { n: "Sudan", s: "ج.س." },
+            "SHP": { n: "Saint Helena", s: "£" },
+            "SLL": { n: "Sierra Leone", s: "Le" },
+            "SOS": { n: "Somalia", s: "Sh" },
+            "SRD": { n: "Suriname", s: "$" },
+            "SSP": { n: "South Sudan", s: "£" },
+            "STN": { n: "São Tomé and Príncipe", s: "Db" },
+            "SYP": { n: "Syria", s: "£" },
+            "SZL": { n: "Eswatini", s: "L" },
+            "TJS": { n: "Tajikistan", s: "SM" },
+            "TMT": { n: "Turkmenistan", s: "T" },
+            "TOP": { n: "Tonga", s: "T$" },
+            "TTD": { n: "Trinidad and Tobago", s: "$" },
+            "TZS": { n: "Tanzania", s: "Sh" },
+            "UYU": { n: "Uruguay", s: "$" },
+            "UZS": { n: "Uzbekistan", s: "so'm" },
+            "VES": { n: "Venezuela", s: "Bs." },
+            "VUV": { n: "Vanuatu", s: "Vt" },
+            "WST": { n: "Samoa", s: "T" },
+            "XAF": { n: "Central Africa (CFA)", s: "Fr" },
+            "XCD": { n: "East Caribbean", s: "$" },
+            "XPF": { n: "CFP Franc", s: "Fr" },
+            "YER": { n: "Yemen", s: "﷼" },
+            "ZMW": { n: "Zambia", s: "ZK" },
+            "ZWL": { n: "Zimbabwe", s: "$" }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            let rateChart = null;
+
+            const fromSel = document.getElementById('fromCurrency');
+            const toSel = document.getElementById('toCurrency');
+            
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                const codes = Object.keys(data.rates);
+
+                const populate = (selectElement) => {
+                    codes.forEach(code => {
+                        const info = countryCurrencyMap[code] || {n: code, s: ""};
+                        const opt = new Option(`${info.n} (${code}) ${info.s}`, code);
+                        selectElement.add(opt);
+                    });
+                };
+
+                populate(fromSel);
+                populate(toSel);
+                fromSel.value = 'USD';
+                toSel.value = 'INR';
+            } catch (e) { console.error("API Load Failed"); }
+
+            // Search Logic
+            const setupSearch = (inputId, selectId) => {
+                const input = document.getElementById(inputId);
+                const select = document.getElementById(selectId);
+                input.addEventListener('input', () => {
+                    const filter = input.value.toLowerCase();
+                    Array.from(select.options).forEach(opt => {
+                        opt.style.display = opt.text.toLowerCase().includes(filter) ? '' : 'none';
+                    });
+                });
+            };
+
+            setupSearch('searchFrom', 'fromCurrency');
+            setupSearch('searchTo', 'toCurrency');
+
+            // Calculation Logic
+            document.getElementById('calc-btn').addEventListener('click', async () => {
+                const amt = document.getElementById('amount').value;
+                const from = fromSel.value;
+                const to = toSel.value;
+                
+                try {
+                    const res = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+                    const data = await res.json();
+                    const rate = data.rates[to];
+                    const result = (amt * rate).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+                    const fromData = countryCurrencyMap[from] || {n: from, s: ""};
+                    const toData = countryCurrencyMap[to] || {n: to, s: ""};
+
+                    document.getElementById('result-display-area').innerHTML = `
+                        <div class="sub-link" style="justify-content: center; background: var(--bg-main); padding: 25px; border-radius: 12px; margin-bottom: 10px;">
+                            <div style="text-align: center;">
+                                <span style="display:block; opacity: 0.6; font-size: 0.8rem;">${toData.n} Total</span>
+                                <strong style="font-size: 2.5rem; color: var(--primary-color);">${toData.s}${result}</strong>
+                            </div>
+                        </div>
+                        <div class="sub-link">
+                            <span>From</span>
+                            <strong>${fromData.n} (${fromData.s}${amt})</strong>
+                        </div>
+                        <div class="sub-link">
+                            <span>To</span>
+                            <strong>${toData.n} (${toData.s}${result})</strong>
+                        </div>
+                        <div class="sub-link">
+                            <span>Exchange Rate</span>
+                            <strong>1 ${from} = ${rate.toFixed(4)} ${to}</strong>
+                        </div>
+                    `;
+                    
+                    document.getElementById('results').style.display = 'block';
+                    document.getElementById('results').classList.remove('hidden');
+
+                    updateChart(from, to);
+                } catch (e) { alert("Conversion Failed. Check connection."); }
+            });
+
+            document.getElementById('swapBtn').addEventListener('click', () => {
+                const t = fromSel.value;
+                fromSel.value = toSel.value;
+                toSel.value = t;
+            });
+
+            async function updateChart(from, to) {
+                const wrapper = document.getElementById('chart-wrapper');
+                if (from === to) {
+                    wrapper.style.display = 'none';
+                    return;
+                }
+
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - 30);
+                const fmt = d => d.toISOString().split('T')[0];
+
+                try {
+                    // Using Frankfurter API for historical data (supports major currencies)
+                    const res = await fetch(`https://api.frankfurter.app/${fmt(start)}..${fmt(end)}?from=${from}&to=${to}`);
+                    if (!res.ok) throw new Error();
+                    
+                    const data = await res.json();
+                    const labels = Object.keys(data.rates);
+                    const values = labels.map(d => data.rates[d][to]);
+
+                    wrapper.style.display = 'block';
+                    const ctx = document.getElementById('exchangeChart').getContext('2d');
+
+                    if (rateChart) rateChart.destroy();
+
+                    rateChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Exchange Rate',
+                                data: values,
+                                borderColor: '#00d2ff',
+                                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 0,
+                                pointHoverRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { display: false },
+                                y: { 
+                                    grid: { color: 'rgba(255,255,255,0.05)' },
+                                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
+                                }
+                            },
+                            interaction: { intersect: false, mode: 'index' }
+                        }
+                    });
+                } catch (e) {
+                    wrapper.style.display = 'none'; // Hide chart if data unavailable (e.g. crypto)
+                }
+            }
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Chronos Countdown Elite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        /* Advanced Timer UI */
+        .timer-grid { display: flex; gap: 10px; margin-top: 15px; }
+        .timer-unit { 
+            flex: 1; 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px 5px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .unit-val { display: block; font-size: 1.8rem; font-weight: 800; color: var(--accent-color); line-height: 1; }
+        .unit-label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; margin-top: 5px; display: block; }
+        
+        .progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d2ff, var(--accent-color)); transition: width 1s linear; box-shadow: 0 0 15px var(--accent-color); }
+
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background: rgba(0, 255, 204, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); }
+        .status-ended { background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid #ff4444; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-stopwatch-20 pulse-accent"></i> Chronos Countdown</h2>
+                            <p>Visual temporal tracking with high-frequency audio alerts.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-calendar-check"></i> Target Deadline</span>
+                                <input type="datetime-local" id="target-input" class="form-control">
+                            </div>
+                            <div class="sub-link">
+                                <span><i class="fa-solid fa-volume-high"></i> Alert Volume</span>
+                                <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.5" style="accent-color: var(--accent-color);">
+                            </div>
+                            <button id="start-btn" class="btn-calc">Initialize Sequence</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Temporal Progress</h3>
+                            <span id="status-label" class="status-badge status-active">Monitoring</span>
+                        </div>
+                        
+                        <div class="progress-track"><div id="p-bar" class="progress-fill"></div></div>
+
+                        <div class="timer-grid">
+                            <div class="timer-unit">
+                                <span class="unit-val" id="d-val">00</span>
+                                <span class="unit-label">Days</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="unit-val" id="h-val">00</span>
+                                <span class="unit-label">Hours</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="unit-val" id="m-val">00</span>
+                                <span class="unit-label">Mins</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="unit-val" id="s-val" style="color: #00ffcc;">00</span>
+                                <span class="unit-label">Secs</span>
+                            </div>
+                        </div>
+
+                        <div id="result-display-area" style="margin-top: 25px;">
+                            <div class="sub-link">
+                                <span>Target Timestamp</span>
+                                <strong id="target-ts-display">--:--</strong>
+                            </div>
+                        </div>
+
+                        <button id="save-timer-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Event Data
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        let countdownIdx;
+        let initialTime;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Professional Audio Alert Function
+        function playAlert(type) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            const volume = document.getElementById('volume-control').value;
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = volume;
+
+            if (type === 'start') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'end') {
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 1);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 1);
+            }
+        }
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            const targetVal = document.getElementById('target-input').value;
+            if(!targetVal) return alert("Select target date.");
+
+            const targetTime = new Date(targetVal).getTime();
+            const now = new Date().getTime();
+            
+            if(targetTime <= now) return alert("Target must be in the future.");
+
+            initialTime = now;
+            playAlert('start');
+            
+            document.getElementById('target-ts-display').innerText = targetVal.replace('T', ' ');
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.classList.remove('hidden');
+
+            if(countdownIdx) clearInterval(countdownIdx);
+
+            countdownIdx = setInterval(() => {
+                const current = new Date().getTime();
+                const total = targetTime - initialTime;
+                const remaining = targetTime - current;
+
+                if (remaining <= 0) {
+                    clearInterval(countdownIdx);
+                    playAlert('end');
+                    document.getElementById('status-label').innerText = "EXPIRED";
+                    document.getElementById('status-label').className = "status-badge status-ended";
+                    document.getElementById('p-bar').style.width = "100%";
+                    updateDisplay(0, 0, 0, 0);
+                    return;
+                }
+
+                // Smooth Progress Fill
+                const elapsed = current - initialTime;
+                const progress = (elapsed / total) * 100;
+                document.getElementById('p-bar').style.width = Math.min(progress, 100) + "%";
+
+                const d = Math.floor(remaining / 86400000);
+                const h = Math.floor((remaining % 86400000) / 3600000);
+                const m = Math.floor((remaining % 3600000) / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+
+                updateDisplay(d, h, m, s);
+            }, 1000);
+        });
+
+        function updateDisplay(d, h, m, s) {
+            document.getElementById('d-val').innerText = d.toString().padStart(2, '0');
+            document.getElementById('h-val').innerText = h.toString().padStart(2, '0');
+            document.getElementById('m-val').innerText = m.toString().padStart(2, '0');
+            document.getElementById('s-val').innerText = s.toString().padStart(2, '0');
+        }
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

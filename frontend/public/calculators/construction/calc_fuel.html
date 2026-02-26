@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Fuel Cost Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-gas-pump"></i> Fuel Cost Calculator</h2>
+                            <p>Estimate the cost of fuel for your trip with carpooling options.</p>
+                        </div>
+
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Trip Distance (km/miles)</span>
+                                <input type="number" id="distance" class="form-control" placeholder="e.g. 500">
+                            </div>
+                            <div class="sub-link">
+                                <span>Fuel Efficiency (Unit per L/Gal)</span>
+                                <input type="number" id="efficiency" class="form-control" placeholder="e.g. 15">
+                            </div>
+                            <div class="sub-link">
+                                <span>Price per Unit</span>
+                                <input type="number" id="price" class="form-control" placeholder="e.g. 3.50">
+                            </div>
+                            <div class="sub-link">
+                                <span>Number of People</span>
+                                <input type="number" id="passengers" class="form-control" value="1">
+                            </div>
+                            <div class="sub-link">
+                                <span>Round Trip?</span>
+                                <select id="isRoundTrip" class="form-control">
+                                    <option value="1">One Way</option>
+                                    <option value="2">Round Trip</option>
+                                </select>
+                            </div>
+
+                            <button id="calc-fuel-btn" class="btn-calc">Calculate Cost</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Results</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            <div class="sub-link">
+                                <span>Fuel Needed:</span>
+                                <span id="resFuel" class="accent-text">0.00 units</span>
+                            </div>
+                            <div class="sub-link">
+                                <span>Total Trip Cost:</span>
+                                <span id="resCost" class="accent-text" style="font-size: 1.5rem; font-weight: 700;">0.00</span>
+                            </div>
+                            <div id="split-area"></div>
+                        </div>
+                        <button id="save-fuel-btn" class="btn-save" disabled>
+                            <i class="fa-solid fa-save"></i> Save Result
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+        window.COMPONENT_ROOT = "/components/";
+
+        document.getElementById('calc-fuel-btn').addEventListener('click', function() {
+            // Inputs
+            const currency = document.getElementById('currency').value;
+            const distance = parseFloat(document.getElementById('distance').value);
+            const efficiency = parseFloat(document.getElementById('efficiency').value);
+            const price = parseFloat(document.getElementById('price').value);
+            const passengers = parseInt(document.getElementById('passengers').value) || 1;
+            const multiplier = parseInt(document.getElementById('isRoundTrip').value);
+
+            if (!distance || !efficiency || !price) {
+                alert("Please fill in all fuel details.");
+                return;
+            }
+
+            // Calculations
+            const totalDistance = distance * multiplier;
+            const fuelNeeded = totalDistance / efficiency;
+            const totalCost = fuelNeeded * price;
+            const costPerPerson = totalCost / passengers;
+
+            // Logic to update display
+            document.getElementById('resFuel').textContent = `${fuelNeeded.toFixed(2)} units`;
+            document.getElementById('resCost').textContent = `${currency}${totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            // Handle Carpool Display
+            const splitArea = document.getElementById('split-area');
+            if (passengers > 1) {
+                splitArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Cost per Person:</span>
+                        <strong class="accent-text">${currency}${costPerPerson.toFixed(2)}</strong>
+                    </div>
+                `;
+            } else {
+                splitArea.innerHTML = '';
+            }
+
+            // Show results
+            const resultsCard = document.getElementById('results');
+            resultsCard.style.display = 'block';
+            resultsCard.classList.remove('hidden');
+            document.getElementById('save-fuel-btn').disabled = false;
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = 'Fuel Cost Calculator';
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

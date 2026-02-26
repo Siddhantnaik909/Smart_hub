@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Savings Goal Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-piggy-bank"></i> Savings Goal Calculator</h2>
+                            <p>Determine the monthly contribution needed to reach your financial target.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Savings Goal</span>
+                                <input type="number" id="goal" class="form-control" placeholder="10000">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Initial Savings</span>
+                                <input type="number" id="initial" class="form-control" placeholder="1000">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Annual Interest Rate (%)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="5" step="0.1">
+                            </div>
+
+                            <div class="sub-link">
+                                <span>Time Period (Years)</span>
+                                <input type="number" id="years" class="form-control" placeholder="5">
+                            </div>
+                            
+                            <button id="calc-savings-btn" class="btn-calc">Calculate Monthly Goal</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Savings Plan</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-savings" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Goal
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calcBtn = document.getElementById('calc-savings-btn');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+
+            calcBtn.addEventListener('click', () => {
+                const goal = parseFloat(document.getElementById('goal').value);
+                const initial = parseFloat(document.getElementById('initial').value) || 0;
+                const rate = parseFloat(document.getElementById('rate').value) || 0;
+                const years = parseFloat(document.getElementById('years').value);
+                const symbol = document.getElementById('currency').value;
+
+                if (!goal || !years) {
+                    alert("Please enter a valid goal amount and time period.");
+                    return;
+                }
+
+                const r = rate / 100 / 12;
+                const n = years * 12;
+                let monthly = 0;
+
+                if (rate === 0) {
+                    monthly = (goal - initial) / n;
+                } else {
+                    const fvInitial = initial * Math.pow(1 + r, n);
+                    const remainingGoal = goal - fvInitial;
+                    monthly = remainingGoal * r / (Math.pow(1 + r, n) - 1);
+                }
+
+                const formattedMonthly = monthly > 0 ? `${symbol}${monthly.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : "Goal Reached!";
+
+                displayArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Required Monthly Savings</span>
+                        <span style="color: var(--primary-color); font-weight: 700;">${formattedMonthly}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Total Contributions</span>
+                        <span>${symbol}${(monthly > 0 ? (monthly * n) : 0).toLocaleString()}</span>
+                    </div>
+                    <div class="sub-link">
+                        <span>Target Date</span>
+                        <span>${years} Years from now</span>
+                    </div>
+                `;
+
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
+            });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

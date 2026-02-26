@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Advanced LED Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-lightbulb"></i> LED Resistor Pro</h2>
+                            <p>Calculate optimal resistance and minimum wattage to prevent LED burnout.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Source Voltage (V)</span>
+                                <input type="number" id="v-source" class="form-control" value="9" step="0.1">
+                            </div>
+                            <div class="sub-link">
+                                <span>LED Forward Voltage (V)</span>
+                                <select id="v-led" class="form-control">
+                                    <option value="1.8">Red (~1.8V)</option>
+                                    <option value="2.0">Yellow/Orange (~2.0V)</option>
+                                    <option value="3.2" selected>Blue/White (~3.2V)</option>
+                                    <option value="3.8">UV/Purple (~3.8V)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Desired Current (mA)</span>
+                                <input type="number" id="i-led" class="form-control" value="20">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc">Calculate Parameters</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Calculated Specifications</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(255, 166, 0, 0.05); border-left: 4px solid var(--accent-orange); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-orange); font-weight: bold;"><i class="fa-solid fa-diagram-project"></i> Analysis & Wiring</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Configuration
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-btn').addEventListener('click', function() {
+            const vs = parseFloat(document.getElementById('v-source').value);
+            const vl = parseFloat(document.getElementById('v-led').value);
+            const imA = parseFloat(document.getElementById('i-led').value);
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (isNaN(vs) || isNaN(vl) || isNaN(imA)) return alert("Please fill in all fields.");
+            if (vs <= vl) return alert("Source voltage must be higher than LED voltage!");
+            
+            const iA = imA / 1000;
+            const vDrop = vs - vl;
+            const resistance = vDrop / iA;
+            const power = vDrop * iA;
+
+            // Determine Standard Resistor Wattage
+            let suggestedWattage = "1/4W (0.25W)";
+            if (power > 0.2) suggestedWattage = "1/2W (0.5W)";
+            if (power > 0.4) suggestedWattage = "1W";
+            if (power > 0.8) suggestedWattage = "2W+";
+
+            resArea.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.9rem; opacity: 0.8;">Target Resistance (R)</span>
+                            <span style="font-size: 0.75rem; opacity: 0.5;">Opposes current flow</span>
+                        </div>
+                        <strong style="font-size: 1.5rem; color: var(--accent-orange);">${Math.ceil(resistance)} Ω</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.9rem; opacity: 0.8;">Power Dissipation (P)</span>
+                            <span style="font-size: 0.75rem; opacity: 0.5;">Heat generated</span>
+                        </div>
+                        <strong style="font-size: 1.2rem;">${power.toFixed(3)} W</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.9rem; opacity: 0.8;">Safe Power Rating</span>
+                            <span style="font-size: 0.75rem; opacity: 0.5;">Min wattage required</span>
+                        </div>
+                        <strong style="font-size: 1.2rem;">${suggestedWattage}</strong>
+                    </div>
+                </div>
+            `;
+
+            tipArea.innerHTML = `
+                <strong>How it works:</strong><br>
+                The resistor drops the excess voltage to protect the LED.<br>
+                1. <strong>Voltage Drop ($V_R$):</strong> $V_{source} - V_{LED} = ${vDrop.toFixed(2)}V$<br>
+                2. <strong>Ohm's Law:</strong> $R = V_R / I = ${vDrop.toFixed(2)}V / ${iA}A = ${resistance.toFixed(1)}Ω$<br>
+                3. <strong>Power Law:</strong> $P = V_R \\times I = ${vDrop.toFixed(2)}V \\times ${iA}A = ${power.toFixed(3)}W$<br><br>
+                <strong>Wiring:</strong> Connect the <strong>${Math.ceil(resistance)}Ω</strong> resistor in series with the LED Anode (longer leg). If the resistor gets hot to the touch, upgrade to a <strong>${suggestedWattage}</strong> rated component.
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/app.js"></script>
+    <script src="/js/custom.js"></script>
+    <script>
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if(title) title.textContent = 'LED Resistor Calculator';
+        });
+    </script>
+</body>
+</html>

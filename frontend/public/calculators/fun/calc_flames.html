@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | FLAMES Kinetic Engine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .flames-letters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+        }
+        .f-letter {
+            opacity: 0.3;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        .f-letter.active {
+            opacity: 1;
+            color: var(--accent-cyan);
+            transform: scale(1.3);
+            text-shadow: 0 0 15px var(--accent-cyan);
+        }
+        .f-letter.eliminated {
+            text-decoration: line-through;
+            color: #ef4444;
+            opacity: 0.1;
+        }
+        .flames-result-card {
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-main));
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        @keyframes pulse-heart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: pulse-heart 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-fire-flame-curved"></i> FLAMES Kinetic Engine</h2>
+                            <p>An advanced algorithmic approach to traditional name numerology and compatibility.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Your Full Name</span>
+                                <input type="text" id="name1" class="form-control" placeholder="e.g. John Doe">
+                            </div>
+                            <div class="sub-link">
+                                <span>Partner's Full Name</span>
+                                <input type="text" id="name2" class="form-control" placeholder="e.g. Jane Smith">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="runFlames()">Analyze Compatibility</button>
+                            <button class="btn-save" style="margin-top:10px; opacity:0.6;" onclick="location.reload()">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Engine
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <div class="flames-letters" id="flames-row">
+                            <span class="f-letter" data-char="F">F</span>
+                            <span class="f-letter" data-char="L">L</span>
+                            <span class="f-letter" data-char="A">A</span>
+                            <span class="f-letter" data-char="M">M</span>
+                            <span class="f-letter" data-char="E">E</span>
+                            <span class="f-letter" data-char="S">S</span>
+                        </div>
+
+                        
+
+                        <div class="flames-result-card">
+                            <div id="status-icon-box" class="status-icon"></div>
+                            <h3 id="result-title" style="font-size: 2rem; margin-bottom: 5px;">-</h3>
+                            <p id="result-desc" style="opacity: 0.7; font-size: 0.9rem;"></p>
+                        </div>
+
+                        <div class="sub-link" style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid #f59e0b; margin-top: 15px; padding: 15px;">
+                            <span style="color: #f59e0b; font-weight: bold;"><i class="fa-solid fa-wand-sparkles"></i> Numerology Tip</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        const flamesMap = {
+            'F': { title: 'Friends', icon: 'fa-user-group', color: '#3b82f6', desc: 'A bond built on mutual trust and shared interests.' },
+            'L': { title: 'Lovers', icon: 'fa-heart', color: '#ef4444', desc: 'Intense chemistry and deep emotional connection.' },
+            'A': { title: 'Affection', icon: 'fa-face-smile-beam', color: '#ec4899', desc: 'Warmth and genuine care for one another.' },
+            'M': { title: 'Marriage', icon: 'fa-ring', color: '#f59e0b', desc: 'A long-term commitment and spiritual union.' },
+            'E': { title: 'Enemies', icon: 'fa-bolt', color: '#64748b', desc: 'Conflicting energies that spark frequent friction.' },
+            'S': { title: 'Siblings', icon: 'fa-people-roof', color: '#10b981', desc: 'A protective and loyal family-like connection.' }
+        };
+
+        async function runFlames() {
+            let n1 = document.getElementById('name1').value.toLowerCase().replace(/\s/g, '');
+            let n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
+            
+            if (!n1 || !n2) { alert("Please enter both names."); return; }
+
+            const resCard = document.getElementById('results');
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+
+            // Calculate Remaining Characters
+            let combined = n1 + n2;
+            let n1Arr = n1.split('');
+            let n2Arr = n2.split('');
+
+            n1Arr.forEach(char => {
+                let index = n2Arr.indexOf(char);
+                if (index > -1) {
+                    n2Arr.splice(index, 1);
+                    n1 = n1.replace(char, '');
+                }
+            });
+            
+            let count = n1.length + n2Arr.length;
+            let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+            
+            // Visual Animation of FLAMES
+            const letters = document.querySelectorAll('.f-letter');
+            letters.forEach(l => l.className = 'f-letter');
+
+            let index = 0;
+            while (flames.length > 1) {
+                index = (index + count - 1) % flames.length;
+                let eliminated = flames.splice(index, 1)[0];
+                document.querySelector(`[data-char="${eliminated}"]`).classList.add('eliminated');
+                await new Promise(r => setTimeout(r, 300));
+            }
+
+            const finalChar = flames[0];
+            const data = flamesMap[finalChar];
+            const activeLetter = document.querySelector(`[data-char="${finalChar}"]`);
+            activeLetter.classList.add('active');
+
+            // Update UI
+            document.getElementById('status-icon-box').innerHTML = `<i class="fa-solid ${data.icon}" style="color: ${data.color}"></i>`;
+            document.getElementById('result-title').innerText = data.title;
+            document.getElementById('result-title').style.color = data.color;
+            document.getElementById('result-desc').innerText = data.desc;
+
+            document.getElementById('pro-tip').innerHTML = `The remaining letter count was <strong>${count}</strong>. In relationship science, names are just labels, but the energy you put into communication is what defines a <strong>${data.title}</strong> connection!`;
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

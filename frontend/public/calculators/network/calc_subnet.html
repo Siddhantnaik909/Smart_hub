@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Ultra Subnet Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-network-wired"></i> Ultra Subnet Calculator</h2>
+                            <p>Full network analysis including neighbor subnets and binary mapping.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>IP Address</span>
+                                <input type="text" id="subnetIP" class="form-control" placeholder="10.0.0.1">
+                            </div>
+                            
+                            <div class="sub-link">
+                                <span>CIDR (/)</span>
+                                <input type="number" id="subnetCIDR" class="form-control" value="24" min="0" max="32">
+                            </div>
+                            
+                            <button id="btn-subnet" class="btn-calc">Analyze Network</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3><i class="fa-solid fa-microchip"></i> Bit-Level Analysis</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <h3 style="margin-top:20px;"><i class="fa-solid fa-map-location-dot"></i> Neighbor Subnet Map</h3>
+                        <div class="sub-cat-list" id="neighbor-map-area">
+                            </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="save-btn-subnet" class="btn-save">
+                                <i class="fa-solid fa-save"></i> Save Specs
+                            </button>
+                            <button onclick="window.print()" class="btn-calc" style="background: var(--text-secondary);">
+                                <i class="fa-solid fa-print"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function ipToLong(ip) {
+            return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+
+        function longToIp(long) {
+            return [ (long >>> 24) & 0xFF, (long >>> 16) & 0xFF, (long >>> 8) & 0xFF, long & 0xFF ].join('.');
+        }
+
+        document.getElementById('btn-subnet').addEventListener('click', function() {
+            const ipStr = document.getElementById('subnetIP').value.trim();
+            const cidr = parseInt(document.getElementById('subnetCIDR').value);
+            const resArea = document.getElementById('result-display-area');
+            const mapArea = document.getElementById('neighbor-map-area');
+            const resCard = document.getElementById('results');
+
+            if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ipStr) || isNaN(cidr) || cidr < 0 || cidr > 32) {
+                alert("Invalid Configuration"); return;
+            }
+
+            const ipLong = ipToLong(ipStr);
+            const maskLong = cidr === 0 ? 0 : (0xFFFFFFFF << (32 - cidr)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+            const broadcastLong = (netLong | ~maskLong) >>> 0;
+            const blockSize = Math.pow(2, 32 - cidr);
+
+            // Basic Stats
+            resArea.innerHTML = `
+                <div class="sub-link"><span>Network Address</span><strong>${longToIp(netLong)} /${cidr}</strong></div>
+                <div class="sub-link"><span>Broadcast Address</span><strong>${longToIp(broadcastLong)}</strong></div>
+                <div class="sub-link"><span>Subnet Mask</span><strong>${longToIp(maskLong)}</strong></div>
+                <div class="sub-link"><span>Usable Range</span><strong>${cidr < 31 ? longToIp(netLong+1) + " - " + longToIp(broadcastLong-1) : "N/A"}</strong></div>
+                <div class="sub-link"><span>Total Hosts</span><strong>${blockSize.toLocaleString()}</strong></div>
+            `;
+
+            // Neighbor Map Logic
+            const prevNet = (netLong - blockSize) >>> 0;
+            const nextNet = (netLong + blockSize) >>> 0;
+
+            mapArea.innerHTML = `
+                <div class="sub-link" style="opacity: 0.6"><span>Previous Subnet</span><strong>${longToIp(prevNet)} /${cidr}</strong></div>
+                <div class="sub-link" style="border-left: 4px solid var(--accent-color); background: rgba(var(--accent-rgb), 0.1);">
+                    <span>Current Subnet</span><strong>${longToIp(netLong)} /${cidr}</strong>
+                </div>
+                <div class="sub-link" style="opacity: 0.6"><span>Next Subnet</span><strong>${longToIp(nextNet)} /${cidr}</strong></div>
+            `;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        });
+    </script>
+    
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

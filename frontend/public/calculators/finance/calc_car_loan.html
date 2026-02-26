@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Car Loan Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-car"></i> Car Loan Calculator</h2>
+                            <p>Calculate your monthly auto loan payments based on price, term, and rate.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency Symbol</span>
+                                <select class="form-control" id="currency">
+                                    <option value="$">$ (USD)</option>
+                                    <option value="₹">₹ (INR)</option>
+                                    <option value="€">€ (EUR)</option>
+                                    <option value="£">£ (GBP)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Vehicle Price</span>
+                                <input type="number" id="price" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="sub-link">
+                                <span>Down Payment</span>
+                                <input type="number" id="downPayment" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="sub-link">
+                                <span>Interest Rate (%)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="e.g. 5.5" step="0.01">
+                            </div>
+                            <div class="sub-link">
+                                <span>Loan Term (Months)</span>
+                                <input type="number" id="months" class="form-control" placeholder="e.g. 60">
+                            </div>
+                            
+                            <button id="calc-btn-loan" class="btn-calc">Calculate Payment</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Payment Breakdown</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <button id="save-btn-loan" class="btn-save" disabled>
+                            <i class="fa-solid fa-save"></i> Save Calculation
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        document.getElementById('calc-btn-loan').addEventListener('click', function() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+            const annualRate = parseFloat(document.getElementById('rate').value) || 0;
+            const months = parseInt(document.getElementById('months').value) || 0;
+            const currency = document.getElementById('currency').value;
+
+            if (price <= 0 || months <= 0) {
+                alert("Please enter a valid price and loan term.");
+                return;
+            }
+
+            const principal = price - downPayment;
+            const monthlyRate = (annualRate / 100) / 12;
+            
+            let monthlyPayment = 0;
+            if (monthlyRate === 0) {
+                monthlyPayment = principal / months;
+            } else {
+                monthlyPayment = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+            }
+
+            const totalPayment = monthlyPayment * months;
+            const totalInterest = totalPayment - principal;
+
+            const displayArea = document.getElementById('result-display-area');
+            displayArea.innerHTML = `
+                <div class="sub-link" style="background: var(--bg-main); border-radius: 8px; padding: 15px; flex-direction: column; align-items: center;">
+                    <span style="font-size: 0.9rem; opacity: 0.7;">Monthly Payment</span>
+                    <strong style="font-size: 2rem; color: var(--primary-color);">${currency}${monthlyPayment.toFixed(2)}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Principal</span>
+                    <strong>${currency}${principal.toFixed(2)}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Interest</span>
+                    <strong>${currency}${totalInterest.toFixed(2)}</strong>
+                </div>
+                <div class="sub-link">
+                    <span>Total Cost of Loan</span>
+                    <strong>${currency}${totalPayment.toFixed(2)}</strong>
+                </div>
+            `;
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.classList.remove('hidden');
+            document.getElementById('save-btn-loan').disabled = false;
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>

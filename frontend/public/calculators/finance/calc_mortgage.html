@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Mortgage Pro Architect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-house-chimney-window"></i> Mortgage Pro Architect</h2>
+                            <p>Advanced amortization modeling with down payment and equity analysis.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>Currency</span>
+                                <select id="currency" class="form-control">
+                                    <option value="$">USD ($)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+                            <div class="sub-link">
+                                <span>Property Value</span>
+                                <input type="number" id="amount" class="form-control" placeholder="e.g. 400000">
+                            </div>
+                            <div class="sub-link">
+                                <span>Down Payment (%)</span>
+                                <input type="number" id="down-payment" class="form-control" placeholder="20" value="20">
+                            </div>
+                            <div class="sub-link">
+                                <span>Annual Interest Rate (%)</span>
+                                <input type="number" id="rate" class="form-control" placeholder="6.5" step="0.01">
+                            </div>
+                            <div class="sub-link">
+                                <span>Loan Term (Years)</span>
+                                <input type="number" id="term" class="form-control" placeholder="30">
+                            </div>
+                            
+                            <button id="calc-btn" class="btn-calc" onclick="calculateAdvancedMortgage()">Analyze Investment</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Mortgage Summary Report</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+
+                        <div class="sub-link" style="background: rgba(13, 110, 253, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
+                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-key"></i> Equity Insight</span>
+                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                        </div>
+
+                        <button id="save-btn" class="btn-save">
+                            <i class="fa-solid fa-save"></i> Save Amortization
+                        </button>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+
+        function calculateAdvancedMortgage() {
+            const symbol = document.getElementById('currency').value;
+            const propertyValue = parseFloat(document.getElementById('amount').value);
+            const downPercent = parseFloat(document.getElementById('down-payment').value) || 0;
+            const annualRate = parseFloat(document.getElementById('rate').value);
+            const termYears = parseFloat(document.getElementById('term').value);
+            
+            const resArea = document.getElementById('result-display-area');
+            const resCard = document.getElementById('results');
+            const tipArea = document.getElementById('pro-tip');
+
+            if (!propertyValue || !annualRate || !termYears) {
+                alert("Please enter property value, rate, and term.");
+                return;
+            }
+
+            // Math Engine
+            const downPaymentAmount = propertyValue * (downPercent / 100);
+            const principal = propertyValue - downPaymentAmount;
+            const monthlyRate = annualRate / 12 / 100;
+            const totalMonths = termYears * 12;
+
+            const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+            const totalPayment = emi * totalMonths;
+            const totalInterest = totalPayment - principal;
+
+            const format = (num) => symbol + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            resArea.innerHTML = `
+                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 15px 0;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Monthly (P&I)</span>
+                    <strong style="font-size: 2.2rem; color: var(--accent-cyan);">${format(emi)}</strong>
+                </div>
+                <div class="sub-link"><span>Actual Loan Amount</span><strong>${format(principal)}</strong></div>
+                <div class="sub-link"><span>Cash Down Payment</span><strong style="color: #10b981;">${format(downPaymentAmount)}</strong></div>
+                <div class="sub-link"><span>Total Interest Paid</span><strong style="color: #ef4444;">${format(totalInterest)}</strong></div>
+                <div class="sub-link"><span>Loan-to-Value (LTV)</span><strong>${(100 - downPercent).toFixed(1)}%</strong></div>
+            `;
+
+            // Pro Tip: PMI Logic
+            let tipMsg = "";
+            if (downPercent < 20) {
+                tipMsg = `Since your down payment is less than 20%, you may be required to pay <strong>Private Mortgage Insurance (PMI)</strong>. Increasing your down payment by <strong>${format(propertyValue * 0.2 - downPaymentAmount)}</strong> could remove this extra monthly cost.`;
+            } else {
+                tipMsg = `Excellent! With a <strong>${downPercent}%</strong> down payment, you avoid PMI and start with significant equity. This puts you in a strong position for future refinancing.`;
+            }
+            tipArea.innerHTML = tipMsg;
+
+            resCard.style.display = 'block';
+            resCard.classList.remove('hidden');
+        }
+    </script>
+
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+</html>
