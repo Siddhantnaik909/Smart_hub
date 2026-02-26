@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const PORT = 3000;
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? `http://localhost:${PORT}`
-        : 'https://smart-calculator-hub.onrender.com';
+        : 'https://smart-hub-f5gw.onrender.com';
     window.API_URL = API_URL;
 
     try {
@@ -243,3 +243,4 @@ function updateUserInterface() {
         }
     }
 }
+

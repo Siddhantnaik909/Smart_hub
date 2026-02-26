@@ -7,7 +7,7 @@
 import { initButtons } from './buttons.js';
 
 const APP_VERSION = '2.7.5';
-const REMOTE_API_URL = 'https://smart-calculator-hub.onrender.com';
+const REMOTE_API_URL = 'https://smart-hub-f5gw.onrender.com';
 const LOCAL_API_URL = 'http://localhost:3000';
 const SETTINGS_CACHE_KEY = 'smartHub.settings.cache';
 const HISTORY_CACHE_KEY = 'smartHub.history.cache';
