@@ -4,12 +4,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | History</title>
-    <!-- Shared Head Links -->
-    <div id="head-links"></div>
+    <title>SMART HUB | Calculation History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        /* ─── History List ─── */
+        .history-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .history-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+        }
+
+        .history-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .history-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-meta h4 {
+            margin: 0 0 4px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .history-meta .history-detail {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta .history-date {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        .history-arrow {
+            color: var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .history-card:hover .history-arrow {
+            transform: translateX(4px);
+        }
+
+        /* ─── Glassmorphism Modal ─── */
+        #hist-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        #hist-modal-overlay.open {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #hist-modal {
+            background: rgba(22, 25, 40, 0.75);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            animation: modalSlideUp 0.3s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #hist-modal .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        #hist-modal .modal-close:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .modal-tool-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .modal-date {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+
+        .modal-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin: 20px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            opacity: 0;
+            transform: translateX(-12px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-row.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .modal-row-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .modal-row-val {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .modal-row.highlight {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .modal-row.highlight .modal-row-val {
+            color: #10b981;
+            font-size: 1.15rem;
+        }
+
+        .modal-goto-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            color: #fff;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .modal-goto-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ─── Empty / Header ─── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .badge-count {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,42 +300,274 @@
         <main class="main-content">
             <div id="header-placeholder"></div>
             <div class="page-body">
-                <section class="container" style="max-width: 900px; margin-top: 40px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-                        <div>
-                            <h1>Calculation <span class="accent-text">History</span></h1>
-                            <p style="opacity: 0.7;">View and manage your recent activity.</p>
-                        </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <select id="history-filter"
-                                style="padding: 10px 15px; border-radius: 12px; background: var(--bg-card); color: var(--text-body); border: 1px solid var(--border-color); outline: none; cursor: pointer;"
-                                onchange="loadRecentActivity()">
-                                <option value="all">All Time</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                            </select>
-                            <button id="clear-history-btn" class="btn-secondary"
-                                style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer;">
-                                <i class="fa-solid fa-trash"></i> Clear All
-                            </button>
-                        </div>
+                <section class="container fade-in" style="max-width: 820px; margin-top: 30px;">
+                    <div class="page-header">
+                        <h1>Calculation <span class="accent-text">History</span> <span id="hist-badge"
+                                class="badge-count" style="display:none"></span></h1>
+                        <p>Click any entry to see the full inputs and results.</p>
                     </div>
 
-                    <div id="history-list" class="fade-in delay-1">
-                        <!-- History items injected by app.js -->
-                        <div style="text-align: center; padding: 100px 20px; opacity: 0.5;">
-                            <i class="fa-solid fa-clock-rotate-left" style="font-size: 4rem; margin-bottom: 20px;"></i>
-                            <h3>No history found</h3>
-                            <p>Your recent calculations will appear here after you use a tool.</p>
-                        </div>
+                    <div class="history-actions">
+                        <select id="history-filter"
+                            style="padding:10px 15px;border-radius:12px;background:var(--bg-card);color:var(--text-body);border:1px solid var(--border-color);outline:none;cursor:pointer;"
+                            onchange="renderHistory()">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                        <input type="text" id="hist-search" placeholder="🔍  Search history..."
+                            style="padding:10px 15px;border-radius:12px;background:var(--bg-card);color:var(--text-body);border:1px solid var(--border-color);outline:none;flex:1;min-width:160px;"
+                            oninput="renderHistory()">
+                        <button id="clear-history-btn"
+                            style="background:#ef4444;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:600;cursor:pointer;">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
                     </div>
+
+                    <div id="history-list" class="fade-in delay-1"></div>
                 </section>
                 <div id="footer-placeholder"></div>
             </div>
         </main>
     </div>
+
+    <!-- Glassmorphism Detail Modal -->
+    <div id="hist-modal-overlay" onclick="closeModal(event)">
+        <div id="hist-modal">
+            <button class="modal-close" onclick="closeModal(null, true)"><i class="fas fa-times"></i></button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+
+        const ICONS = {
+            'Concrete': 'fa-hard-hat', 'Flooring': 'fa-border-all', 'Brick': 'fa-layer-group',
+            'Roof': 'fa-home', 'Lumber': 'fa-tree', 'Fuel': 'fa-gas-pump',
+            'Paint': 'fa-paint-roller', 'Wall': 'fa-ruler-combined',
+            'Chess': 'fa-chess', 'Racing': 'fa-car', 'Tic': 'fa-times',
+            'Connect': 'fa-circle', 'Power': 'fa-plug', 'Voltage': 'fa-bolt',
+            'Frequency': 'fa-wave-square', 'Ohm': 'fa-microchip',
+            'BMI': 'fa-weight', 'Calorie': 'fa-fire', 'Age': 'fa-cake',
+            'Loan': 'fa-landmark', 'Mortgage': 'fa-home', 'Tax': 'fa-percent',
+            'default': 'fa-calculator'
+        };
+
+        function getIcon(name) {
+            for (const [key, icon] of Object.entries(ICONS)) {
+                if (name?.toLowerCase().includes(key.toLowerCase())) return icon;
+            }
+            return ICONS.default;
+        }
+
+        function getHistory() {
+            return JSON.parse(localStorage.getItem('calc_history') || '[]');
+        }
+
+        function filterHistory(entries) {
+            const filter = document.getElementById('history-filter')?.value || 'all';
+            const search = document.getElementById('hist-search')?.value?.toLowerCase() || '';
+            const now = Date.now();
+            return entries.filter(e => {
+                const ts = e.timestamp || 0;
+                const timeOk =
+                    filter === 'all' ? true :
+                        filter === 'today' ? (now - ts < 86400000) :
+                            filter === 'week' ? (now - ts < 604800000) :
+                                (now - ts < 2592000000);
+                const textOk = !search || (e.name + e.details + (e.results?.map(r => r.label + r.val).join(' ') || '')).toLowerCase().includes(search);
+                return timeOk && textOk;
+            });
+        }
+
+        function renderHistory() {
+            const all = getHistory();
+            const entries = filterHistory(all);
+            const list = document.getElementById('history-list');
+            const badge = document.getElementById('hist-badge');
+            badge.style.display = all.length ? 'inline' : 'none';
+            badge.textContent = all.length;
+
+            if (!entries.length) {
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><h3>No history found</h3><p>Your recent calculations appear here after you use a tool.</p></div>`;
+                return;
+            }
+
+            // Check if any entries are old-format (no inputs/results array)
+            const hasLegacy = entries.some(e => !e.inputs && !e.results);
+
+            let html = '';
+            if (hasLegacy) {
+                html += `<div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                    <span style="font-size:0.9rem;"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;margin-right:8px"></i>Some entries are in old format and show limited details.</span>
+                    <button onclick="cleanLegacyEntries()" style="background:#f59e0b;color:#fff;border:none;padding:7px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.85rem"><i class="fas fa-broom" style="margin-right:5px"></i>Clean Old Entries</button>
+                </div>`;
+            }
+
+            html += entries.map((e, idx) => {
+                const icon = getIcon(e.name);
+                // Smart preview: use highlighted result if available, else first result, else details string
+                let previewText = '';
+                if (e.results?.length) {
+                    const highlight = e.results.find(r => r.highlight) || e.results[0];
+                    const inputSummary = e.inputs?.map(i => `${i.label}: ${i.val}`).join(' | ') || '';
+                    previewText = `${inputSummary ? inputSummary + ' → ' : ''}${highlight.label}: <strong>${highlight.val}</strong>`;
+                } else if (e.details) {
+                    // Strip the garbled "Input: [on, ...]" fallback and show a cleaner version
+                    previewText = `<em style="opacity:0.6">${e.details.replace(/^Input: \[.*?\] ➔ /, '').substring(0, 60)}</em>`;
+                } else {
+                    previewText = 'Click to view details';
+                }
+                return `<div class="history-card" onclick="openModal(${all.indexOf(e)})" style="animation:fadeSlideIn 0.35s ease ${idx * 0.05}s both">
+                    <div class="history-icon"><i class="fas ${icon}"></i></div>
+                    <div class="history-meta">
+                        <h4>${e.name || 'Calculation'}</h4>
+                        <div class="history-detail">${previewText}</div>
+                        <div class="history-date"><i class="fas fa-clock" style="margin-right:4px"></i>${e.date || ''}</div>
+                    </div>
+                    <i class="fas fa-chevron-right history-arrow"></i>
+                </div>`;
+            }).join('');
+
+            list.innerHTML = html;
+        }
+
+        function cleanLegacyEntries() {
+            const all = getHistory();
+            const cleaned = all.filter(e => e.inputs?.length && e.results?.length);
+            if (cleaned.length === all.length) { alert('No old entries to remove.'); return; }
+            if (confirm(`Remove ${all.length - cleaned.length} old-format entries?`)) {
+                localStorage.setItem('calc_history', JSON.stringify(cleaned));
+                renderHistory();
+            }
+        }
+
+        function openModal(idx) {
+            const entry = getHistory()[idx];
+            if (!entry) return;
+            const overlay = document.getElementById('hist-modal-overlay');
+            const content = document.getElementById('modal-content');
+
+            // Build modal content
+            let inputsHTML = '';
+            if (entry.inputs?.length) {
+                inputsHTML = `
+                    <div class="modal-section-title"><i class="fas fa-keyboard"></i> Inputs Used</div>
+                    ${entry.inputs.map((inp, i) => `
+                        <div class="modal-row" id="_mi${i}">
+                            <span class="modal-row-label">${inp.label}</span>
+                            <span class="modal-row-val">${inp.val}</span>
+                        </div>`).join('')}`;
+            }
+
+            let resultsHTML = '';
+            if (entry.results?.length) {
+                resultsHTML = `
+                    <div class="modal-section-title"><i class="fas fa-chart-bar"></i> Results</div>
+                    ${entry.results.map((r, i) => `
+                        <div class="modal-row${r.highlight ? ' highlight' : ''}" id="_mr${i}">
+                            <span class="modal-row-label">${r.label}</span>
+                            <span class="modal-row-val">${r.val}</span>
+                        </div>`).join('')}`;
+            } else if (entry.details) {
+                // Fallback for legacy entries without structured results
+                resultsHTML = `
+                    <div class="modal-section-title"><i class="fas fa-info-circle"></i> Details</div>
+                    <div class="modal-row show" style="opacity:1;transform:none">
+                        <span class="modal-row-label">Summary</span>
+                        <span class="modal-row-val" style="font-size:0.9rem;max-width:200px;text-align:right;word-break:break-all">${entry.details}</span>
+                    </div>`;
+            }
+
+            content.innerHTML = `
+                <div class="modal-tool-name"><i class="fas ${getIcon(entry.name)}" style="color:var(--primary-color);margin-right:10px"></i>${entry.name || 'Calculation'}</div>
+                <div class="modal-date"><i class="fas fa-clock" style="margin-right:5px"></i>${entry.date}</div>
+                ${inputsHTML}
+                ${resultsHTML}
+                <button class="modal-goto-btn" onclick="goToTool('${entry.name}')">
+                    <i class="fas fa-external-link-alt" style="margin-right:8px"></i>Open This Calculator Again
+                </button>`;
+
+            overlay.classList.add('open');
+
+            // Staggered reveal for rows
+            const totalRows = (entry.inputs?.length || 0) + (entry.results?.length || 0);
+            for (let i = 0; i < totalRows; i++) {
+                const el = document.getElementById(`_mi${i}`) || document.getElementById(`_mr${i - (entry.inputs?.length || 0)}`);
+                if (el) setTimeout(() => el.classList.add('show'), 60 + i * 80);
+            }
+            // Also animate result rows
+            (entry.results || []).forEach((_, i) => {
+                setTimeout(() => {
+                    const el = document.getElementById(`_mr${i}`);
+                    if (el) el.classList.add('show');
+                }, 60 + ((entry.inputs?.length || 0) + i) * 80);
+            });
+        }
+
+        function closeModal(e, force = false) {
+            if (force || e?.target === document.getElementById('hist-modal-overlay')) {
+                document.getElementById('hist-modal-overlay').classList.remove('open');
+            }
+        }
+
+        // Map tool names to paths
+        function goToTool(name) {
+            const map = {
+                'Brick Estimator': '/calculators/construction/calc_brick.html',
+                'Concrete Calculator': '/calculators/construction/calc_concrete.html',
+                'Flooring Calculator': '/calculators/construction/calc_flooring.html',
+                'Fuel Cost Calculator': '/calculators/construction/calc_fuel.html',
+                'Lumber Board Feet Calculator': '/calculators/construction/calc_lumber.html',
+                'Roof Area Calculator': '/calculators/construction/calc_roof_area.html',
+                'Paint Calculator': '/calculators/construction/calc_paint.html',
+                'Wall Stud Calculator': '/calculators/construction/calc_wall_stud.html',
+                'Voltage Divider Calculator': '/calculators/electronics/calc_voltage_divider.html',
+                'Electrical Power Calculator': '/calculators/electronics/calc_power.html',
+                'Frequency & Wavelength Calculator': '/calculators/electronics/calc_frequency.html',
+                '555 Timer Calculator': '/calculators/electronics/calc_555_timer.html',
+                'Multiplayer Chess': '/calculators/fun/game_chess.html',
+                'Car Racing Game': '/calculators/fun/game_car_racing.html',
+            };
+            const path = map[name] || '/calculators.html';
+            window.location.href = path;
+        }
+
+        document.getElementById('clear-history-btn').addEventListener('click', () => {
+            if (confirm('Clear all history? This cannot be undone.')) {
+                localStorage.removeItem('calc_history');
+                renderHistory();
+            }
+        });
+
+        // Keyboard close
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(null, true); });
+
+        // Also support loadRecentActivity() called by script.js
+        window.loadRecentActivity = renderHistory;
+
+        document.addEventListener('DOMContentLoaded', renderHistory);
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if (title) title.textContent = 'History';
+            renderHistory();
+        });
+    </script>
+    <style>
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
     <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>

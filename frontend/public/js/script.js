@@ -27,11 +27,14 @@ let currentPagePath = null;
 window.CALCULATORS_DATA = [
     {
         category: "Construction", icon: "fas fa-hard-hat", items: [
+            { name: "Brick Estimator", link: "/calculators/construction/calc_brick.html" },
             { name: "Concrete Calculator", link: "/calculators/construction/calc_concrete.html" },
             { name: "Flooring Calculator", link: "/calculators/construction/calc_flooring.html" },
             { name: "Fuel Cost Calculator", link: "/calculators/construction/calc_fuel.html" },
+            { name: "Lumber Board Feet", link: "/calculators/construction/calc_lumber.html" },
             { name: "Ohm's Law (Construction)", link: "/calculators/construction/calc_ohm.html" },
             { name: "Paint Calculator", link: "/calculators/construction/calc_paint.html" },
+            { name: "Roof Area Calculator", link: "/calculators/construction/calc_roof_area.html" },
             { name: "Wall Stud Calculator", link: "/calculators/construction/calc_wall_stud.html" }
         ]
     },
@@ -56,9 +59,12 @@ window.CALCULATORS_DATA = [
         category: "Electronics", icon: "fas fa-microchip", items: [
             { name: "555 Timer", link: "/calculators/electronics/calc_555_timer.html" },
             { name: "Capacitor Code", link: "/calculators/electronics/calc_capacitor_code.html" },
+            { name: "Frequency & Wavelength", link: "/calculators/electronics/calc_frequency.html" },
             { name: "LED Resistor", link: "/calculators/electronics/calc_led_resistor_calculator.html" },
             { name: "Ohm's Law", link: "/calculators/electronics/calc_ohm.html" },
-            { name: "Resistor Color Code", link: "/calculators/electronics/calc_resistor_color_code.html" }
+            { name: "Power Calculator", link: "/calculators/electronics/calc_power.html" },
+            { name: "Resistor Color Code", link: "/calculators/electronics/calc_resistor_color_code.html" },
+            { name: "Voltage Divider", link: "/calculators/electronics/calc_voltage_divider.html" }
         ]
     },
     {
@@ -134,7 +140,16 @@ window.CALCULATORS_DATA = [
         ]
     },
     {
-        category: "Fun", icon: "fas fa-face-grin-tears", items: [
+        category: "Games", icon: "fas fa-gamepad", items: [
+            { name: "Car Racing", link: "/calculators/fun/game_car_racing.html" },
+            { name: "Connect 4", link: "/calculators/fun/game_connect4.html" },
+            { name: "Multiplayer Chess", link: "/calculators/fun/game_chess.html" },
+            { name: "Rock Paper Scissors", link: "/calculators/fun/calc_rock_paper_scissors.html" },
+            { name: "Tic Tac Toe", link: "/calculators/fun/game_tic_tac_toe.html" }
+        ]
+    },
+    {
+        category: "Fun Tools", icon: "fas fa-face-grin-tears", items: [
             { name: "Coin Flipper", link: "/calculators/fun/calc_coin_flipper.html" },
             { name: "Compatibility Test", link: "/calculators/fun/calc_compatibility.html" },
             { name: "Dice Roller", link: "/calculators/fun/calc_dice_roller.html" },
@@ -144,7 +159,6 @@ window.CALCULATORS_DATA = [
             { name: "Magic 8 Ball", link: "/calculators/fun/calc_magic_8_ball.html" },
             { name: "Number Guesser", link: "/calculators/fun/calc_number_guesser.html" },
             { name: "Random Number", link: "/calculators/fun/calc_random_number.html" },
-            { name: "Rock Paper Scissors", link: "/calculators/fun/calc_rock_paper_scissors.html" },
             { name: "Zodiac Sign", link: "/calculators/fun/calc_zodiac.html" }
         ]
     }
@@ -656,27 +670,44 @@ async function fetchAdminSettings() {
 
         // 3. Theme Colors
         if (settings.primaryColor) {
+            localStorage.setItem('themeColor', settings.primaryColor);
             document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+            // Derive gradient
+            document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${settings.primaryColor} 0%, ${settings.primaryColor}dd 100%)`);
         }
         if (settings.accentColor) {
+            localStorage.setItem('accentColor', settings.accentColor);
             document.documentElement.style.setProperty('--accent-purple', settings.accentColor);
         }
 
         // 4. Layout & UI Scaling
         if (settings.layoutMode) {
+            localStorage.setItem('layoutMode', settings.layoutMode);
             document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
             if (settings.layoutMode !== 'left') {
                 document.body.classList.add(`sidebar-${settings.layoutMode}`);
             }
         }
         if (settings.fontSize) {
+            localStorage.setItem('customFontSize', settings.fontSize);
             document.documentElement.style.fontSize = `${settings.fontSize}px`;
         }
 
         // 5. FX: Glassmorphism
-        if (settings.glassmorphism) {
-            document.documentElement.style.setProperty('--bg-card', 'rgba(30, 41, 59, 0.4)');
-            document.body.style.backdropFilter = "blur(10px)";
+        if (settings.glassmorphism !== undefined) {
+            const isGlass = !!settings.glassmorphism;
+            localStorage.setItem('glassmorphism', isGlass ? 'true' : 'false');
+            if (isGlass) {
+                document.documentElement.style.setProperty('--bg-card', 'rgba(30, 41, 59, 0.4)');
+                document.documentElement.style.setProperty('--bg-sidebar', 'rgba(15, 23, 42, 0.6)');
+                document.body.style.backdropFilter = "blur(10px)";
+                document.body.classList.add('sidebar-glass');
+            } else {
+                document.documentElement.style.removeProperty('--bg-card');
+                document.documentElement.style.removeProperty('--bg-sidebar');
+                document.body.style.backdropFilter = "none";
+                document.body.classList.remove('sidebar-glass');
+            }
         }
 
         // 6. Direct CSS Injection

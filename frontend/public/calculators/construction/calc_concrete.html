@@ -1,117 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | Concrete Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 740px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: calcFadeUp 0.45s ease;
+        }
+
+        @keyframes calcFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
-<body class="cyan-theme">
+
+<body>
     <div class="dashboard-layout" id="dashboard-wrapper">
         <div class="overlay" id="mobile-overlay"></div>
         <div id="sidebar-placeholder"></div>
-
         <main class="main-content">
             <div id="header-placeholder"></div>
             <div class="page-body">
                 <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-hard-hat"></i> Concrete Calculator</h2>
-                            <p>Calculate the volume of concrete needed for slabs or footings.</p>
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-hard-hat" style="color:var(--primary-color)"></i> Concrete
+                                    Calculator</h2>
+                                <p>Calculate the volume of concrete and bags needed for slabs, footings, or columns.</p>
+                            </div>
                         </div>
 
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Length (feet)</span>
-                                <input type="number" id="length" class="form-control" placeholder="0">
-                            </div>
-                            <div class="sub-link">
-                                <span>Width (feet)</span>
-                                <input type="number" id="width" class="form-control" placeholder="0">
-                            </div>
-                            <div class="sub-link">
-                                <span>Thickness (inches)</span>
-                                <input type="number" id="thickness" class="form-control" placeholder="0">
-                            </div>
-                            <button id="calc-concrete-btn" class="btn-calc">Calculate Volume</button>
+                        <div class="calc-info-box">
+                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
+                            <ol style="padding-left:18px">
+                                <li>Enter the <strong>length</strong> and <strong>width</strong> of your slab in feet.
+                                </li>
+                                <li>Enter the <strong>thickness</strong> in inches (typical slabs: 4–6 inches).</li>
+                                <li>The calculator converts thickness to feet and computes cubic volume.</li>
+                                <li>One <strong>80 lb bag</strong> of ready-mix concrete yields ≈ 0.6 cubic feet.</li>
+                            </ol>
+                            <div class="calc-formula-box">Volume (ft³) = Length × Width × (Thickness ÷ 12)<br>Volume
+                                (yd³) = Volume (ft³) ÷ 27<br>Bags = ⌈ ft³ ÷ 0.6 ⌉</div>
                         </div>
-                    </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Results</h3>
-                        <div class="sub-cat-list" id="result-display-area">
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Length (feet)</span>
+                                    <input type="number" id="length" class="form-control" placeholder="e.g. 10" min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Width (feet)</span>
+                                    <input type="number" id="width" class="form-control" placeholder="e.g. 12" min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Thickness (inches)</span>
+                                    <input type="number" id="thickness" class="form-control" placeholder="e.g. 4"
+                                        min="0">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
+                                    Volume</button>
                             </div>
-                        <button id="save-concrete-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Result
-                        </button>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save to History</button>
+                        </div>
+
+                        <div class="calc-tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Always add <strong>10% extra</strong> to account for spillage and uneven ground.
+                                </li>
+                                <li>Standard residential driveways: <strong>4 inches thick</strong>. Heavy vehicle
+                                    areas: 6 inches.</li>
+                                <li>Order <strong>ready-mix concrete</strong> (truck delivery) for pours over 1 cubic
+                                    yard — it's more economical.</li>
+                                <li>Mix ratios (by volume): 1 cement : 2 sand : 3 aggregate for strong structural
+                                    concrete.</li>
+                                <li>Allow a minimum <strong>28 days</strong> for concrete to reach full strength.</li>
+                            </ul>
+                        </div>
+
                     </div>
                 </section>
                 <div id="footer-placeholder"></div>
             </div>
         </main>
     </div>
-
     <script>
-        window.FRONTEND_ROOT = "/";
-        window.COMPONENT_ROOT = "/components/";
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        let _lastInputs = null, _lastResults = null;
 
-        document.getElementById('calc-concrete-btn').addEventListener('click', function() {
-            // Get values
+        document.getElementById('calcBtn').addEventListener('click', function () {
             const length = parseFloat(document.getElementById('length').value);
             const width = parseFloat(document.getElementById('width').value);
             const thicknessInch = parseFloat(document.getElementById('thickness').value);
-
-            if (!length || !width || !thicknessInch) {
-                alert("Please fill in all fields.");
-                return;
-            }
-
-            // Calculations
-            // Convert thickness to feet
+            if (!length || !width || !thicknessInch) { alert("Please fill in all fields."); return; }
             const thicknessFeet = thicknessInch / 12;
             const cubicFeet = length * width * thicknessFeet;
             const cubicYards = cubicFeet / 27;
-            
-            // Standard 80lb bag yields approx 0.6 cubic feet
-            const bagsNeeded = Math.ceil(cubicFeet / 0.6);
+            const bags = Math.ceil(cubicFeet / 0.6);
+            const bagsWithWaste = Math.ceil(bags * 1.1);
 
-            // Display Results
-            const resultArea = document.getElementById('result-display-area');
-            resultArea.innerHTML = `
-                <div class="sub-link">
-                    <span>Volume (Cubic Yards)</span>
-                    <strong class="accent-text">${cubicYards.toFixed(2)} yd³</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Volume (Cubic Feet)</span>
-                    <strong class="accent-text">${cubicFeet.toFixed(2)} ft³</strong>
-                </div>
-                <div class="sub-link">
-                    <span>80lb Bags Needed</span>
-                    <strong class="accent-text">~${bagsNeeded} bags</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Note:</span>
-                    <small>Calculated with 10% waste margin: <strong>${Math.ceil(bagsNeeded * 1.1)} bags</strong></small>
-                </div>
-            `;
+            _lastInputs = [
+                { label: 'Length', val: `${length} ft` },
+                { label: 'Width', val: `${width} ft` },
+                { label: 'Thickness', val: `${thicknessInch} in` },
+            ];
+            _lastResults = [
+                { label: 'Volume', val: `${cubicFeet.toFixed(2)} ft³` },
+                { label: 'Volume (Cubic Yards)', val: `${cubicYards.toFixed(2)} yd³`, highlight: true },
+                { label: '80 lb Bags Required', val: `${bags} bags` },
+                { label: 'With 10% Waste Buffer', val: `~${bagsWithWaste} bags`, highlight: false },
+            ];
+            window.renderResults('resultArea', _lastResults);
+            window.showResultCard('results');
+        });
 
-            // Reveal results card
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.style.display = 'block';
-            resultsDiv.classList.remove('hidden');
-            
-            // Enable save button
-            document.getElementById('save-concrete-btn').disabled = false;
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            if (!_lastResults) { alert('Calculate first!'); return; }
+            const ok = window.saveCalcToHistory('Concrete Calculator', _lastInputs, _lastResults);
+            if (ok) {
+                const orig = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                this.style.background = '#10b981';
+                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+            }
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const t = document.getElementById('page-title-display');
+            if (t) t.textContent = 'Concrete Calculator';
         });
     </script>
-    
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
+    <script src="/js/calc-utils.js"></script>
     <script src="/js/custom.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Voltage Divider Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box li,
+        .info-box p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .formula-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.97rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warn-box {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 4px solid #f59e0b;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .warn-box h4 {
+            color: #f59e0b;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .circuit-svg {
+            display: block;
+            margin: 10px auto;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-bolt" style="color:var(--primary-color)"></i> Voltage Divider
+                                    Calculator</h2>
+                                <p>Calculate output voltage, current, and power dissipation in a two-resistor voltage
+                                    divider circuit.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> How It Works</h4>
+                            <p>A voltage divider uses two resistors in series to produce a fraction of the input
+                                voltage. The output is tapped between R1 and R2.</p>
+                            <!-- Simple ASCII circuit diagram -->
+                            <pre
+                                style="text-align:center;font-size:0.9rem;opacity:0.8;line-height:1.4;margin:10px 0;color:var(--primary-color)">
+  Vin ──┬── R1 ──┬── Vout
+        │        │
+       GND      R2
+                │
+               GND</pre>
+                            <ol style="padding-left:18px;margin-top:10px">
+                                <li>Current flows from <strong>Vin</strong> through R1 then R2 to Ground.</li>
+                                <li><strong>Vout</strong> is measured across R2 (between R1–R2 junction and ground).
+                                </li>
+                                <li>The ratio Vout/Vin equals R2/(R1+R2).</li>
+                                <li>Total current = Vin ÷ (R1 + R2) — same through both resistors (series circuit).</li>
+                            </ol>
+                            <div class="formula-box">
+                                Vout = Vin × R2 ÷ (R1 + R2)<br>
+                                I = Vin ÷ (R1 + R2)<br>
+                                P_R1 = (Vin − Vout) × I<br>
+                                P_R2 = Vout × I
+                            </div>
+                        </div>
+
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Input Voltage Vin (V)</span>
+                                    <input type="number" id="vin" class="form-control" placeholder="e.g. 12" min="0"
+                                        step="0.1">
+                                </div>
+                                <div class="sub-link">
+                                    <span>R1 — Top Resistor (Ω)</span>
+                                    <input type="number" id="r1" class="form-control" placeholder="e.g. 10000"
+                                        min="0.01">
+                                </div>
+                                <div class="sub-link">
+                                    <span>R2 — Bottom Resistor (Ω)</span>
+                                    <input type="number" id="r2" class="form-control" placeholder="e.g. 10000"
+                                        min="0.01">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
+                                    Output</button>
+                            </div>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-microchip"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save Result</button>
+                        </div>
+
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Use <strong>higher resistance values</strong> (10kΩ+) to minimize current draw and
+                                    power waste.</li>
+                                <li>For sensor voltage scaling (e.g., 5V→3.3V), use: <code>R1=5100Ω, R2=10000Ω</code>.
+                                </li>
+                                <li>A voltage divider is <strong>not a voltage regulator</strong> — it cannot supply
+                                    significant current to a load.</li>
+                                <li>Make R1 and R2 values <strong>10× smaller</strong> than the load impedance for
+                                    accuracy.</li>
+                                <li>Use 1% tolerance resistors for precision circuits.</li>
+                            </ul>
+                        </div>
+
+                        <div class="warn-box">
+                            <h4><i class="fas fa-triangle-exclamation"></i> Important Notes</h4>
+                            <ul style="padding-left:18px">
+                                <li>Always verify <strong>resistor power ratings</strong> — the calculated wattage must
+                                    be below the resistor's limit.</li>
+                                <li>This calculation assumes <strong>no load current</strong>. A connected load will
+                                    reduce Vout.</li>
+                                <li>Standard resistor power ratings: <strong>1/4W</strong>, <strong>1/2W</strong>,
+                                    <strong>1W</strong>.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            const vin = parseFloat(document.getElementById('vin').value);
+            const r1 = parseFloat(document.getElementById('r1').value);
+            const r2 = parseFloat(document.getElementById('r2').value);
+            if (!vin || !r1 || !r2) { alert("Please fill all fields."); return; }
+            const vout = vin * r2 / (r1 + r2);
+            const ratio = r2 / (r1 + r2);
+            const current = vin / (r1 + r2);
+            const currentMA = current * 1000;
+            const powerR1 = (vin - vout) * current * 1000;
+            const powerR2 = vout * current * 1000;
+            const totalPower = (vin * current * 1000).toFixed(3);
+            const rows = [
+                { label: 'Output Voltage (Vout)', val: `${vout.toFixed(4)} V`, highlight: true },
+                { label: 'Voltage Ratio (R2/R1+R2)', val: `${(ratio * 100).toFixed(2)}%` },
+                { label: 'Current through Divider (I)', val: `${currentMA.toFixed(3)} mA` },
+                { label: 'Power Dissipated in R1', val: `${powerR1.toFixed(3)} mW` },
+                { label: 'Power Dissipated in R2', val: `${powerR2.toFixed(3)} mW` },
+                { label: 'Total Power Consumed', val: `${totalPower} mW` },
+            ];
+            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
+                `<div class="result-row" id="rr${i}">
+                    <span class="result-label">${r.label}</span>
+                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
+                </div>`
+            ).join('');
+            const resultsEl = document.getElementById('results');
+            resultsEl.className = 'cat-card visible';
+            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Lumber Board Feet Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .formula-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lumber-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-top: 10px;
+        }
+
+        .lumber-table th,
+        .lumber-table td {
+            padding: 7px 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .lumber-table th {
+            background: var(--bg-card-2);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-tree" style="color:var(--primary-color)"></i> Lumber Board Feet
+                                    Calculator</h2>
+                                <p>Calculate board feet, total volume, and material cost for timber and lumber orders.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
+                            <ol style="padding-left:18px">
+                                <li>A <strong>Board Foot (BF)</strong> is a wood volume unit = 1 ft × 1 ft × 1 inch
+                                    thick.</li>
+                                <li>Enter the lumber's <strong>nominal thickness</strong> and <strong>width in
+                                        inches</strong>, and <strong>length in feet</strong>.</li>
+                                <li>Specify the <strong>number of pieces</strong> in your order.</li>
+                                <li>Optionally enter a <strong>price per board foot</strong> to get a cost estimate.
+                                </li>
+                            </ol>
+                            <div class="formula-box">Board Feet = (Thickness × Width × Length) ÷ 12<br>Total BF = Board
+                                Feet per Piece × Number of Pieces</div>
+                            <p style="margin-top:10px"><strong>Common lumber sizes (nominal → actual):</strong></p>
+                            <table class="lumber-table">
+                                <tr>
+                                    <th>Nominal</th>
+                                    <th>Actual Size</th>
+                                    <th>Common Use</th>
+                                </tr>
+                                <tr>
+                                    <td>1×4</td>
+                                    <td>0.75" × 3.5"</td>
+                                    <td>Shelving, trim</td>
+                                </tr>
+                                <tr>
+                                    <td>1×6</td>
+                                    <td>0.75" × 5.5"</td>
+                                    <td>Decking, paneling</td>
+                                </tr>
+                                <tr>
+                                    <td>2×4</td>
+                                    <td>1.5" × 3.5"</td>
+                                    <td>Wall framing</td>
+                                </tr>
+                                <tr>
+                                    <td>2×6</td>
+                                    <td>1.5" × 5.5"</td>
+                                    <td>Roof framing</td>
+                                </tr>
+                                <tr>
+                                    <td>4×4</td>
+                                    <td>3.5" × 3.5"</td>
+                                    <td>Posts, columns</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Thickness (inches)</span>
+                                    <input type="number" id="thickness" class="form-control" placeholder="1" value="1"
+                                        min="0.1" step="0.25">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Width (inches)</span>
+                                    <input type="number" id="width" class="form-control" placeholder="6" value="6"
+                                        min="0.1">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Length (feet)</span>
+                                    <input type="number" id="length" class="form-control" placeholder="8" value="8"
+                                        min="0.1">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Number of Pieces</span>
+                                    <input type="number" id="pieces" class="form-control" placeholder="1" value="1"
+                                        min="1">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Price per Board Foot ($)</span>
+                                    <input type="number" id="pricePerBF" class="form-control" placeholder="2.50"
+                                        value="2.50" min="0" step="0.01">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i>
+                                    Calculate</button>
+                            </div>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save Result</button>
+                        </div>
+
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Always use <strong>nominal sizes</strong> when calculating — the actual cut size is
+                                    smaller.</li>
+                                <li>Add <strong>5–10% waste</strong> for cuts and defects when ordering lumber.</li>
+                                <li>Hardwood is typically priced by board foot; softwood is often priced by linear foot.
+                                </li>
+                                <li>Air-dried lumber may warp. Kiln-dried is more stable for indoor furniture.</li>
+                                <li>Measure twice, cut once — verify piece count before ordering!</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            const t = parseFloat(document.getElementById('thickness').value);
+            const w = parseFloat(document.getElementById('width').value);
+            const l = parseFloat(document.getElementById('length').value);
+            const p = parseInt(document.getElementById('pieces').value) || 1;
+            const price = parseFloat(document.getElementById('pricePerBF').value) || 0;
+            if (!t || !w || !l) { alert("Please fill all dimensions."); return; }
+            const bfPerPiece = (t * w * l) / 12;
+            const totalBF = bfPerPiece * p;
+            const totalCost = totalBF * price;
+            const cubicFt = (t / 12) * (w / 12) * l * p;
+            const rows = [
+                { label: 'Board Feet per Piece', val: `${bfPerPiece.toFixed(3)} BF` },
+                { label: `Total Board Feet (${p} pcs)`, val: `${totalBF.toFixed(2)} BF`, highlight: true },
+                { label: 'Total Volume', val: `${cubicFt.toFixed(3)} ft³` },
+                { label: 'Estimated Cost', val: `$${totalCost.toFixed(2)}`, highlight: price > 0 },
+                { label: 'Cost per Piece', val: price > 0 ? `$${(bfPerPiece * price).toFixed(2)}` : '—' },
+            ];
+            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
+                `<div class="result-row" id="rr${i}">
+                    <span class="result-label">${r.label}</span>
+                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
+                </div>`
+            ).join('');
+            const resultsEl = document.getElementById('results');
+            resultsEl.className = 'cat-card visible';
+            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

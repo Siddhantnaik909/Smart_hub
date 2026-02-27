@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Multiplayer Chess</title>
+    <!-- Use CDNs for chessboard, chess.js, and socket.io -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+
+    <style>
+        .chess-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+
+        .multiplayer-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group input {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-color);
+        }
+
+        button.btn-action {
+            padding: 10px 20px;
+            border: none;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        button.btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        #statusText {
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .board-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .players-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .highlight-move {
+            box-shadow: inset 0 0 0 4px rgba(34, 197, 94, 0.7) !important;
+            border-radius: 4px;
+        }
+
+        .highlight-capture {
+            box-shadow: inset 0 0 0 4px rgba(239, 68, 68, 0.7) !important;
+            border-radius: 4px;
+            background-color: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* Fix for piece animation lag caused by global CSS transitions */
+        .piece-417db,
+        img.piece-417db,
+        .square-55d63 {
+            transition: none !important;
+            will-change: transform;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <div class="chess-container fade-in">
+                    <div class="header">
+                        <h2><i class="fas fa-chess" style="margin-right: 10px;"></i> Master Chess</h2>
+                        <p>Play Online, vs CPU, or Local 2-Player</p>
+                    </div>
+
+                    <div class="multiplayer-controls" id="connectionPanel">
+                        <h3 style="text-align: center; margin-bottom: 10px;">Online Multiplayer</h3>
+                        <div class="control-group">
+                            <input type="text" id="usernameInput" placeholder="Enter Username..." required>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn-action" onclick="createRoom()"><i class="fas fa-plus"></i> Create
+                                Room</button>
+                            <span style="align-self: center;">OR</span>
+                            <input type="text" id="roomcodeInput" placeholder="Enter Room Code">
+                            <button class="btn-action" onclick="joinRoom()"><i class="fas fa-sign-in-alt"></i> Join
+                                Room</button>
+                        </div>
+
+                        <hr style="border: 1px solid var(--border-color); width: 100%; margin: 10px 0;">
+                        <h3 style="text-align: center; margin-bottom: 5px;">Offline Play</h3>
+
+                        <div class="control-group">
+                            <button class="btn-action"
+                                style="background: var(--bg-card-2); color: var(--text-color); border: 2px solid var(--primary-color);"
+                                onclick="startCPU()"><i class="fas fa-robot"></i> VS CPU</button>
+                            <button class="btn-action"
+                                style="background: var(--bg-card-2); color: var(--text-color); border: 2px solid #10b981;"
+                                onclick="startLocal()"><i class="fas fa-user-friends"></i> VS Local Friend</button>
+                        </div>
+
+                        <div class="control-group" style="margin-top: 15px;">
+                            <select id="boardTheme"
+                                style="padding: 8px; border-radius: 6px; background: var(--bg-main); color: var(--text-color); border: 1px solid var(--border-color);"
+                                onchange="changeTheme()">
+                                <option value="classic">Classic Theme</option>
+                                <option value="wood">Wooden Theme</option>
+                                <option value="neon">Neon Cyber</option>
+                                <option value="ocean">Ocean Blue</option>
+                            </select>
+
+                            <select id="cpuDifficulty"
+                                style="padding: 8px; border-radius: 6px; background: var(--bg-main); color: var(--text-color); border: 1px solid var(--border-color);">
+                                <option value="easy">CPU: Easy</option>
+                                <option value="med" selected>CPU: Medium</option>
+                                <option value="hard">CPU: Hard (Minimax)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="statusText">Waiting to connect...</div>
+
+                    <div id="gameArea" style="display: none;">
+                        <div class="board-wrapper">
+                            <div class="players-info">
+                                <span id="playerBlackLabel">Black: ?</span>
+                            </div>
+                            <div id="board1" style="width: 100%; margin: 10px 0;"></div>
+                            <div class="players-info">
+                                <span id="playerWhiteLabel">White: ?</span>
+                            </div>
+                            <div class="action-bar"
+                                style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+                                <button class="btn-action" style="padding: 8px 12px; font-size: 0.9rem;"
+                                    onclick="performUndo()"><i class="fas fa-undo"></i> Undo</button>
+                                <button class="btn-action" style="padding: 8px 12px; font-size: 0.9rem;"
+                                    onclick="performRedo()"><i class="fas fa-redo"></i> Redo</button>
+                                <button class="btn-action"
+                                    style="padding: 8px 12px; font-size: 0.9rem; background: #f59e0b;"
+                                    onclick="togglePause()" id="pauseBtn"><i class="fas fa-pause"></i> Pause</button>
+                                <button class="btn-action"
+                                    style="padding: 8px 12px; font-size: 0.9rem; background: #ef4444;"
+                                    onclick="performRestart()"><i class="fas fa-bolt"></i> Restart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script>
+        // Use custom root variables if defined
+        window.FRONTEND_ROOT = "/";
+    </script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        const socket = io();
+
+        let board = null;
+        let game = new Chess();
+        let myColor = null;
+        let currentRoom = null;
+        let currentUser = null;
+        let playMode = 'online'; // 'online', 'cpu', 'local'
+
+        const connectionPanel = document.getElementById('connectionPanel');
+        const gameArea = document.getElementById('gameArea');
+        const statusEl = document.getElementById('statusText');
+        const usernameInput = document.getElementById('usernameInput');
+
+        function updateStatus() {
+            let status = '';
+
+            let moveColor = 'White';
+            if (game.turn() === 'b') {
+                moveColor = 'Black';
+            }
+
+            if (game.in_checkmate()) {
+                status = `Game over, ${moveColor} is in checkmate.`;
+            } else if (game.in_draw()) {
+                status = 'Game over, drawn position';
+            } else {
+                status = `${moveColor} to move`;
+                if (game.in_check()) {
+                    status += ', ' + moveColor + ' is in check';
+                }
+            }
+
+            if (currentRoom) {
+                statusEl.innerHTML = `Room: <strong>${currentRoom}</strong> | ${status}`;
+            } else {
+                statusEl.innerHTML = status;
+            }
+        }
+
+        let redoStack = [];
+        let isPaused = false;
+        let cpuTimer = null;
+
+        function changeTheme() {
+            const theme = document.getElementById('boardTheme').value;
+            let style = document.getElementById('dynamic-theme');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'dynamic-theme';
+                document.head.appendChild(style);
+            }
+            if (theme === 'wood') {
+                style.innerHTML = `
+                .white-1e1d7 { background-color: #f0d9b5 !important; }
+                .black-3c85d { background-color: #b58863 !important; }
+                `;
+            } else if (theme === 'neon') {
+                style.innerHTML = `
+                .white-1e1d7 { background-color: #222 !important; box-shadow: inset 0 0 5px #ff00ff; color: #fff; }
+                .black-3c85d { background-color: #111 !important; box-shadow: inset 0 0 5px #00ffff; color: #fff; }
+                `;
+            } else if (theme === 'ocean') {
+                style.innerHTML = `
+                .white-1e1d7 { background-color: #e0f2fe !important; }
+                .black-3c85d { background-color: #0284c7 !important; }
+                `;
+            } else {
+                style.innerHTML = '';
+            }
+        }
+
+        function removeHighlights() {
+            $('#board1 .square-55d63').removeClass('highlight-move highlight-capture');
+        }
+
+        function onMouseoverSquare(square, piece) {
+            if (isPaused || game.game_over()) return;
+
+            // Enforce correct interactive turn limits
+            if (playMode === 'online') {
+                if (myColor === 'white' && game.turn() === 'b') return;
+                if (myColor === 'black' && game.turn() === 'w') return;
+            } else if (playMode === 'cpu' && game.turn() === 'b') {
+                return;
+            }
+
+            // Ask the engine for legal moves from this specific square
+            const moves = game.moves({
+                square: square,
+                verbose: true
+            });
+
+            if (moves.length === 0) return;
+
+            // Highlight the origin square
+            $('#board1 .square-' + square).addClass('highlight-move');
+
+            // Highlight all legal targets
+            for (let i = 0; i < moves.length; i++) {
+                const target = moves[i].to;
+                if (moves[i].flags.includes('c') || moves[i].flags.includes('e')) {
+                    $('#board1 .square-' + target).addClass('highlight-capture');
+                } else {
+                    $('#board1 .square-' + target).addClass('highlight-move');
+                }
+            }
+        }
+
+        function onMouseoutSquare(square, piece) {
+            removeHighlights();
+        }
+
+        // Setup Board function
+        function onDragStart(source, piece, position, orientation) {
+            if (isPaused) return false;
+
+            // do not pick up pieces if the game is over
+            if (game.game_over()) return false;
+
+            // only pick up pieces for the side to move
+            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                return false;
+            }
+
+            // prevent dragging when it is not player's turn or player color doesn't match turn
+            if (playMode === 'online') {
+                if (myColor === 'white' && game.turn() === 'b') return false;
+                if (myColor === 'black' && game.turn() === 'w') return false;
+            } else if (playMode === 'cpu') {
+                // In CPU mode, player is always white
+                if (game.turn() === 'b') return false;
+            } // If local, anyone can drag
+        }
+
+        function onDrop(source, target) {
+            removeHighlights();
+
+            // see if the move is legal
+            let move = game.move({
+                from: source,
+                to: target,
+                promotion: 'q' // NOTE: always promote to a queen for example simplicity
+            });
+
+            // illegal move
+            if (move === null) return 'snapback';
+
+            redoStack = []; // Clear redo stack on new move
+            updateStatus();
+
+            // Handle networking or CPU responses
+            if (playMode === 'online') {
+                socket.emit('game_action', {
+                    roomCode: currentRoom,
+                    action: 'chess_move',
+                    payload: { from: source, to: target, promotion: 'q' }
+                });
+            } else if (playMode === 'cpu') {
+                clearTimeout(cpuTimer);
+                if (!game.game_over()) {
+                    cpuTimer = window.setTimeout(makeCPUMove, 500);
+                }
+            }
+        }
+
+        const pieceValues = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
+        function evaluateBoard(gameObj) {
+            let totalEval = 0;
+            const piecePositions = gameObj.board();
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const piece = piecePositions[i][j];
+                    if (piece) {
+                        const val = pieceValues[piece.type];
+                        totalEval += piece.color === 'w' ? val : -val;
+                    }
+                }
+            }
+            return totalEval;
+        }
+
+        function minimax(gameObj, depth, isMaximizingPlayer) {
+            if (depth === 0 || gameObj.game_over()) return evaluateBoard(gameObj);
+
+            const moves = gameObj.moves();
+            if (isMaximizingPlayer) {
+                let bestVal = -Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    gameObj.move(moves[i]);
+                    bestVal = Math.max(bestVal, minimax(gameObj, depth - 1, !isMaximizingPlayer));
+                    gameObj.undo();
+                }
+                return bestVal;
+            } else {
+                let bestVal = Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    gameObj.move(moves[i]);
+                    bestVal = Math.min(bestVal, minimax(gameObj, depth - 1, !isMaximizingPlayer));
+                    gameObj.undo();
+                }
+                return bestVal;
+            }
+        }
+
+        function makeCPUMove() {
+            if (game.game_over() || isPaused) return;
+            const possibleMoves = game.moves({ verbose: true });
+            if (possibleMoves.length === 0) return;
+
+            let chosenMove = null;
+            const diff = document.getElementById('cpuDifficulty').value;
+            const captures = possibleMoves.filter(m => m.flags.includes('c') || m.flags.includes('e'));
+
+            if (diff === 'easy') {
+                chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+            } else if (diff === 'med') {
+                if (captures.length > 0 && Math.random() > 0.3) {
+                    chosenMove = captures[Math.floor(Math.random() * captures.length)];
+                } else {
+                    chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                }
+            } else {
+                // Hard mode - Minimax Engine evaluating depth 2
+                let bestVal = Infinity; // CPU is Black (Minimizing Evaluation)
+                for (let i = 0; i < possibleMoves.length; i++) {
+                    game.move(possibleMoves[i].san);
+                    let val = minimax(game, 1, true); // Depth 1 recursive (Total Depth 2)
+                    game.undo();
+                    if (val < bestVal) {
+                        bestVal = val;
+                        chosenMove = possibleMoves[i];
+                    }
+                }
+                // Fallback catch
+                if (!chosenMove) chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+            }
+
+            game.move(chosenMove.san);
+            board.position(game.fen());
+            updateStatus();
+        }
+
+        function performUndo(emit = true) {
+            clearTimeout(cpuTimer);
+            let move = game.undo();
+            if (move) {
+                redoStack.push({ from: move.from, to: move.to, promotion: move.promotion || 'q' });
+
+                // If CPU mode and it was just our turn, undo again so we don't accidentally undo into the CPU's turn
+                if (playMode === 'cpu' && game.turn() === 'b') {
+                    let move2 = game.undo();
+                    if (move2) {
+                        redoStack.push({ from: move2.from, to: move2.to, promotion: move2.promotion || 'q' });
+                    }
+                }
+
+                board.position(game.fen());
+                updateStatus();
+                if (emit && playMode === 'online') socket.emit('game_action', { roomCode: currentRoom, action: 'undo' });
+            }
+        }
+
+        function performRedo(emit = true) {
+            clearTimeout(cpuTimer);
+            if (redoStack.length > 0) {
+                let moveObj = redoStack.pop();
+                game.move(moveObj);
+
+                // If CPU mode, restore both moves
+                if (playMode === 'cpu' && game.turn() === 'b' && redoStack.length > 0) {
+                    let moveObj2 = redoStack.pop();
+                    game.move(moveObj2);
+                }
+
+                board.position(game.fen());
+                updateStatus();
+                if (emit && playMode === 'online') socket.emit('game_action', { roomCode: currentRoom, action: 'redo' });
+            }
+        }
+
+        function togglePause(emit = true, forceState = null) {
+            if (forceState !== null) isPaused = forceState;
+            else isPaused = !isPaused;
+
+            const btn = document.getElementById('pauseBtn');
+            if (isPaused) {
+                btn.innerHTML = '<i class="fas fa-play"></i> Resume';
+                statusEl.innerHTML += " <strong style='color:#ef4444;'>(PAUSED)</strong>";
+                clearTimeout(cpuTimer);
+            } else {
+                btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                updateStatus();
+                // If unpaused and it's CPU's turn
+                if (playMode === 'cpu' && game.turn() === 'b' && !game.game_over()) {
+                    cpuTimer = window.setTimeout(makeCPUMove, 500);
+                }
+            }
+            if (emit && playMode === 'online') socket.emit('game_action', { roomCode: currentRoom, action: 'toggle_pause', payload: { paused: isPaused } });
+        }
+
+        function performRestart(emit = true) {
+            clearTimeout(cpuTimer);
+            game.reset();
+            redoStack = [];
+            board.position('start');
+            isPaused = false;
+            document.getElementById('pauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            updateStatus();
+            if (emit && playMode === 'online') socket.emit('game_action', { roomCode: currentRoom, action: 'restart' });
+        }
+
+        function onSnapEnd() {
+            board.position(game.fen());
+        }
+
+        const config = {
+            draggable: true,
+            position: 'start',
+            moveSpeed: 'fast',
+            snapbackSpeed: 50,
+            snapSpeed: 100,
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onSnapEnd: onSnapEnd,
+            onMouseoutSquare: onMouseoutSquare,
+            onMouseoverSquare: onMouseoverSquare,
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        };
+
+        board = Chessboard('board1', config);
+        updateStatus();
+
+        // Socket logic --------------------
+
+        function createRoom() {
+            playMode = 'online';
+            const user = usernameInput.value.trim();
+            if (!user) return alert("Enter a username!");
+            currentUser = user;
+            socket.emit('create_room', { username: user });
+        }
+
+        function joinRoom() {
+            playMode = 'online';
+            const user = usernameInput.value.trim();
+            const code = document.getElementById('roomcodeInput').value.trim();
+            if (!user) return alert("Enter a username!");
+            if (!code) return alert("Enter a room code!");
+            currentUser = user;
+            currentRoom = code.toUpperCase();
+            socket.emit('join_room', { roomCode: currentRoom, username: user });
+        }
+
+        // --- OFFLINE MODES ---
+        function startCPU() {
+            playMode = 'cpu';
+            myColor = 'white';
+            board.orientation('white');
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            board.resize();
+            statusEl.innerHTML = `Playing vs <strong>CPU</strong>. Good luck!`;
+            document.getElementById('playerWhiteLabel').innerText = `White: Player`;
+            document.getElementById('playerBlackLabel').innerText = `Black: CPU Engine`;
+            updateStatus();
+        }
+
+        function startLocal() {
+            playMode = 'local';
+            myColor = 'white'; // Used as primary client perspective
+            board.orientation('white');
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            board.resize();
+            statusEl.innerHTML = `Local 2-Player Match Setup!`;
+            document.getElementById('playerWhiteLabel').innerText = `White: Player 1`;
+            document.getElementById('playerBlackLabel').innerText = `Black: Player 2`;
+            updateStatus();
+        }
+
+        // Socket Events
+        socket.on('room_created', (data) => {
+            currentRoom = data.roomCode;
+            myColor = 'white'; // Creator gets white
+            board.orientation('white');
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            board.resize(); // Fix: resize board after making it visible
+            statusEl.innerHTML = `Room created: <strong>${data.roomCode}</strong>. Waiting for opponent...`;
+            document.getElementById('playerWhiteLabel').innerText = `White: ${currentUser}`;
+        });
+
+        socket.on('player_joined', (data) => {
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            board.resize(); // Fix: resize board after making it visible
+
+            data.players.forEach(p => {
+                if (p.username !== currentUser) {
+                    // Found the other player
+                    if (myColor === 'white') {
+                        document.getElementById('playerBlackLabel').innerText = `Black: ${p.username}`;
+                    } else {
+                        document.getElementById('playerWhiteLabel').innerText = `White: ${p.username}`;
+                    }
+                }
+            });
+
+            if (data.players.length === 2 && !myColor) { // I'm the joiner
+                myColor = 'black';
+                board.orientation('black');
+                document.getElementById('playerBlackLabel').innerText = `Black: ${currentUser}`;
+                document.getElementById('playerWhiteLabel').innerText = `White: ${data.players[0].username}`;
+            }
+
+            statusEl.innerHTML = data.message;
+            setTimeout(updateStatus, 2000);
+        });
+
+        socket.on('opponent_action', (data) => {
+            if (data.action === 'chess_move') {
+                game.move(data.payload);
+                redoStack = [];
+                board.position(game.fen());
+                updateStatus();
+            } else if (data.action === 'undo') {
+                performUndo(false);
+            } else if (data.action === 'redo') {
+                performRedo(false);
+            } else if (data.action === 'toggle_pause') {
+                togglePause(false, data.payload.paused);
+            } else if (data.action === 'restart') {
+                performRestart(false);
+            }
+        });
+
+        socket.on('room_error', (data) => {
+            alert(data.message);
+        });
+
+        socket.on('player_left', (data) => {
+            statusEl.innerHTML = `Opponent disconnected. You win by default!`;
+        });
+
+    </script>
+</body>
+
+</html>

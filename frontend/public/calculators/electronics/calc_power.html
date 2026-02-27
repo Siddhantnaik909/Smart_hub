@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Electrical Power Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box li,
+        .info-box p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ohm-triangle {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0;
+        }
+
+        .ohm-triangle svg text {
+            font-family: 'Courier New', monospace;
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .formula-cell {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-plug" style="color:var(--primary-color)"></i> Electrical Power
+                                    Calculator</h2>
+                                <p>Solve for Voltage, Current, Power, or Resistance. Enter any <strong>2 values</strong>
+                                    — the rest are calculated automatically.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> Ohm's Law &amp; Power Triangle</h4>
+                            <p>All four electrical quantities are linked by: <strong>V = I × R</strong> and <strong>P =
+                                    V × I</strong>.</p>
+                            <div class="ohm-triangle">
+                                <svg width="160" height="120" viewBox="0 0 160 120">
+                                    <polygon points="80,10 10,110 150,110" fill="rgba(99,102,241,0.12)"
+                                        stroke="var(--primary-color)" stroke-width="2" />
+                                    <text x="80" y="40" text-anchor="middle" fill="var(--primary-color)" font-size="18"
+                                        font-weight="bold">P</text>
+                                    <text x="33" y="105" text-anchor="middle" fill="var(--primary-color)" font-size="18"
+                                        font-weight="bold">I</text>
+                                    <text x="127" y="105" text-anchor="middle" fill="var(--primary-color)"
+                                        font-size="18" font-weight="bold">R</text>
+                                    <line x1="80" y1="60" x2="80" y2="105" stroke="var(--border-color)" stroke-width="1"
+                                        stroke-dasharray="4" />
+                                </svg>
+                            </div>
+                            <p style="text-align:center;font-size:0.85rem;opacity:0.7"><em>Cover any quantity to reveal
+                                    its formula</em></p>
+                            <div class="formula-grid">
+                                <div class="formula-cell">V = I × R</div>
+                                <div class="formula-cell">I = V ÷ R</div>
+                                <div class="formula-cell">R = V ÷ I</div>
+                                <div class="formula-cell">P = V × I</div>
+                                <div class="formula-cell">P = I² × R</div>
+                                <div class="formula-cell">P = V² ÷ R</div>
+                                <div class="formula-cell">V = √(P × R)</div>
+                                <div class="formula-cell">I = √(P ÷ R)</div>
+                            </div>
+                        </div>
+
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span><i class="fas fa-bolt" style="color:#f59e0b;width:16px"></i> Voltage (V) —
+                                        Volts</span>
+                                    <input type="number" id="voltage" class="form-control"
+                                        placeholder="Leave blank to solve" min="0" step="any">
+                                </div>
+                                <div class="sub-link">
+                                    <span><i class="fas fa-water" style="color:#3b82f6;width:16px"></i> Current (I) —
+                                        Amps</span>
+                                    <input type="number" id="current" class="form-control"
+                                        placeholder="Leave blank to solve" min="0" step="any">
+                                </div>
+                                <div class="sub-link">
+                                    <span><i class="fas fa-fire" style="color:#ef4444;width:16px"></i> Power (P) —
+                                        Watts</span>
+                                    <input type="number" id="power" class="form-control"
+                                        placeholder="Leave blank to solve" min="0" step="any">
+                                </div>
+                                <div class="sub-link">
+                                    <span><i class="fas fa-circle-dot" style="color:#10b981;width:16px"></i> Resistance
+                                        (R) — Ohms (Ω)</span>
+                                    <input type="number" id="resistance" class="form-control"
+                                        placeholder="Leave blank to solve" min="0" step="any">
+                                </div>
+                                <div style="display:flex;gap:10px">
+                                    <button id="calcBtn" class="btn-calc" style="flex:2"><i
+                                            class="fas fa-calculator"></i> Solve</button>
+                                    <button id="clearBtn" class="btn-save"
+                                        style="flex:1;background:transparent;border:1px solid var(--border-color);color:var(--text-color)"><i
+                                            class="fas fa-times"></i> Clear</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-calculator"></i> All
+                                Quantities</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save to History</button>
+                        </div>
+
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Use <strong>milli-amps (mA)</strong> for small circuits — 1 A = 1000 mA.</li>
+                                <li>Check your component's <strong>wattage rating</strong>. A ¼W resistor fails if P
+                                    &gt; 0.25 W.</li>
+                                <li>Power in AC circuits requires <strong>Power Factor</strong> correction: P = V × I ×
+                                    PF.</li>
+                                <li>For DC motors: Mechanical power = Electrical power × Efficiency (%).</li>
+                                <li>Double the voltage → 4× the power in a resistive load (P = V²/R).</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        let _powerInputs = null, _powerResults = null;
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ['voltage', 'current', 'power', 'resistance'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('results').className = 'cat-card';
+            _powerInputs = null; _powerResults = null;
+        });
+
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            let V = parseFloat(document.getElementById('voltage').value);
+            let I = parseFloat(document.getElementById('current').value);
+            let P = parseFloat(document.getElementById('power').value);
+            let R = parseFloat(document.getElementById('resistance').value);
+            const filled = [];
+            if (!isNaN(V) && document.getElementById('voltage').value !== '') filled.push('V');
+            if (!isNaN(I) && document.getElementById('current').value !== '') filled.push('I');
+            if (!isNaN(P) && document.getElementById('power').value !== '') filled.push('P');
+            if (!isNaN(R) && document.getElementById('resistance').value !== '') filled.push('R');
+            if (filled.length < 2) { alert("Please enter at least 2 values to solve."); return; }
+            const hV = filled.includes('V'), hI = filled.includes('I'),
+                hP = filled.includes('P'), hR = filled.includes('R');
+            if (hV && hI) { P = V * I; R = V / I; }
+            else if (hV && hP) { I = P / V; R = (V * V) / P; }
+            else if (hV && hR) { I = V / R; P = (V * V) / R; }
+            else if (hI && hP) { V = P / I; R = V / I; }
+            else if (hI && hR) { V = I * R; P = I * I * R; }
+            else if (hP && hR) { V = Math.sqrt(P * R); I = V / R; }
+
+            const fmt = (n, unit, milli = false) => {
+                if (isNaN(n) || !isFinite(n)) return '—';
+                if (milli && n < 1) return `${(n * 1000).toFixed(3)} m${unit}`;
+                return `${n.toFixed(4)} ${unit}`;
+            };
+            const solved = filled.length === 2 ? ['V', 'I', 'P', 'R'].filter(k => !filled.includes(k)) : [];
+            const tag = (k) => solved.includes(k)
+                ? ' <span style="font-size:0.7rem;background:var(--primary-color);color:#fff;padding:2px 6px;border-radius:4px;margin-left:5px">SOLVED</span>' : '';
+            const energy1h = isFinite(P) ? (P / 1000).toFixed(4) : '—';
+
+            const rows = [
+                { label: `Voltage (V)${tag('V')}`, val: fmt(V, 'V'), highlight: solved.includes('V') },
+                { label: `Current (I)${tag('I')}`, val: fmt(I, 'A', true), highlight: solved.includes('I') },
+                { label: `Power (P)${tag('P')}`, val: fmt(P, 'W', true), highlight: solved.includes('P') },
+                { label: `Resistance (R)${tag('R')}`, val: fmt(R, 'Ω'), highlight: solved.includes('R') },
+                { label: 'Energy (1 hour)', val: `${energy1h} kWh` },
+            ];
+            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
+                `<div class="result-row" id="rr${i}">
+                    <span class="result-label">${r.label}</span>
+                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
+                </div>`
+            ).join('');
+            const resultsEl = document.getElementById('results');
+            resultsEl.className = 'cat-card visible';
+            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Store clean structured data for history
+            const rawMap = { V: document.getElementById('voltage').value, I: document.getElementById('current').value, P: document.getElementById('power').value, R: document.getElementById('resistance').value };
+            _powerInputs = filled.map(k => ({
+                label: ({ V: 'Voltage', I: 'Current', P: 'Power', R: 'Resistance' })[k] + ' (given)',
+                val: rawMap[k] + ({ V: ' V', I: ' A', P: ' W', R: ' Ω' })[k]
+            }));
+            _powerResults = [
+                { label: 'Voltage (V)', val: fmt(V, 'V'), highlight: solved.includes('V') },
+                { label: 'Current (I)', val: fmt(I, 'A', true), highlight: solved.includes('I') },
+                { label: 'Power (P)', val: fmt(P, 'W', true), highlight: solved.includes('P') },
+                { label: 'Resistance (R)', val: fmt(R, 'Ω'), highlight: solved.includes('R') },
+                { label: 'Energy (1 hr)', val: `${energy1h} kWh` },
+            ];
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            if (!_powerResults) { alert('Calculate something first!'); return; }
+            const ok = window.saveCalcToHistory('Electrical Power Calculator', _powerInputs, _powerResults);
+            if (ok) {
+                const orig = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                this.style.background = '#10b981';
+                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+            }
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calc-utils.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

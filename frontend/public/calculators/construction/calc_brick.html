@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Brick Estimator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p,
+        .info-box li {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+        .formula-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.5rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <!-- Header -->
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-layer-group" style="color:var(--primary-color)"></i> Brick
+                                    Estimator</h2>
+                                <p>Estimate the number of bricks and mortar needed for any wall or project.</p>
+                            </div>
+                        </div>
+
+                        <!-- How to Use -->
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
+                            <ol style="padding-left:18px">
+                                <li>Enter the <strong>wall dimensions</strong> (length × height in feet).</li>
+                                <li>Enter <strong>brick dimensions</strong> (standard brick: 8" × 2.25" inch).</li>
+                                <li>Set the <strong>mortar joint size</strong> (typically ⅜ inch = 0.375").</li>
+                                <li>The calculator divides wall area by effective brick area to give total count.</li>
+                                <li>A <strong>10% waste buffer</strong> is always added for breakage and cuts.</li>
+                            </ol>
+                            <div class="formula-box">Bricks = (Wall L × Wall H × 144) ÷ ((Brick L + Joint) × (Brick H +
+                                Joint))</div>
+                        </div>
+
+                        <!-- Inputs -->
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Wall Length (feet)</span>
+                                    <input type="number" id="wallLength" class="form-control" placeholder="e.g. 20"
+                                        min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Wall Height (feet)</span>
+                                    <input type="number" id="wallHeight" class="form-control" placeholder="e.g. 8"
+                                        min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Brick Length (inches)</span>
+                                    <input type="number" id="brickLength" class="form-control" placeholder="8"
+                                        value="8">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Brick Height (inches)</span>
+                                    <input type="number" id="brickHeight" class="form-control" placeholder="2.25"
+                                        value="2.25">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Mortar Joint Size (inches)</span>
+                                    <input type="number" id="mortarJoint" class="form-control" placeholder="0.375"
+                                        value="0.375">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
+                                    Bricks</button>
+                            </div>
+                        </div>
+
+                        <!-- Results -->
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save Result</button>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Standard bricks are <strong>8" × 3.75" × 2.25"</strong>. Always verify your
+                                    supplier's exact size.</li>
+                                <li>Order <strong>10–15% extra</strong> bricks for cuts, breakage, and future repairs.
+                                </li>
+                                <li>Subtract opening areas (doors/windows) before calculating to avoid over-purchasing.
+                                </li>
+                                <li>Thicker walls (double-wythe) double your brick count.</li>
+                                <li>Mortar coverage: ~1 bag of mortar mix for every 40–50 bricks.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            const wL = parseFloat(document.getElementById('wallLength').value);
+            const wH = parseFloat(document.getElementById('wallHeight').value);
+            const bL = parseFloat(document.getElementById('brickLength').value);
+            const bH = parseFloat(document.getElementById('brickHeight').value);
+            const mj = parseFloat(document.getElementById('mortarJoint').value);
+            if (!wL || !wH) { alert('Please enter wall dimensions.'); return; }
+            const wallAreaSqFt = wL * wH;
+            const wallAreaSqIn = wallAreaSqFt * 144;
+            const brickArea = (bL + mj) * (bH + mj);
+            const bricksNeeded = Math.ceil(wallAreaSqIn / brickArea);
+            const withWaste = Math.ceil(bricksNeeded * 1.1);
+            const mortarBags = Math.ceil(withWaste / 45);
+            window._brickInputs = [
+                { label: 'Wall', val: `${wL} × ${wH} ft` },
+                { label: 'Brick', val: `${bL}" × ${bH}"` },
+                { label: 'Mortar Joint', val: `${mj}"` },
+            ];
+            window._brickResults = [
+                { label: 'Wall Area', val: `${wallAreaSqFt.toFixed(2)} ft²` },
+                { label: 'Bricks Required (exact)', val: `${bricksNeeded} bricks` },
+                { label: 'Recommended Order (+10% waste)', val: `${withWaste} bricks`, highlight: true },
+                { label: 'Mortar Bags (~45 bricks/bag)', val: `~${mortarBags} bags` },
+                { label: 'Brick Face Area', val: `${brickArea.toFixed(3)} in²` },
+            ];
+            window.renderResults('resultArea', window._brickResults);
+            window.showResultCard('results');
+        });
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            if (!window._brickResults) { alert('Calculate first!'); return; }
+            const ok = window.saveCalcToHistory('Brick Estimator', window._brickInputs, window._brickResults);
+            if (ok) {
+                const orig = this.innerHTML; this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                this.style.background = '#10b981';
+                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+            }
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calc-utils.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

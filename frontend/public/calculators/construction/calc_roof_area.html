@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Roof Area Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p,
+        .info-box li {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .formula-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pitch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .pitch-table th,
+        .pitch-table td {
+            padding: 7px 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .pitch-table th {
+            background: var(--bg-card-2);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <!-- Header -->
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-home" style="color:var(--primary-color)"></i> Roof Area Calculator
+                                </h2>
+                                <p>Calculate total roof surface area, roofing squares, and shingle bundles needed.</p>
+                            </div>
+                        </div>
+
+                        <!-- How to Use -->
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
+                            <ol style="padding-left:18px">
+                                <li>Enter your building's <strong>length and width</strong> at the base.</li>
+                                <li>Enter the <strong>roof pitch</strong> — the rise in inches for every 12 inches of
+                                    horizontal run (e.g., 6/12 = "6").</li>
+                                <li>Add <strong>eave overhang</strong> — how far the roof hangs past the walls on each
+                                    side.</li>
+                                <li>The slope factor is computed as: <code>√(1 + (pitch/12)²)</code>.</li>
+                                <li>Multiply base footprint × slope factor to get actual roof area.</li>
+                            </ol>
+                            <div class="formula-box">
+                                Slope Factor = √(1 + (Pitch ÷ 12)²)<br>
+                                Roof Area = (L + 2×Eave) × ((W ÷ 2) + Eave) × 2 × Slope Factor<br>
+                                Squares = Roof Area ÷ 100
+                            </div>
+                            <p style="margin-top:8px">📐 <strong>Common roof pitches:</strong></p>
+                            <table class="pitch-table">
+                                <tr>
+                                    <th>Pitch</th>
+                                    <th>Slope Factor</th>
+                                    <th>Description</th>
+                                </tr>
+                                <tr>
+                                    <td>2:12</td>
+                                    <td>1.014</td>
+                                    <td>Low slope (flat-ish)</td>
+                                </tr>
+                                <tr>
+                                    <td>4:12</td>
+                                    <td>1.054</td>
+                                    <td>Low-moderate</td>
+                                </tr>
+                                <tr>
+                                    <td>6:12</td>
+                                    <td>1.118</td>
+                                    <td>Standard gable</td>
+                                </tr>
+                                <tr>
+                                    <td>8:12</td>
+                                    <td>1.202</td>
+                                    <td>Steep</td>
+                                </tr>
+                                <tr>
+                                    <td>12:12</td>
+                                    <td>1.414</td>
+                                    <td>Very steep (45°)</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Inputs -->
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Building Length (feet)</span>
+                                    <input type="number" id="buildLength" class="form-control" placeholder="e.g. 40"
+                                        min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Building Width (feet)</span>
+                                    <input type="number" id="buildWidth" class="form-control" placeholder="e.g. 30"
+                                        min="0">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Roof Pitch (rise per 12")</span>
+                                    <input type="number" id="roofPitch" class="form-control" placeholder="6" value="6"
+                                        min="1" max="24">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Eave Overhang (feet)</span>
+                                    <input type="number" id="eave" class="form-control" placeholder="1" value="1"
+                                        min="0">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate Roof
+                                    Area</button>
+                            </div>
+                        </div>
+
+                        <!-- Results -->
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save Result</button>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>A <strong>roofing square = 100 sq ft</strong>. Most shingle bundles cover ~33 sq ft,
+                                    so you need 3 bundles per square.</li>
+                                <li>Always add <strong>10–15% waste</strong> for cuts, valleys, and ridges — especially
+                                    on complex roofs.</li>
+                                <li>Hip roofs have more waste than simple gable roofs. Add extra 15%.</li>
+                                <li>Measure the actual roof surface when in doubt — don't just measure the house
+                                    footprint!</li>
+                                <li>Include felt underlay, drip edge, and ridge cap in material lists.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            const bL = parseFloat(document.getElementById('buildLength').value);
+            const bW = parseFloat(document.getElementById('buildWidth').value);
+            const pitch = parseFloat(document.getElementById('roofPitch').value) || 6;
+            const eave = parseFloat(document.getElementById('eave').value) || 0;
+            if (!bL || !bW) { alert("Please enter building dimensions."); return; }
+            const slopeFactor = Math.sqrt(1 + Math.pow(pitch / 12, 2));
+            const totalLen = bL + eave * 2;
+            const halfWidth = (bW / 2) + eave;
+            const roofArea = totalLen * halfWidth * 2 * slopeFactor;
+            const squares = roofArea / 100;
+            const bundlesNeeded = Math.ceil(squares * 3 * 1.1);
+            const footprint = bL * bW;
+            const rows = [
+                { label: 'Building Footprint', val: `${footprint.toFixed(1)} ft²` },
+                { label: 'Slope Factor', val: slopeFactor.toFixed(4) },
+                { label: 'Total Roof Area', val: `${roofArea.toFixed(1)} ft²`, highlight: true },
+                { label: 'Roofing Squares', val: `${squares.toFixed(2)} squares` },
+                { label: 'Shingle Bundles (+10% waste)', val: `${bundlesNeeded} bundles`, highlight: false },
+                { label: 'Bundles (no waste)', val: `${Math.ceil(squares * 3)} bundles` },
+            ];
+            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
+                `<div class="result-row" id="rr${i}">
+                    <span class="result-label">${r.label}</span>
+                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
+                </div>`
+            ).join('');
+            const resultsEl = document.getElementById('results');
+            resultsEl.className = 'cat-card visible';
+            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>

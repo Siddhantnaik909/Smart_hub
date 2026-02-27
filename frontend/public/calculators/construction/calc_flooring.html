@@ -1,130 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | Flooring Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 740px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: calcFadeUp 0.45s ease;
+        }
+
+        @keyframes calcFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
-<body class="cyan-theme">
+
+<body>
     <div class="dashboard-layout" id="dashboard-wrapper">
         <div class="overlay" id="mobile-overlay"></div>
         <div id="sidebar-placeholder"></div>
-
         <main class="main-content">
             <div id="header-placeholder"></div>
             <div class="page-body">
                 <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-border-all"></i> Tile Flooring Calculator</h2>
-                            <p>Calculate the number of tiles or planks needed for your room with waste estimation.</p>
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-border-all" style="color:var(--primary-color)"></i> Tile & Flooring
+                                    Calculator</h2>
+                                <p>Calculate tiles or planks needed for any room with customizable waste percentage.</p>
+                            </div>
                         </div>
 
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Room Length (ft)</span>
-                                <input type="number" id="roomLen" class="form-control" placeholder="0">
+                        <div class="calc-info-box">
+                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
+                            <ol style="padding-left:18px">
+                                <li>Enter the <strong>room length and width</strong> in feet.</li>
+                                <li>Enter the <strong>tile dimensions</strong> in inches (e.g., 12"×12" or 24"×24").
+                                </li>
+                                <li>Set a <strong>waste percentage</strong> (10% for straight layouts, 15% for diagonal
+                                    cuts).</li>
+                                <li>Tiles are counted from total room area divided by single tile area, rounded up.</li>
+                            </ol>
+                            <div class="calc-formula-box">
+                                Tile Area (ft²) = (Tile L × Tile W) ÷ 144<br>
+                                Tiles Required = ⌈ Room Area ÷ Tile Area ⌉ × (1 + Waste %)
                             </div>
-                            <div class="sub-link">
-                                <span>Room Width (ft)</span>
-                                <input type="number" id="roomWid" class="form-control" placeholder="0">
-                            </div>
-                            <div class="sub-link">
-                                <span>Tile Length (in)</span>
-                                <input type="number" id="tileLen" class="form-control" value="12">
-                            </div>
-                            <div class="sub-link">
-                                <span>Tile Width (in)</span>
-                                <input type="number" id="tileWid" class="form-control" value="12">
-                            </div>
-                            <div class="sub-link">
-                                <span>Waste / Spillage (%)</span>
-                                <input type="number" id="waste" class="form-control" value="10">
-                            </div>
-
-                            <button id="calc-tile-flooring-btn" class="btn-calc">Calculate Needed Tiles</button>
                         </div>
-                    </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Calculation Results</h3>
-                        <div class="sub-cat-list" id="result-display-area">
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Room Length (ft)</span>
+                                    <input type="number" id="roomLen" class="form-control" placeholder="e.g. 15">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Room Width (ft)</span>
+                                    <input type="number" id="roomWid" class="form-control" placeholder="e.g. 12">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Tile Length (inches)</span>
+                                    <input type="number" id="tileLen" class="form-control" value="12">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Tile Width (inches)</span>
+                                    <input type="number" id="tileWid" class="form-control" value="12">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Waste / Cutoffs (%)</span>
+                                    <input type="number" id="waste" class="form-control" value="10">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
+                                    Tiles</button>
                             </div>
-                        <button id="save-tile-btn" class="btn-save" disabled>
-                            <i class="fa-solid fa-save"></i> Save to History
-                        </button>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
+                                Save to History</button>
+                        </div>
+
+                        <div class="calc-tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Add <strong>10% waste</strong> for straight patterns; <strong>15–20%</strong> for
+                                    diagonal or herringbone.</li>
+                                <li>Measure the room twice and subtract any fixed obstacles (cabinets, islands).</li>
+                                <li>Larger tiles (24"×24") make small rooms look bigger but waste more on edges.</li>
+                                <li>Buy from the <strong>same production lot</strong> to avoid color/shade variations
+                                    between batches.</li>
+                                <li>For laminate/vinyl planks, also account for the <strong>direction of planks</strong>
+                                    vs the longest wall.</li>
+                            </ul>
+                        </div>
+
                     </div>
                 </section>
                 <div id="footer-placeholder"></div>
             </div>
         </main>
     </div>
-
     <script>
-        window.FRONTEND_ROOT = "/";
-        window.COMPONENT_ROOT = "/components/";
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        let _lastInputs = null, _lastResults = null;
 
-        document.getElementById('calc-tile-flooring-btn').addEventListener('click', function() {
-            // Inputs
+        document.getElementById('calcBtn').addEventListener('click', function () {
             const roomLen = parseFloat(document.getElementById('roomLen').value);
             const roomWid = parseFloat(document.getElementById('roomWid').value);
             const tileLen = parseFloat(document.getElementById('tileLen').value);
             const tileWid = parseFloat(document.getElementById('tileWid').value);
-            const wastePercent = parseFloat(document.getElementById('waste').value) || 0;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+            if (!roomLen || !roomWid || !tileLen || !tileWid) { alert("Please enter all dimensions."); return; }
+            const roomArea = roomLen * roomWid;
+            const tileAreaFt = (tileLen * tileWid) / 144;
+            const rawTiles = roomArea / tileAreaFt;
+            const totalWithWaste = Math.ceil(rawTiles * (1 + waste / 100));
+            const totalAreaWithWaste = roomArea * (1 + waste / 100);
 
-            if (!roomLen || !roomWid || !tileLen || !tileWid) {
-                alert("Please enter all required dimensions.");
-                return;
+            _lastInputs = [
+                { label: 'Room', val: `${roomLen} × ${roomWid} ft` },
+                { label: 'Tile', val: `${tileLen}" × ${tileWid}"` },
+                { label: 'Waste', val: `${waste}%` },
+            ];
+            _lastResults = [
+                { label: 'Room Area', val: `${roomArea.toFixed(2)} ft²` },
+                { label: 'Area to Cover (with waste)', val: `${totalAreaWithWaste.toFixed(2)} ft²` },
+                { label: 'Tiles Required', val: `${totalWithWaste} pcs`, highlight: true },
+                { label: 'Tiles (exact, no waste)', val: `${rawTiles.toFixed(1)} pcs` },
+                { label: 'Single Tile Area', val: `${tileAreaFt.toFixed(4)} ft²` },
+            ];
+            window.renderResults('resultArea', _lastResults);
+            window.showResultCard('results');
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            if (!_lastResults) { alert('Calculate first!'); return; }
+            const ok = window.saveCalcToHistory('Flooring Calculator', _lastInputs, _lastResults);
+            if (ok) {
+                const orig = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                this.style.background = '#10b981';
+                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
             }
-
-            // Calculations
-            const roomAreaSqFt = roomLen * roomWid;
-            const tileAreaSqIn = tileLen * tileWid;
-            const tileAreaSqFt = tileAreaSqIn / 144; // Convert sq inches to sq feet
-            
-            const rawTilesNeeded = roomAreaSqFt / tileAreaSqFt;
-            const totalWithWaste = rawTilesNeeded * (1 + (wastePercent / 100));
-            const totalAreaWithWaste = roomAreaSqFt * (1 + (wastePercent / 100));
-
-            // Display
-            const resultArea = document.getElementById('result-display-area');
-            resultArea.innerHTML = `
-                <div class="sub-link">
-                    <span>Actual Room Area:</span>
-                    <strong class="accent-text">${roomAreaSqFt.toFixed(2)} sq ft</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Total Area (Incl. Waste):</span>
-                    <strong class="accent-text">${totalAreaWithWaste.toFixed(2)} sq ft</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Total Tiles Required:</span>
-                    <strong class="accent-text" style="font-size: 1.2rem; color: var(--primary-color);">${Math.ceil(totalWithWaste)} pcs</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Tiles (Exact count):</span>
-                    <small>${rawTilesNeeded.toFixed(1)} pieces</small>
-                </div>
-            `;
-
-            // UI Transitions
-            const resultsCard = document.getElementById('results');
-            resultsCard.style.display = 'block';
-            resultsCard.classList.remove('hidden');
-            document.getElementById('save-tile-btn').disabled = false;
         });
 
         document.addEventListener('componentsLoaded', () => {
-            const title = document.getElementById('page-title-display');
-            if(title) title.textContent = 'Flooring Calculator';
+            const t = document.getElementById('page-title-display');
+            if (t) t.textContent = 'Flooring Calculator';
         });
     </script>
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
+    <script src="/js/calc-utils.js"></script>
     <script src="/js/custom.js"></script>
 </body>
+
 </html>

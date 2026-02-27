@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Tic Tac Toe</title>
+    <!-- Use CDNs for Socket.io -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+
+    <style>
+        .tictactoe-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+
+        .multiplayer-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group input,
+        .control-group select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-color);
+            outline: none;
+        }
+
+        button.btn-action {
+            padding: 10px 20px;
+            border: none;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button.btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        #statusText {
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: var(--bg-main);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-header);
+        }
+
+        .cell:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .cell.x {
+            color: #ef4444;
+            /* Red for X */
+        }
+
+        .cell.o {
+            color: #3b82f6;
+            /* Blue for O */
+        }
+
+        .cell.win {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+            transform: scale(1.05);
+        }
+
+        .players-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <div class="tictactoe-container fade-in">
+                    <div class="header">
+                        <h2><i class="fas fa-times" style="margin-right: 5px;"></i><i class="fas fa-circle"
+                                style="margin-right: 10px; font-size: 0.8em;"></i> Tic Tac Toe</h2>
+                        <p>Play Online, vs CPU, or Local 2-Player</p>
+                    </div>
+
+                    <div class="multiplayer-controls" id="connectionPanel">
+                        <h3 style="text-align: center; margin-bottom: 10px;">Online Multiplayer</h3>
+                        <div class="control-group">
+                            <input type="text" id="usernameInput" placeholder="Enter Username..." required>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn-action" onclick="createRoom()"><i class="fas fa-plus"></i> Create
+                                Room</button>
+                            <span style="align-self: center;">OR</span>
+                            <input type="text" id="roomcodeInput" placeholder="Enter Room Code">
+                            <button class="btn-action" onclick="joinRoom()"><i class="fas fa-sign-in-alt"></i> Join
+                                Room</button>
+                        </div>
+
+                        <hr style="border: 1px solid var(--border-color); width: 100%; margin: 10px 0;">
+                        <h3 style="text-align: center; margin-bottom: 5px;">Offline Play</h3>
+
+                        <div class="control-group">
+                            <button class="btn-action"
+                                style="background: var(--bg-card-2); color: var(--text-color); border: 2px solid var(--primary-color);"
+                                onclick="startCPU()"><i class="fas fa-robot"></i> VS CPU</button>
+                            <button class="btn-action"
+                                style="background: var(--bg-card-2); color: var(--text-color); border: 2px solid #10b981;"
+                                onclick="startLocal()"><i class="fas fa-user-friends"></i> VS Local Friend</button>
+                        </div>
+
+                        <div class="control-group" style="margin-top: 15px;">
+                            <select id="cpuDifficulty">
+                                <option value="easy">CPU: Easy</option>
+                                <option value="med">CPU: Medium</option>
+                                <option value="hard" selected>CPU: Hard (Unbeatable)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="statusText">Waiting to connect...</div>
+
+                    <div id="gameArea" style="display: none;">
+                        <div class="players-info">
+                            <span id="playerXLabel">Player X: ?</span>
+                            <span id="playerOLabel">Player O: ?</span>
+                        </div>
+
+                        <div class="board" id="board">
+                            <!-- 9 cells generated by JS -->
+                        </div>
+
+                        <div class="action-bar"
+                            style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+                            <button class="btn-action" style="padding: 8px 12px; font-size: 0.9rem;"
+                                onclick="resetBoard()"><i class="fas fa-redo"></i> Play Again</button>
+                            <button class="btn-action"
+                                style="padding: 8px 12px; font-size: 0.9rem; background: var(--bg-card-2); border: 1px solid var(--border-color); color: var(--text-color);"
+                                onclick="quitGame()"><i class="fas fa-sign-out-alt"></i> Quit</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+    </script>
+    <script src="/js/app.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <script>
+        // Game State Variables
+        let boardState = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X'; // X always goes first
+        let mySymbol = 'X';
+        let isGameActive = false;
+        let playMode = 'local'; // 'local', 'cpu', 'online'
+        let currentRoom = null;
+        let username = '';
+
+        // UI Elements
+        const boardEl = document.getElementById('board');
+        const statusText = document.getElementById('statusText');
+        const connectionPanel = document.getElementById('connectionPanel');
+        const gameArea = document.getElementById('gameArea');
+        const playerXLabel = document.getElementById('playerXLabel');
+        const playerOLabel = document.getElementById('playerOLabel');
+
+        let socket = null;
+        // Initialize socket only if explicitly needed
+        if (typeof io !== 'undefined') {
+            socket = io();
+        }
+
+        // Initialize board UI
+        function createBoard() {
+            boardEl.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                boardEl.appendChild(cell);
+            }
+        }
+
+        function updateBoardUI() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                cell.innerText = boardState[i];
+                cell.className = 'cell'; // reset classes
+                if (boardState[i] === 'X') cell.classList.add('x');
+                if (boardState[i] === 'O') cell.classList.add('o');
+            });
+            checkWinStateUI();
+        }
+
+        function handleCellClick(e) {
+            if (!isGameActive) return;
+            const index = e.target.dataset.index;
+
+            // Check if cell is empty
+            if (boardState[index] !== '') return;
+
+            // Enforcement of turns
+            if (playMode === 'online' && currentPlayer !== mySymbol) return;
+            if (playMode === 'cpu' && currentPlayer !== 'X') return; // User is always X in CPU mode for now
+
+            makeMove(index, currentPlayer);
+
+            // Handle Network
+            if (playMode === 'online') {
+                socket.emit('game_action', {
+                    roomCode: currentRoom,
+                    action: 'tictactoe_move',
+                    payload: { index: index, symbol: mySymbol }
+                });
+            } else if (playMode === 'cpu' && isGameActive) {
+                // Trigger CPU Move
+                statusText.innerText = "CPU is thinking...";
+                setTimeout(makeCPUMove, 500);
+            }
+        }
+
+        function makeMove(index, symbol) {
+            boardState[index] = symbol;
+            currentPlayer = symbol === 'X' ? 'O' : 'X';
+            updateBoardUI();
+            checkGameState();
+        }
+
+        const winConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        function checkWinStateUI() {
+            let winObj = checkWin(boardState);
+            if (winObj) {
+                const cells = document.querySelectorAll('.cell');
+                winObj.pattern.forEach(index => {
+                    cells[index].classList.add('win');
+                });
+            }
+        }
+
+        function checkWin(board) {
+            for (let i = 0; i < winConditions.length; i++) {
+                const [a, b, c] = winConditions[i];
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return { winner: board[a], pattern: [a, b, c] };
+                }
+            }
+            if (!board.includes('')) return { winner: 'Tie' };
+            return null;
+        }
+
+        function checkGameState() {
+            let res = checkWin(boardState);
+            if (res) {
+                isGameActive = false;
+                if (res.winner === 'Tie') {
+                    statusText.innerText = "It's a Tie!";
+                } else {
+                    statusText.innerText = `${res.winner} Wins!`;
+                }
+            } else {
+                updateStatusText();
+            }
+        }
+
+        function updateStatusText() {
+            if (playMode === 'online') {
+                statusText.innerText = currentPlayer === mySymbol ? "Your Turn!" : "Waiting for opponent...";
+            } else if (playMode === 'cpu') {
+                statusText.innerText = currentPlayer === 'X' ? "Your Turn!" : "CPU's Turn...";
+            } else {
+                statusText.innerText = `Player ${currentPlayer}'s Turn!`;
+            }
+        }
+
+        function resetBoard(emit = true) {
+            boardState = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            isGameActive = true;
+            updateBoardUI();
+            updateStatusText();
+
+            if (playMode === 'online' && emit) {
+                socket.emit('game_action', { roomCode: currentRoom, action: 'tictactoe_reset' });
+            }
+        }
+
+        function quitGame() {
+            connectionPanel.style.display = 'block';
+            gameArea.style.display = 'none';
+            statusText.innerText = 'Select a Game Mode';
+            isGameActive = false;
+            if (playMode === 'online') {
+                socket.emit('leave_room', { roomCode: currentRoom });
+            }
+        }
+
+        // --- CPU AI ---
+        function emptyIndices(board) {
+            return board.map((val, i) => val === '' ? i : null).filter(val => val !== null);
+        }
+
+        function minimax(newBoard, player) {
+            let availSpots = emptyIndices(newBoard);
+            let res = checkWin(newBoard);
+
+            if (res) {
+                if (res.winner === 'X') return { score: -10 };      // Human wins
+                else if (res.winner === 'O') return { score: 10 };   // CPU wins
+                else if (res.winner === 'Tie') return { score: 0 };
+            }
+
+            let moves = [];
+            for (let i = 0; i < availSpots.length; i++) {
+                let move = {};
+                move.index = availSpots[i];
+                newBoard[availSpots[i]] = player;
+
+                if (player === 'O') {
+                    let result = minimax(newBoard, 'X');
+                    move.score = result.score;
+                } else {
+                    let result = minimax(newBoard, 'O');
+                    move.score = result.score;
+                }
+
+                newBoard[availSpots[i]] = ''; // reset spot
+                moves.push(move);
+            }
+
+            let bestMove;
+            if (player === 'O') {
+                let bestScore = -10000;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score > bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            } else {
+                let bestScore = 10000;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score < bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return moves[bestMove];
+        }
+
+        function makeCPUMove() {
+            if (!isGameActive) return;
+            let diff = document.getElementById('cpuDifficulty').value;
+            let avail = emptyIndices(boardState);
+            let chosenIndex;
+
+            if (diff === 'easy') {
+                chosenIndex = avail[Math.floor(Math.random() * avail.length)];
+            } else if (diff === 'med') {
+                // 50% chance to play optimally
+                if (Math.random() > 0.5) {
+                    chosenIndex = minimax(boardState, 'O').index;
+                } else {
+                    chosenIndex = avail[Math.floor(Math.random() * avail.length)];
+                }
+            } else {
+                // Hard 
+                chosenIndex = minimax(boardState, 'O').index;
+            }
+
+            makeMove(chosenIndex, 'O');
+        }
+
+        // --- OFFLINE MODES ---
+        function startCPU() {
+            playMode = 'cpu';
+            mySymbol = 'X';
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            playerXLabel.innerText = "Player: X";
+            playerOLabel.innerText = "CPU: O";
+            createBoard();
+            resetBoard();
+        }
+
+        function startLocal() {
+            playMode = 'local';
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            playerXLabel.innerText = "Player 1: X";
+            playerOLabel.innerText = "Player 2: O";
+            createBoard();
+            resetBoard();
+        }
+
+        // --- ONLINE SOCKETS ---
+        function createRoom() {
+            username = document.getElementById('usernameInput').value.trim();
+            if (!username) return alert("Please enter a username");
+
+            playMode = 'online';
+            if (!socket) socket = io();
+            socket.emit('create_room', { gameType: 'tictactoe', username });
+
+            // Wait for response
+            socket.once('room_created', (data) => {
+                currentRoom = data.roomCode;
+                mySymbol = 'X'; // Creator starts as X
+                playerXLabel.innerText = `You: X`;
+                playerOLabel.innerText = `Waiting...`;
+                setupOnlineMatch(data.roomCode);
+            });
+        }
+
+        function joinRoom() {
+            username = document.getElementById('usernameInput').value.trim();
+            let code = document.getElementById('roomcodeInput').value.trim();
+            if (!username || !code) return alert("Please enter a username and Room Code");
+
+            playMode = 'online';
+            if (!socket) socket = io();
+            socket.emit('join_room', { roomCode: code, username });
+
+            socket.once('room_joined', (data) => {
+                currentRoom = data.roomCode;
+                mySymbol = 'O'; // Joiner is O
+                playerOLabel.innerText = `You: O`;
+                setupOnlineMatch(data.roomCode);
+            });
+
+            socket.once('error', (msg) => {
+                alert(msg);
+            });
+        }
+
+        function setupOnlineMatch(roomCode) {
+            connectionPanel.style.display = 'none';
+            gameArea.style.display = 'block';
+            statusText.innerText = "Room Code: " + roomCode + " (Waiting for opponent)";
+            createBoard();
+            isGameActive = false; // Wait until player connects
+        }
+
+        // Live Socket Listeners
+        if (socket) {
+            socket.on('player_connected', (data) => {
+                if (playMode !== 'online') return;
+                statusText.innerText = "Opponent joined! Game starting...";
+                if (mySymbol === 'X') {
+                    playerOLabel.innerText = `Opponent: O`;
+                } else {
+                    playerXLabel.innerText = `Opponent: X`;
+                }
+                setTimeout(() => resetBoard(false), 2000);
+            });
+
+            socket.on('player_disconnected', (data) => {
+                if (playMode !== 'online') return;
+                statusText.innerText = "Opponent left the room!";
+                isGameActive = false;
+            });
+
+            socket.on('game_action', (data) => {
+                if (playMode !== 'online' || data.roomCode !== currentRoom) return;
+
+                if (data.action === 'tictactoe_move') {
+                    makeMove(data.payload.index, data.payload.symbol);
+                } else if (data.action === 'tictactoe_reset') {
+                    resetBoard(false);
+                }
+            });
+        }
+
+        // Boot
+        createBoard();
+    </script>
+</body>
+
+</html>

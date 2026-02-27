@@ -10,7 +10,7 @@ const { config } = require('./src/config/env');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } }); // Allow frontend domain
-const PORT = 3000; // Unified Port
+const PORT = process.env.PORT || 3000; // Unified Port
 
 // Initialize Sockets
 require('./src/sockets/gameSockets')(io);

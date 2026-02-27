@@ -85,11 +85,14 @@ function _getFallback(id) {
 
         const cats = [
             ['construction-dropdown', 'fas fa-hard-hat', 'Construction', [
+                ['calculators/construction/calc_brick.html', 'Brick Estimator'],
                 ['calculators/construction/calc_concrete.html', 'Concrete Calculator'],
                 ['calculators/construction/calc_flooring.html', 'Flooring Calculator'],
                 ['calculators/construction/calc_fuel.html', 'Fuel Cost Calculator'],
+                ['calculators/construction/calc_lumber.html', 'Lumber Board Feet'],
                 ['calculators/construction/calc_ohm.html', "Ohm's Law"],
                 ['calculators/construction/calc_paint.html', 'Paint Calculator'],
+                ['calculators/construction/calc_roof_area.html', 'Roof Area Calculator'],
                 ['calculators/construction/calc_wall_stud.html', 'Wall Stud Calculator']
             ]],
             ['crypto-dropdown', 'fas fa-vault', 'Cryptography', [
@@ -108,9 +111,12 @@ function _getFallback(id) {
             ['electronics-dropdown', 'fas fa-microchip', 'Electronics', [
                 ['calculators/electronics/calc_555_timer.html', '555 Timer'],
                 ['calculators/electronics/calc_capacitor_code.html', 'Capacitor Code'],
+                ['calculators/electronics/calc_frequency.html', 'Frequency & Wavelength'],
                 ['calculators/electronics/calc_led_resistor_calculator.html', 'LED Resistor'],
                 ['calculators/electronics/calc_ohm.html', "Ohm's Law"],
-                ['calculators/electronics/calc_resistor_color_code.html', 'Resistor Color Code']
+                ['calculators/electronics/calc_power.html', 'Power Calculator'],
+                ['calculators/electronics/calc_resistor_color_code.html', 'Resistor Color Code'],
+                ['calculators/electronics/calc_voltage_divider.html', 'Voltage Divider']
             ]],
             ['finance-dropdown', 'fas fa-dollar-sign', 'Finance', [
                 ['calculators/finance/calc_car_loan.html', 'Car Loan'],
@@ -172,7 +178,14 @@ function _getFallback(id) {
                 ['calculators/text-web/tool_password.html', 'Password Strength'],
                 ['calculators/text-web/tool_word_counter.html', 'Word Counter']
             ]],
-            ['fun-dropdown', 'fas fa-gamepad', 'Fun', [
+            ['games-dropdown', 'fas fa-gamepad', 'Games', [
+                ['calculators/fun/game_car_racing.html', 'Car Racing'],
+                ['calculators/fun/game_connect4.html', 'Connect 4'],
+                ['calculators/fun/game_chess.html', 'Multiplayer Chess'],
+                ['calculators/fun/calc_rock_paper_scissors.html', 'Rock Paper Scissors'],
+                ['calculators/fun/game_tic_tac_toe.html', 'Tic Tac Toe']
+            ]],
+            ['fun-dropdown', 'fas fa-face-grin-tears', 'Fun Tools', [
                 ['calculators/fun/calc_coin_flipper.html', 'Coin Flipper'],
                 ['calculators/fun/calc_compatibility.html', 'Compatibility Test'],
                 ['calculators/fun/calc_dice_roller.html', 'Dice Roller'],
@@ -182,7 +195,6 @@ function _getFallback(id) {
                 ['calculators/fun/calc_magic_8_ball.html', 'Magic 8 Ball'],
                 ['calculators/fun/calc_number_guesser.html', 'Number Guesser'],
                 ['calculators/fun/calc_random_number.html', 'Random Number'],
-                ['calculators/fun/calc_rock_paper_scissors.html', 'Rock Paper Scissors'],
                 ['calculators/fun/calc_zodiac.html', 'Zodiac Sign']
             ]]
         ];

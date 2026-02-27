@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | Master Racing Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .game-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        #gameCanvas {
+            background: #333;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 100%;
+            touch-action: none;
+            /* Prevent scrolling on touch */
+            cursor: crosshair;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            font-size: 1.1rem;
+            margin: 5px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .controls-hint {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        #gameOverScreen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            z-index: 10;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #modeSelector {
+            margin-bottom: 20px;
+        }
+
+        #modeSelector select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+
+            <div class="page-body">
+                <div class="game-container fade-in">
+                    <div class="header">
+                        <h2><i class="fas fa-gamepad" style="margin-right: 10px;"></i> Master Racing</h2>
+                        <p>Dodge obstacles on land, sea, and air!</p>
+                    </div>
+
+                    <div id="modeSelector">
+                        <select id="vehicleType" onchange="changeMode()">
+                            <option value="car">🚗 Car Mode</option>
+                            <option value="truck">🚛 Truck Mode</option>
+                            <option value="bike">🏍️ Bike Mode</option>
+                            <option value="ship">⛴️ Ship Mode</option>
+                            <option value="aeroplane">✈️ Aeroplane Mode</option>
+                        </select>
+                    </div>
+
+                    <div class="score-board">
+                        <div>Score: <span id="scoreVal">0</span></div>
+                        <div>High Score: <span id="highScoreVal">0</span></div>
+                    </div>
+
+                    <div class="canvas-wrapper">
+                        <canvas id="gameCanvas" width="300" height="400"></canvas>
+                        <div id="gameOverScreen">
+                            <h3 style="font-size: 2rem; margin-bottom: 10px; color: #ef4444;">Game Over</h3>
+                            <p style="margin-bottom: 20px; font-size: 1.2rem;">Final Score: <span
+                                    id="finalScore">0</span></p>
+                            <button class="btn-action" onclick="startGame()">Play Again</button>
+                        </div>
+                    </div>
+
+                    <div id="gameControls"
+                        style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <button class="btn-action" id="startBtn" onclick="startGame()"><i class="fas fa-play"></i>
+                            Start</button>
+                        <button class="btn-action" id="pauseBtn" onclick="togglePause()" style="display: none;"><i
+                                class="fas fa-pause"></i> Pause</button>
+                        <button class="btn-action" id="stopBtn" onclick="stopGame()" style="display: none;"><i
+                                class="fas fa-stop"></i> Stop</button>
+                        <button class="btn-action" id="restartBtn" onclick="restartGame()" style="display: none;"><i
+                                class="fas fa-redo"></i> Restart</button>
+                    </div>
+
+                    <p class="controls-hint">Use your <strong>Mouse</strong> to drag the vehicle, or <strong>Touch &
+                            Drag</strong> on mobile. <br />Left/Right Arrow keys also work!</p>
+
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/";
+    </script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('scoreVal');
+        const highScoreEl = document.getElementById('highScoreVal');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreEl = document.getElementById('finalScore');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const vehicleSelect = document.getElementById('vehicleType');
+
+        let animationId;
+        let isGameOver = true;
+        let isPaused = false;
+        let score = 0;
+        let highScore = localStorage.getItem('masterRacingHighScore') || 0;
+        highScoreEl.innerText = highScore;
+
+        // Configuration for different modes
+        const MODE_CONFIG = {
+            car: { w: 35, h: 60, bg: '#333', line: '#fff', obsTypes: ['car', 'truck', 'bike'] },
+            truck: { w: 45, h: 80, bg: '#333', line: '#fff', obsTypes: ['car', 'truck'] },
+            bike: { w: 20, h: 50, bg: '#333', line: '#fff', obsTypes: ['car', 'truck', 'bike'] },
+            ship: { w: 40, h: 70, bg: '#0ea5e9', line: 'rgba(255,255,255,0.2)', obsTypes: ['ship'] },
+            aeroplane: { w: 60, h: 60, bg: '#87ceeb', line: 'rgba(255,255,255,0)', obsTypes: ['aeroplane', 'cloud'] }
+        };
+
+        const LANE_WIDTH = canvas.width / 3;
+        let currentMode = vehicleSelect.value;
+
+        let player = {
+            x: 0,
+            y: 0,
+            width: 35,
+            height: 60,
+            color: '#3b82f6',
+            speed: 5
+        };
+
+        let obstacles = [];
+        let coins = [];
+        let powerups = [];
+        let particles = [];
+        let stars = [];
+        let frameCount = 0;
+        let obstacleSpeed = 4;
+        let collisionFlash = 0;
+        let invincibleTimer = 0;
+
+        // Init Background Stars for space/sky
+        for (let i = 0; i < 50; i++) {
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, speed: Math.random() * 2 + 1 });
+        }
+
+        // Input handling
+        let rightPressed = false;
+        let leftPressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Right' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') rightPressed = true;
+            else if (e.key === 'Left' || e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') leftPressed = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Right' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') rightPressed = false;
+            else if (e.key === 'Left' || e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') leftPressed = false;
+        });
+
+        let dragX = 0; // For drift handling
+        let targetX = 0; // For smooth interpolation
+
+        // Mouse Controls
+        canvas.addEventListener('mousemove', (e) => {
+            if (isGameOver || isPaused) return;
+            const rect = canvas.getBoundingClientRect();
+            targetX = (e.clientX - rect.left) - (player.width / 2);
+        });
+
+        // Touch Controls
+        canvas.addEventListener('touchmove', (e) => {
+            if (isGameOver || isPaused) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            targetX = (e.touches[0].clientX - rect.left) - (player.width / 2);
+        }, { passive: false });
+
+        // Jump to tap position
+        canvas.addEventListener('touchstart', (e) => {
+            if (isGameOver || isPaused) return;
+            const rect = canvas.getBoundingClientRect();
+            targetX = (e.touches[0].clientX - rect.left) - (player.width / 2);
+        });
+
+        function preventOutOfBounds() {
+            if (player.x < 0) player.x = 0;
+            if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+        }
+
+        function changeMode() {
+            currentMode = vehicleSelect.value;
+            const config = MODE_CONFIG[currentMode];
+            player.width = config.w;
+            player.height = config.h;
+            if (isGameOver) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                player.x = canvas.width / 2 - player.width / 2;
+                player.y = canvas.height - player.height - 20;
+                drawBackground();
+                drawShape(currentMode, player.x, player.y, player.width, player.height, player.color);
+            }
+        }
+
+        function drawShape(type, x, y, w, h, color, isPlayer = false) {
+            ctx.fillStyle = color;
+            ctx.save();
+
+            // Add slight drift rotation for player
+            if (isPlayer) {
+                ctx.translate(x + w / 2, y + h / 2);
+                ctx.rotate(dragX * 0.03); // Max rotation
+                ctx.translate(-(x + w / 2), -(y + h / 2));
+            }
+
+            if (type === 'car') {
+                ctx.fillRect(x, y + 10, w, h - 20); // body
+                ctx.fillStyle = '#1e293b'; ctx.fillRect(x + 5, y + 20, w - 10, h - 40); // roof
+                ctx.fillStyle = '#111';
+                ctx.fillRect(x - 2, y + 15, 4, 12); ctx.fillRect(x + w - 2, y + 15, 4, 12);
+                ctx.fillRect(x - 2, y + h - 27, 4, 12); ctx.fillRect(x + w - 2, y + h - 27, 4, 12); // wheels
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(x + 5, y + 15, w - 10, 8); ctx.fillRect(x + 5, y + h - 23, w - 10, 8); // Window
+
+                // Tail lights
+                if (isPlayer && invincibleTimer === 0) {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(x + 5, y + h - 10, 8, 4);
+                    ctx.fillRect(x + w - 13, y + h - 10, 8, 4);
+                }
+
+            } else if (type === 'truck') {
+                ctx.fillRect(x, y, w, h); // full body
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(x + 5, y + 5, w - 10, 15); // front windshield
+                ctx.fillStyle = '#111';
+                ctx.fillRect(x - 3, y + 10, 4, 15); ctx.fillRect(x + w - 1, y + 10, 4, 15); // front wheels
+                ctx.fillRect(x - 3, y + h - 25, 4, 15); ctx.fillRect(x + w - 1, y + h - 25, 4, 15); // back wheels
+            } else if (type === 'bike') {
+                ctx.fillRect(x + w / 2 - 4, y, 8, h); // body
+                ctx.fillStyle = '#111';
+                ctx.fillRect(x + w / 2 - 4, y - 5, 8, 15); // front wheel
+                ctx.fillRect(x + w / 2 - 4, y + h - 10, 8, 15); // back wheel
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(x, y + 15, w, 4); // handlebars
+            } else if (type === 'ship') {
+                ctx.beginPath();
+                ctx.moveTo(x + w / 2, y);
+                ctx.lineTo(x + w, y + 20);
+                ctx.lineTo(x + w - 5, y + h);
+                ctx.lineTo(x + 5, y + h);
+                ctx.lineTo(x, y + 20);
+                ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.fillRect(x + w / 2 - 8, y + 30, 16, 20); // cabin
+            } else if (type === 'aeroplane') {
+                ctx.fillRect(x + w / 2 - 6, y, 12, h); // fuselage
+                ctx.fillRect(x, y + h / 2 - 10, w, 15); // wings
+                ctx.fillRect(x + w / 2 - 15, y + h - 10, 30, 8); // tail
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(x + w / 2 - 4, y + 5, 8, 10); // cockpit
+            } else if (type === 'cloud') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(x + w / 2, y + h / 2, w / 2, 0, Math.PI * 2);
+                ctx.arc(x + 10, y + h / 2 + 10, w / 3, 0, Math.PI * 2);
+                ctx.arc(x + w - 10, y + h / 2 + 10, w / 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function drawBackground() {
+            const config = MODE_CONFIG[currentMode];
+            ctx.fillStyle = config.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Parallax Stars if applicable
+            if (currentMode === 'aeroplane' || currentMode === 'ship') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                stars.forEach(s => {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.speed, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (!isGameOver && !isPaused) {
+                        s.y += s.speed * (obstacleSpeed / 4);
+                        if (s.y > canvas.height) s.y = 0;
+                    }
+                });
+            }
+
+            if (config.line !== 'rgba(255,255,255,0)') {
+                ctx.strokeStyle = config.line;
+                ctx.lineWidth = 4;
+                ctx.setLineDash([20, 20]);
+
+                // Lane dividers
+                ctx.beginPath(); ctx.moveTo(LANE_WIDTH, 0); ctx.lineTo(LANE_WIDTH, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(LANE_WIDTH * 2, 0); ctx.lineTo(LANE_WIDTH * 2, canvas.height); ctx.stroke();
+
+                if (!isGameOver && !isPaused) {
+                    ctx.lineDashOffset -= obstacleSpeed;
+                }
+            }
+        }
+
+        function addObstacle() {
+            const lane = Math.floor(Math.random() * 3);
+            const config = MODE_CONFIG[currentMode];
+
+            const randRoll = Math.random();
+
+            // 15% chance to spawn a coin instead
+            if (randRoll < 0.15) {
+                const obsW = 20, obsH = 20;
+                const x = lane * LANE_WIDTH + (LANE_WIDTH / 2) - (obsW / 2);
+                coins.push({ x: x, y: -obsH, width: obsW, height: obsH, passed: false });
+                return;
+            }
+            // 3% chance to spawn invincibility star
+            else if (randRoll < 0.18) {
+                const obsW = 25, obsH = 25;
+                const x = lane * LANE_WIDTH + (LANE_WIDTH / 2) - (obsW / 2);
+                powerups.push({ x: x, y: -obsH, width: obsW, height: obsH, passed: false, type: 'shield' });
+                return;
+            }
+
+            const type = config.obsTypes[Math.floor(Math.random() * config.obsTypes.length)];
+
+            let obsW = MODE_CONFIG[type] ? MODE_CONFIG[type].w : 40;
+            let obsH = MODE_CONFIG[type] ? MODE_CONFIG[type].h : 40;
+
+            const x = lane * LANE_WIDTH + (LANE_WIDTH / 2) - (obsW / 2);
+            const colors = ['#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#fff'];
+            const color = type === 'cloud' ? '#fff' : colors[Math.floor(Math.random() * (colors.length - 1))]; // no white for cars
+
+            obstacles.push({
+                x: x, y: -obsH, width: obsW, height: obsH, color: color, passed: false, type: type
+            });
+        }
+
+        function updateObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacleSpeed;
+                drawShape(obstacles[i].type, obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height, obstacles[i].color);
+
+                // Collision Detection with tighter hitboxes
+                const shrinkX = 8;
+                const shrinkY = 12;
+                if (
+                    player.x + shrinkX < obstacles[i].x + obstacles[i].width - shrinkX &&
+                    player.x + player.width - shrinkX > obstacles[i].x + shrinkX &&
+                    player.y + shrinkY < obstacles[i].y + obstacles[i].height - shrinkY &&
+                    player.y + player.height - shrinkY > obstacles[i].y + shrinkY
+                ) {
+                    if (invincibleTimer > 0) {
+                        // Explode obstacle instead!
+                        for (let p = 0; p < 25; p++) {
+                            particles.push({
+                                x: obstacles[i].x + obstacles[i].width / 2, y: obstacles[i].y + obstacles[i].height / 2,
+                                vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.5) * 12,
+                                life: 20 + Math.random() * 20,
+                                color: obstacles[i].color || '#fff'
+                            });
+                        }
+                        obstacles.splice(i, 1);
+                        i--;
+                        score += 50;
+                        scoreEl.innerText = score;
+
+                        // Micro screen shake
+                        ctx.translate(Math.random() * 4 - 2, Math.random() * 4 - 2);
+                        setTimeout(() => ctx.setTransform(1, 0, 0, 1, 0, 0), 50);
+
+                        continue;
+                    } else {
+                        collisionFlash = 40; // Double flash duration
+                        // Massive explosion
+                        for (let p = 0; p < 60; p++) {
+                            particles.push({
+                                x: player.x, y: player.y,
+                                vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20,
+                                life: 40 + Math.random() * 40,
+                                color: currentMode === 'ship' ? '#38bdf8' : '#ef4444'
+                            });
+                        }
+                        gameOver();
+                    }
+                }
+
+                if (isGameOver) return; // Stop processing further obstacles
+
+                // Score update
+                if (obstacles[i].y > player.y + player.height && !obstacles[i].passed) {
+                    obstacles[i].passed = true;
+                    score += 10;
+                    scoreEl.innerText = score;
+
+                    // Progressive difficulty scaling
+                    if (score > 1000) obstacleSpeed = Math.min(18, obstacleSpeed + 0.05);
+                    else if (score % 50 === 0 && obstacleSpeed < 14) obstacleSpeed += 0.5;
+                }
+
+                // Remove off-screen
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // --- Update powerups ---
+            for (let i = 0; i < powerups.length; i++) {
+                powerups[i].y += obstacleSpeed;
+
+                // Draw shield powerup (Cyan Diamond with pulse)
+                const pulse = Math.sin(frameCount / 5) * 2;
+                ctx.fillStyle = '#06b6d4';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#06b6d4';
+                ctx.beginPath();
+                ctx.moveTo(powerups[i].x + powerups[i].width / 2, powerups[i].y - pulse);
+                ctx.lineTo(powerups[i].x + powerups[i].width + pulse, powerups[i].y + powerups[i].height / 2);
+                ctx.lineTo(powerups[i].x + powerups[i].width / 2, powerups[i].y + powerups[i].height + pulse);
+                ctx.lineTo(powerups[i].x - pulse, powerups[i].y + powerups[i].height / 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                if (
+                    player.x < powerups[i].x + powerups[i].width &&
+                    player.x + player.width > powerups[i].x &&
+                    player.y < powerups[i].y + powerups[i].height &&
+                    player.y + player.height > powerups[i].y
+                ) {
+                    invincibleTimer = 300; // ~5 seconds at 60fps
+                    powerups.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                if (powerups[i].y > canvas.height) {
+                    powerups.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // Update coins
+            for (let i = 0; i < coins.length; i++) {
+                coins[i].y += obstacleSpeed;
+
+                // Draw coin (Gold circle)
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(coins[i].x + coins[i].width / 2, coins[i].y + coins[i].height / 2, coins[i].width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#b45309';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Collision with player
+                const shrinkX = 0;
+                const shrinkY = 0;
+                if (
+                    player.x + shrinkX < coins[i].x + coins[i].width - shrinkX &&
+                    player.x + player.width - shrinkX > coins[i].x + shrinkX &&
+                    player.y + shrinkY < coins[i].y + coins[i].height - shrinkY &&
+                    player.y + player.height - shrinkY > coins[i].y + shrinkY
+                ) {
+                    score += 50;
+                    scoreEl.innerText = score;
+                    // Add particle burst
+                    for (let p = 0; p < 8; p++) {
+                        particles.push({
+                            x: coins[i].x + 10, y: coins[i].y + 10,
+                            vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                            life: 15 + Math.random() * 15,
+                            color: '#fcd34d'
+                        });
+                    }
+                    coins.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                if (coins[i].y > canvas.height) {
+                    coins.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            cancelAnimationFrame(animationId);
+            gameOverScreen.style.display = 'block';
+
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            stopBtn.style.display = 'none';
+            restartBtn.style.display = 'none';
+            vehicleSelect.disabled = false; // allow switching mode again
+
+            finalScoreEl.innerText = score;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('masterRacingHighScore', highScore);
+                highScoreEl.innerText = highScore;
+            }
+        }
+
+        function stopGame() {
+            score = 0; // Don't preserve score if stopped early, but save highscore
+            gameOver();
+            gameOverScreen.style.display = 'none';
+            initDrawing();
+        }
+
+        function togglePause() {
+            if (isGameOver) return;
+            isPaused = !isPaused;
+            if (isPaused) {
+                cancelAnimationFrame(animationId);
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+            } else {
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                gameLoop();
+            }
+        }
+
+        function restartGame() {
+            resetGame();
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            }
+            gameLoop();
+        }
+
+        function resetGame() {
+            changeMode(); // ensures sizes are correct
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - player.height - 20;
+
+            obstacles = [];
+            coins = [];
+            powerups = [];
+            particles = [];
+            score = 0;
+            obstacleSpeed = 4;
+            frameCount = 0;
+            collisionFlash = 0;
+            invincibleTimer = 0;
+            scoreEl.innerText = score;
+            gameOverScreen.style.display = 'none';
+
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'inline-block';
+            restartBtn.style.display = 'inline-block';
+            vehicleSelect.disabled = true; // lock mode during gameplay
+
+            isGameOver = false;
+            leftPressed = false;
+            rightPressed = false;
+            ctx.lineDashOffset = 0;
+        }
+
+        function gameLoop() {
+            if (isGameOver || isPaused) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+
+            // Keyboard Move
+            if (rightPressed) {
+                targetX += player.speed * 2;
+            } else if (leftPressed) {
+                targetX -= player.speed * 2;
+            }
+
+            // Smooth Interpolation for Mouse/Touch/Keys
+            dragX = targetX - player.x; // track velocity for rotation
+            player.x += (targetX - player.x) * 0.15; // LERPing speed
+            preventOutOfBounds();
+            if (targetX < 0) targetX = 0;
+            if (targetX > canvas.width - player.width) targetX = canvas.width - player.width;
+
+            // Add exhaust particles
+            let baseColor = currentMode === 'aeroplane' ? 'rgba(255,255,255,0.7)' : 'rgba(200, 200, 200, 0.4)';
+            if (invincibleTimer > 0) baseColor = 'rgba(6, 182, 212, 0.8)';
+
+            if (frameCount % 2 === 0 && currentMode !== 'ship') {
+                particles.push({
+                    x: player.x + player.width / 2 + (Math.random() * 10 - 5),
+                    y: player.y + player.height - 5,
+                    vx: -dragX * 0.1, // exhaust trails opposite of drift
+                    vy: 3 + Math.random() * 2 + (obstacleSpeed / 3),
+                    life: 10 + Math.random() * 10,
+                    color: baseColor
+                });
+            } else if (frameCount % 2 === 0 && currentMode === 'ship') {
+                particles.push({
+                    x: player.x + player.width / 2 + (Math.random() * 20 - 10),
+                    y: player.y + player.height,
+                    vx: 0,
+                    vy: 3 + Math.random(),
+                    life: 15 + Math.random() * 10,
+                    color: 'rgba(255, 255, 255, 0.3)'
+                });
+            }
+
+            // Invincible glow & shield render
+            if (invincibleTimer > 0) {
+                invincibleTimer--;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#06b6d4';
+
+                // Draw physical shield ring
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(34, 211, 238, ${Math.abs(Math.sin(frameCount / 10))})`;
+                ctx.lineWidth = 4;
+                ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.height / 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Add trailing shield particles
+                if (frameCount % 3 === 0) {
+                    particles.push({
+                        x: player.x + Math.random() * player.width, y: player.y + Math.random() * player.height,
+                        vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+                        life: 15 + Math.random() * 10,
+                        color: '#22d3ee'
+                    });
+                }
+            } else {
+                ctx.shadowBlur = 0;
+            }
+
+            drawShape(currentMode, player.x, player.y, player.width, player.height, player.color, true);
+            ctx.shadowBlur = 0; // reset for other elements
+
+            // Screen flash effect for collisions
+            if (collisionFlash > 0) {
+                ctx.fillStyle = `rgba(239, 68, 68, ${collisionFlash / 40})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                collisionFlash--;
+            }
+
+            // Update & Draw particles
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(0.1, p.life / 5), 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            frameCount++;
+            // Dynamic difficulty - spawn items faster the faster the game speed
+            const spawnBase = 140 - (obstacleSpeed * 8);
+            const spawnRate = Math.max(25, Math.floor(spawnBase));
+
+            if (frameCount % spawnRate === 0) {
+                addObstacle();
+            }
+
+            updateObstacles();
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            resetGame();
+            gameLoop();
+        }
+
+        function initDrawing() {
+            changeMode();
+        }
+
+        initDrawing();
+
+    </script>
+</body>
+
+</html>

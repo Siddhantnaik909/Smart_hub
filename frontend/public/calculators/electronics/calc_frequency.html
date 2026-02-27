@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Frequency & Wavelength Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .calc-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.07);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box li,
+        .info-box p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .formula-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.97rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 10px 0;
+            line-height: 1.9;
+        }
+
+        .tip-box {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .tip-box h4 {
+            color: #10b981;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s ease;
+        }
+
+        .result-row.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .result-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            color: #10b981 !important;
+        }
+
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .band-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-top: 10px;
+        }
+
+        .band-table th,
+        .band-table td {
+            padding: 7px 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .band-table th {
+            background: var(--bg-card-2);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="calc-wrapper">
+
+                        <div class="cat-card">
+                            <div class="calculator-header">
+                                <h2><i class="fas fa-wave-square" style="color:var(--primary-color)"></i> Frequency &
+                                    Wavelength Calculator</h2>
+                                <p>Convert between frequency (Hz), wavelength (m), and period (s). Enter <strong>any one
+                                        value</strong> to solve the rest.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <h4><i class="fas fa-book-open"></i> How It Works</h4>
+                            <p>Electromagnetic waves travel at the <strong>speed of light (c = 299,792,458 m/s)</strong>
+                                in a vacuum. Frequency, wavelength, and period are all mathematically related:</p>
+                            <div class="formula-box">
+                                λ = c ÷ f &nbsp;&nbsp;&nbsp; f = c ÷ λ &nbsp;&nbsp;&nbsp; T = 1 ÷ f<br>
+                                ω = 2π × f &nbsp;&nbsp;&nbsp; c = 299,792,458 m/s
+                            </div>
+                            <p>Where: <strong>λ</strong> = wavelength, <strong>f</strong> = frequency,
+                                <strong>T</strong> = period, <strong>ω</strong> = angular frequency</p>
+                            <p style="margin-top:10px"><strong>Electromagnetic Spectrum Reference:</strong></p>
+                            <table class="band-table">
+                                <tr>
+                                    <th>Band</th>
+                                    <th>Frequency Range</th>
+                                    <th>Wavelength</th>
+                                    <th>Use</th>
+                                </tr>
+                                <tr>
+                                    <td>ELF</td>
+                                    <td>3–30 Hz</td>
+                                    <td>10,000–100,000 km</td>
+                                    <td>Submarine comm.</td>
+                                </tr>
+                                <tr>
+                                    <td>AM Radio</td>
+                                    <td>530–1700 kHz</td>
+                                    <td>176–566 m</td>
+                                    <td>AM broadcast</td>
+                                </tr>
+                                <tr>
+                                    <td>FM Radio</td>
+                                    <td>88–108 MHz</td>
+                                    <td>2.8–3.4 m</td>
+                                    <td>FM broadcast</td>
+                                </tr>
+                                <tr>
+                                    <td>Wi-Fi 2.4G</td>
+                                    <td>2.4 GHz</td>
+                                    <td>12.5 cm</td>
+                                    <td>Wireless network</td>
+                                </tr>
+                                <tr>
+                                    <td>Wi-Fi 5G</td>
+                                    <td>5 GHz</td>
+                                    <td>6 cm</td>
+                                    <td>Wireless network</td>
+                                </tr>
+                                <tr>
+                                    <td>5G Cellular</td>
+                                    <td>28–39 GHz</td>
+                                    <td>7.7–10.7 mm</td>
+                                    <td>Mobile internet</td>
+                                </tr>
+                                <tr>
+                                    <td>Visible Light</td>
+                                    <td>430–750 THz</td>
+                                    <td>400–700 nm</td>
+                                    <td>Human vision</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span>Frequency (Hz)</span>
+                                    <input type="number" id="freq" class="form-control"
+                                        placeholder="e.g. 1000 or 2400000000" min="0" step="any">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Wavelength (m)</span>
+                                    <input type="number" id="wavelength" class="form-control" placeholder="e.g. 0.125"
+                                        min="0" step="any">
+                                </div>
+                                <div class="sub-link">
+                                    <span>Period (seconds)</span>
+                                    <input type="number" id="period" class="form-control" placeholder="e.g. 0.001"
+                                        min="0" step="any">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i>
+                                    Calculate</button>
+                            </div>
+                        </div>
+
+                        <div class="cat-card" id="results">
+                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
+                                Results</h3>
+                            <div id="resultArea"></div>
+                        </div>
+
+                        <div class="tip-box">
+                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                            <ul style="padding-left:18px">
+                                <li>Enter frequency in Hz directly: 2.4 GHz = <strong>2,400,000,000</strong> Hz.</li>
+                                <li><strong>Higher frequency = shorter wavelength</strong>. This is why 5G uses small
+                                    antennas.</li>
+                                <li>Antenna length is typically <strong>¼ or ½ wavelength</strong> for best efficiency.
+                                </li>
+                                <li>In optical fiber, the speed of light is slower (~200,000 km/s). Results here assume
+                                    free space (vacuum).</li>
+                                <li>The <strong>period</strong> is the time for one complete wave cycle. For 60 Hz AC
+                                    power, T = 1/60 ≈ 16.67 ms.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        const SPEED_OF_LIGHT = 299792458;
+        document.getElementById('calcBtn').addEventListener('click', function () {
+            const fVal = document.getElementById('freq').value;
+            const λVal = document.getElementById('wavelength').value;
+            const TVal = document.getElementById('period').value;
+            let f = parseFloat(fVal);
+            let λ = parseFloat(λVal);
+            let T = parseFloat(TVal);
+            const has = (v) => v !== '' && !isNaN(parseFloat(v)) && parseFloat(v) > 0;
+            if (!has(fVal) && !has(λVal) && !has(TVal)) { alert("Please enter at least one value."); return; }
+            if (has(fVal)) { T = 1 / f; λ = SPEED_OF_LIGHT / f; }
+            else if (has(λVal)) { f = SPEED_OF_LIGHT / λ; T = 1 / f; }
+            else if (has(TVal)) { f = 1 / T; λ = SPEED_OF_LIGHT / f; }
+            const omega = 2 * Math.PI * f;
+            const fmtFreq = (n) => {
+                if (n >= 1e12) return `${(n / 1e12).toFixed(4)} THz`;
+                if (n >= 1e9) return `${(n / 1e9).toFixed(4)} GHz`;
+                if (n >= 1e6) return `${(n / 1e6).toFixed(4)} MHz`;
+                if (n >= 1e3) return `${(n / 1e3).toFixed(4)} kHz`;
+                return `${n.toFixed(4)} Hz`;
+            };
+            const fmtWave = (n) => {
+                if (n < 1e-9) return `${(n * 1e12).toFixed(4)} pm`;
+                if (n < 1e-6) return `${(n * 1e9).toFixed(4)} nm`;
+                if (n < 1e-3) return `${(n * 1e6).toFixed(4)} µm`;
+                if (n < 0.01) return `${(n * 100).toFixed(4)} cm`;
+                if (n < 1) return `${(n * 1000).toFixed(4)} mm`;
+                if (n >= 1000) return `${(n / 1000).toFixed(4)} km`;
+                return `${n.toFixed(4)} m`;
+            };
+            const fmtPeriod = (n) => {
+                if (n < 1e-9) return `${(n * 1e12).toFixed(4)} ps`;
+                if (n < 1e-6) return `${(n * 1e9).toFixed(4)} ns`;
+                if (n < 1e-3) return `${(n * 1e6).toFixed(4)} µs`;
+                if (n < 1) return `${(n * 1000).toFixed(4)} ms`;
+                return `${n.toFixed(6)} s`;
+            };
+            const rows = [
+                { label: 'Frequency (f)', val: fmtFreq(f), highlight: true },
+                { label: 'Wavelength (λ)', val: fmtWave(λ), highlight: true },
+                { label: 'Period (T)', val: fmtPeriod(T) },
+                { label: 'Angular Frequency (ω)', val: `${omega.toFixed(4)} rad/s` },
+                { label: 'Speed of Light Used', val: `${SPEED_OF_LIGHT.toLocaleString()} m/s` },
+            ];
+            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
+                `<div class="result-row" id="rr${i}">
+                    <span class="result-label">${r.label}</span>
+                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
+                </div>`
+            ).join('');
+            const resultsEl = document.getElementById('results');
+            resultsEl.className = 'cat-card visible';
+            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
+    <script src="/js/custom.js"></script>
+</body>
+
+</html>
