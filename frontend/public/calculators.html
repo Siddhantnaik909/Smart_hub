@@ -99,37 +99,17 @@
                     { name: "Brick Estimator", path: "/calculators/construction/calc_brick.html" },
                     { name: "Concrete Calc", path: "/calculators/construction/calc_concrete.html" },
                     { name: "Flooring Calc", path: "/calculators/construction/calc_flooring.html" },
-                    { name: "Fuel Cost", path: "/calculators/construction/calc_fuel.html" },
+                    { name: "Fuel Cost Calc", path: "/calculators/construction/calc_fuel.html" },
                     { name: "Lumber Board Feet", path: "/calculators/construction/calc_lumber.html" },
+                    { name: "Ohm's Law", path: "/calculators/construction/calc_ohm.html" },
                     { name: "Paint Calc", path: "/calculators/construction/calc_paint.html" },
-                    { name: "Roof Area", path: "/calculators/construction/calc_roof_area.html" },
-                    { name: "Wall Stud", path: "/calculators/construction/calc_wall_stud.html" }
+                    { name: "Roof Area Calc", path: "/calculators/construction/calc_roof_area.html" },
+                    { name: "Wall Stud Calc", path: "/calculators/construction/calc_wall_stud.html" }
                 ]
             },
             {
-                cat: "Finance", icon: "fas fa-coins", tools: [
-                    { name: "Car Loan", path: "/calculators/finance/calc_car_loan.html" },
-                    { name: "Compound Interest", path: "/calculators/finance/calc_compound.html" },
-                    { name: "Currency", path: "/calculators/finance/calc_currency.html" },
-                    { name: "Discount Calc", path: "/calculators/finance/calc_discount.html" },
-                    { name: "Loan EMI", path: "/calculators/finance/calc_loan_emi.html" },
-                    { name: "Mortgage", path: "/calculators/finance/calc_mortgage.html" },
-                    { name: "ROI Calc", path: "/calculators/finance/calc_roi.html" },
-                    { name: "Salary Calc", path: "/calculators/finance/calc_salary.html" },
-                    { name: "Tax/GST", path: "/calculators/finance/calc_tax_gst.html" },
-                    { name: "Tip Calculator", path: "/calculators/finance/calc_tip_calculator.html" }
-                ]
-            },
-            {
-                cat: "Electronics", icon: "fas fa-microchip", tools: [
-                    { name: "555 Timer", path: "/calculators/electronics/calc_555_timer.html" },
-                    { name: "Capacitor Code", path: "/calculators/electronics/calc_capacitor_code.html" },
-                    { name: "Frequency & Wavelength", path: "/calculators/electronics/calc_frequency.html" },
-                    { name: "LED Resistor", path: "/calculators/electronics/calc_led_resistor_calculator.html" },
-                    { name: "Ohm's Law", path: "/calculators/electronics/calc_ohm.html" },
-                    { name: "Power Calculator", path: "/calculators/electronics/calc_power.html" },
-                    { name: "Resistor Color", path: "/calculators/electronics/calc_resistor_color_code.html" },
-                    { name: "Voltage Divider", path: "/calculators/electronics/calc_voltage_divider.html" }
+                cat: "Cryptography", icon: "fas fa-vault", tools: [
+                    { name: "MD5 Generator", path: "/calculators/cryptography/tool_md5_generator.html" }
                 ]
             },
             {
@@ -138,48 +118,94 @@
                     { name: "Countdown Timer", path: "/calculators/date-time/calc_countdown.html" },
                     { name: "Date Difference", path: "/calculators/date-time/calc_date_diff.html" },
                     { name: "Hours Worked", path: "/calculators/date-time/calc_hours_worked.html" },
-                    { name: "Leap Year", path: "/calculators/date-time/calc_leap_year.html" },
+                    { name: "Leap Year Checker", path: "/calculators/date-time/calc_leap_year.html" },
+                    { name: "Time Addition", path: "/calculators/date-time/calc_time_add.html" },
                     { name: "Time Zone Converter", path: "/calculators/date-time/calc_time_zone.html" },
                     { name: "Working Days", path: "/calculators/date-time/calc_working_days.html" }
+                ]
+            },
+            {
+                cat: "Electronics", icon: "fas fa-microchip", tools: [
+                    { name: "555 Timer", path: "/calculators/electronics/calc_555_timer.html" },
+                    { name: "Battery Life", path: "/calculators/electronics/calc_battery_life.html" },
+                    { name: "Capacitor Code", path: "/calculators/electronics/calc_capacitor_code.html" },
+                    { name: "Frequency & Wavelength", path: "/calculators/electronics/calc_frequency.html" },
+                    { name: "LED Resistor", path: "/calculators/electronics/calc_led_resistor_calculator.html" },
+                    { name: "Ohm's Law", path: "/calculators/electronics/calc_ohm.html" },
+                    { name: "Power Calculator", path: "/calculators/electronics/calc_power.html" },
+                    { name: "Resistor Color Code", path: "/calculators/electronics/calc_resistor_color_code.html" },
+                    { name: "Voltage Divider", path: "/calculators/electronics/calc_voltage_divider.html" }
+                ]
+            },
+            {
+                cat: "Finance", icon: "fas fa-dollar-sign", tools: [
+                    { name: "Car Loan", path: "/calculators/finance/calc_car_loan.html" },
+                    { name: "Compound Interest", path: "/calculators/finance/calc_compound.html" },
+                    { name: "Compound Interest (Adv)", path: "/calculators/finance/calc_compound_interest.html" },
+                    { name: "Currency Converter", path: "/calculators/finance/calc_currency.html" },
+                    { name: "Discount Calculator", path: "/calculators/finance/calc_discount.html" },
+                    { name: "General Loan", path: "/calculators/finance/calc_loan.html" },
+                    { name: "Loan EMI", path: "/calculators/finance/calc_loan_emi.html" },
+                    { name: "Mortgage", path: "/calculators/finance/calc_mortgage.html" },
+                    { name: "ROI Calculator", path: "/calculators/finance/calc_roi.html" },
+                    { name: "Salary Calculator", path: "/calculators/finance/calc_salary.html" },
+                    { name: "Savings Goal", path: "/calculators/finance/calc_savings_goal.html" },
+                    { name: "Tax / GST", path: "/calculators/finance/calc_tax_gst.html" },
+                    { name: "Tip Calculator", path: "/calculators/finance/calc_tip_calculator.html" }
+                ]
+            },
+            {
+                cat: "General Math", icon: "fas fa-calculator", tools: [
+                    { name: "Average Calculator", path: "/calculators/general-math/calc_average.html" },
+                    { name: "Fractions Calculator", path: "/calculators/general-math/calc_fractions.html" },
+                    { name: "Math Toolkit", path: "/calculators/general-math/calc_math_toolkit.html" },
+                    { name: "Percentage", path: "/calculators/general-math/calc_percentage.html" },
+                    { name: "Programmer", path: "/calculators/general-math/calc_programmer.html" },
+                    { name: "Scientific Calc", path: "/calculators/general-math/calc_scientific.html" },
+                    { name: "Standard Calc", path: "/calculators/general-math/calc_standard.html" },
+                    { name: "Password Generator", path: "/calculators/general-math/tool_password.html" }
                 ]
             },
             {
                 cat: "Health & Fitness", icon: "fas fa-heartbeat", tools: [
                     { name: "BMI Calculator", path: "/calculators/health-fitness/calc_bmi.html" },
                     { name: "BMR Calculator", path: "/calculators/health-fitness/calc_bmr.html" },
-                    { name: "Body Fat", path: "/calculators/health-fitness/calc_body_fat.html" },
+                    { name: "Body Fat %", path: "/calculators/health-fitness/calc_body_fat.html" },
                     { name: "Calorie Calc", path: "/calculators/health-fitness/calc_calorie.html" },
+                    { name: "Calorie Tracker Pro", path: "/calculators/health-fitness/calc_calorie-calculator.html" },
                     { name: "Ovulation", path: "/calculators/health-fitness/calc_ovulation.html" },
-                    { name: "Pregnancy", path: "/calculators/health-fitness/calc_pregnancy.html" },
+                    { name: "Pregnancy Due Date", path: "/calculators/health-fitness/calc_pregnancy.html" },
                     { name: "Water Intake", path: "/calculators/health-fitness/calc_water.html" }
-                ]
-            },
-            {
-                cat: "Students", icon: "fas fa-graduation-cap", tools: [
-                    { name: "Geometry", path: "/calculators/students/calc_geometry.html" },
-                    { name: "GPA Calculator", path: "/calculators/students/calc_gpa.html" },
-                    { name: "Grade Weighted", path: "/calculators/students/calc_grade_weighted.html" },
-                    { name: "Mensuration", path: "/calculators/students/calc_mensuration.html" },
-                    { name: "Pomodoro", path: "/calculators/students/calc_pomodoro.html" },
-                    { name: "Quadratic", path: "/calculators/students/calc_quadratic.html" },
-                    { name: "Statistics", path: "/calculators/students/calc_statistics.html" },
-                    { name: "Unit Converter", path: "/calculators/students/calc_unit_conv.html" }
                 ]
             },
             {
                 cat: "Network Tools", icon: "fas fa-network-wired", tools: [
                     { name: "DNS Lookup", path: "/calculators/network/tool_dns_lookup.html" },
+                    { name: "IP Geolocation", path: "/calculators/network/tool_ip_geo.html" },
                     { name: "Ping Test", path: "/calculators/network/tool_ping.html" },
                     { name: "Port Scanner", path: "/calculators/network/tool_port_scanner.html" },
                     { name: "Subnet Calc", path: "/calculators/network/calc_subnet.html" },
+                    { name: "Traceroute Tool", path: "/calculators/network/tool_traceroute.html" },
                     { name: "Whois Lookup", path: "/calculators/network/tool_whois.html" }
                 ]
             },
             {
-                cat: "Text & Web", icon: "fas fa-code", tools: [
+                cat: "Students", icon: "fas fa-graduation-cap", tools: [
+                    { name: "Geometry Calc", path: "/calculators/students/calc_geometry.html" },
+                    { name: "GPA Calculator", path: "/calculators/students/calc_gpa.html" },
+                    { name: "Grade Weighted", path: "/calculators/students/calc_grade_weighted.html" },
+                    { name: "Mensuration", path: "/calculators/students/calc_mensuration.html" },
+                    { name: "Pomodoro Timer", path: "/calculators/students/calc_pomodoro.html" },
+                    { name: "Quadratic Equation", path: "/calculators/students/calc_quadratic.html" },
+                    { name: "Statistics", path: "/calculators/students/calc_statistics.html" },
+                    { name: "Unit Converter", path: "/calculators/students/calc_unit_conv.html" }
+                ]
+            },
+            {
+                cat: "Text & Web", icon: "fas fa-keyboard", tools: [
                     { name: "Case Converter", path: "/calculators/text-web/tool_case_converter.html" },
                     { name: "Lorem Ipsum", path: "/calculators/text-web/tool_lorem_ipsum.html" },
-                    { name: "Password Gen", path: "/calculators/text-web/tool_password.html" },
+                    { name: "Password Strength", path: "/calculators/text-web/tool_password.html" },
                     { name: "Word Counter", path: "/calculators/text-web/tool_word_counter.html" }
                 ]
             },
@@ -195,11 +221,11 @@
             {
                 cat: "Fun Tools", icon: "fas fa-face-grin-tears", tools: [
                     { name: "Coin Flipper", path: "/calculators/fun/calc_coin_flipper.html" },
+                    { name: "Compatibility Test", path: "/calculators/fun/calc_compatibility.html" },
                     { name: "Dice Roller", path: "/calculators/fun/calc_dice_roller.html" },
                     { name: "FLAMES Game", path: "/calculators/fun/calc_flames.html" },
                     { name: "Fortune Cookie", path: "/calculators/fun/calc_fortune_cookie.html" },
-                    { name: "Love Calc", path: "/calculators/fun/calc_love.html" },
-                    { name: "Love Compatibility", path: "/calculators/fun/calc_compatibility.html" },
+                    { name: "Love Calculator", path: "/calculators/fun/calc_love.html" },
                     { name: "Magic 8 Ball", path: "/calculators/fun/calc_magic_8_ball.html" },
                     { name: "Number Guesser", path: "/calculators/fun/calc_number_guesser.html" },
                     { name: "Random Number", path: "/calculators/fun/calc_random_number.html" },
@@ -208,18 +234,41 @@
             }
         ];
 
-        function renderCatalog() {
+        async function renderCatalog() {
+            let disabledTools = [];
+            try {
+                // 1. Try Cache First
+                const cached = localStorage.getItem('smartHub.settings.cache');
+                if (cached) {
+                    const s = JSON.parse(cached);
+                    if (s.disabledTools) disabledTools = s.disabledTools;
+                } else {
+                    // 2. Fallback Fetch
+                    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000' : 'https://smart-hub-f5gw.onrender.com';
+                    const res = await fetch(`${API_URL}/api/admin/client/settings`);
+                    if (res.ok) {
+                        const s = await res.json();
+                        if (s.disabledTools) disabledTools = s.disabledTools;
+                        localStorage.setItem('smartHub.settings.cache', JSON.stringify(s));
+                    }
+                }
+            } catch (e) { console.error("Failed to load visibility settings", e); }
+
             const grid = document.getElementById('catalogGrid');
-            grid.innerHTML = TOOLS_CATALOG.map(c => `
+            grid.innerHTML = TOOLS_CATALOG.map(c => {
+                const visibleTools = c.tools.filter(t => !disabledTools.includes(t.path));
+                if (visibleTools.length === 0) return '';
+
+                return `
                 <div class="tool-category">
                     <div class="category-title"><i class="${c.icon}"></i> ${c.cat}</div>
                     <div class="cat-card">
-                        <div class="sub-cat-list">
-                            ${c.tools.map(t => `<a href="${t.path}" class="calc-link">${t.name} <i class="fa-solid fa-chevron-right arrow"></i></a>`).join('')}
+                        <div class="sub-cat-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:10px; border:none;">
+                            ${visibleTools.map(t => `<a href="${t.path}" class="calc-link" style="padding:15px; border-radius:12px; background:var(--bg-main); border:1px solid var(--border-color); text-decoration:none; color:var(--text-color); display:flex; justify-content:space-between; align-items:center;">${t.name} <i class="fa-solid fa-chevron-right arrow" style="opacity:0.5; font-size:0.8rem;"></i></a>`).join('')}
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function searchTools() {
@@ -239,7 +288,8 @@
         document.addEventListener('DOMContentLoaded', renderCatalog);
     </script>
     <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
-    <script src="/js/app.js"></script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
     <script src="/js/custom.js"></script>
 </body>
 

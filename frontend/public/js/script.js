@@ -40,7 +40,9 @@ window.CALCULATORS_DATA = [
     },
     {
         category: "Cryptography", icon: "fas fa-vault", items: [
-            { name: "MD5 Generator", link: "/calculators/cryptography/tool_md5_generator.html" }
+            { name: "MD5 Generator", link: "/calculators/cryptography/tool_md5_generator.html" },
+            { name: "SHA-256 Generator", link: "/calculators/cryptography/tool_sha256_generator.html" },
+            { name: "Base64 Encoder/Decoder", link: "/calculators/cryptography/tool_base64.html" }
         ]
     },
     {
@@ -58,6 +60,7 @@ window.CALCULATORS_DATA = [
     {
         category: "Electronics", icon: "fas fa-microchip", items: [
             { name: "555 Timer", link: "/calculators/electronics/calc_555_timer.html" },
+            { name: "Battery Life", link: "/calculators/electronics/calc_battery_life.html" },
             { name: "Capacitor Code", link: "/calculators/electronics/calc_capacitor_code.html" },
             { name: "Frequency & Wavelength", link: "/calculators/electronics/calc_frequency.html" },
             { name: "LED Resistor", link: "/calculators/electronics/calc_led_resistor_calculator.html" },
@@ -136,7 +139,8 @@ window.CALCULATORS_DATA = [
             { name: "Case Converter", link: "/calculators/text-web/tool_case_converter.html" },
             { name: "Lorem Ipsum Generator", link: "/calculators/text-web/tool_lorem_ipsum.html" },
             { name: "Password Strength", link: "/calculators/text-web/tool_password.html" },
-            { name: "Word Counter", link: "/calculators/text-web/tool_word_counter.html" }
+            { name: "Word Counter", link: "/calculators/text-web/tool_word_counter.html" },
+            { name: "URL Encoder/Decoder", link: "/calculators/text-web/tool_url_encoder.html" }
         ]
     },
     {
@@ -403,6 +407,23 @@ function updateUserInterface() {
 
             authContainer.innerHTML = `
                 <div class="header-group">
+                    <div class="notification-wrapper" style="position: relative;">
+                        <button class="btn-icon" style="margin-right: 5px; position: relative; border:none;" title="Notifications" onclick="document.getElementById('notif-dropdown').classList.toggle('active'); event.stopPropagation();">
+                            <i class="far fa-bell"></i>
+                            <span style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 1px solid var(--bg-card);"></span>
+                        </button>
+                        <div class="profile-dropdown" id="notif-dropdown" style="right: -10px; width: 300px;">
+                            <div class="profile-dropdown-header">
+                                <span style="font-weight: 700; color: var(--text-header);">Notifications</span>
+                            </div>
+                            <div class="profile-dropdown-body">
+                                <div class="dropdown-item" style="cursor: default; justify-content: center; opacity: 0.6; padding: 20px; flex-direction: column;">
+                                    <i class="far fa-bell-slash" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                    <span>No new notifications</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="profile-menu-container">
                         <div class="profile-trigger" onclick="window.toggleProfileDropdown(event)">
                             <div class="avatar-wrapper">
@@ -416,8 +437,8 @@ function updateUserInterface() {
                             <div class="profile-dropdown-header">
                                 <div class="profile-name">${escapeHTML(user.name) || 'Smart User'}</div>
                                 <div class="profile-email">${escapeHTML(user.email) || 'user@smarthub.com'}</div>
-                                <div style="font-size: 0.65rem; opacity: 0.5; margin-top: 2px;">ID: ${user.id || 'N/A'}</div>
-                                ${user.role === 'admin' ? '<span class="admin-badge" style="background:var(--primary-color);color:white;font-size:0.65rem;padding:2px 6px;border-radius:10px;margin-top:5px;display:inline-block;">ADMIN</span>' : ''}
+                                <div style="font-family: monospace; font-size: 0.7rem; opacity: 0.6; margin-top: 4px; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; word-break: break-all;">ID: ${user.id || 'N/A'}</div>
+                                ${user.role === 'admin' ? '<div style="margin-top:8px"><span class="admin-badge" style="background:var(--primary-color);color:white;font-size:0.65rem;padding:3px 8px;border-radius:12px;display:inline-block;letter-spacing:1px"><i class="fas fa-crown" style="margin-right:4px"></i>ADMIN</span></div>' : ''}
                             </div>
                             <div class="profile-dropdown-body">
                                 <a href="/settings.html" class="dropdown-item">
@@ -427,8 +448,8 @@ function updateUserInterface() {
                                     <i class="fas fa-history"></i> My Calculations
                                 </a>
                                 ${user.role === 'admin' ? `<a href="/admin.html" class="dropdown-item"><i class="fas fa-shield-alt"></i> Admin Panel</a>` : ''}
-                                <div class="dropdown-divider" style="height:1px; background:var(--border-color); margin:8px 0;"></div>
-                                <a href="javascript:void(0)" class="dropdown-item logout-item" onclick="confirmLogout()" style="color:#ef4444;">
+                                <div class="dropdown-divider" style="height:1px; background:var(--border-color); margin:8px 0; opacity:0.5;"></div>
+                                <a href="javascript:void(0)" class="dropdown-item logout-item" onclick="confirmLogout()">
                                     <i class="fas fa-sign-out-alt"></i> Sign Out
                                 </a>
                             </div>

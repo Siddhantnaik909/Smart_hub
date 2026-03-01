@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Battery Life Calculator</title>
+    <div id="head-links"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            <div class="page-body">
+                <div class="container">
+                    <h1>Battery Life Calculator</h1>
+                    <p class="hero-subtitle1">Estimate how long your battery will last under a specific load.</p>
+
+                    <div class="calc-card fade-in">
+                        <div class="form-group">
+                            <label><i class="fas fa-battery-full"></i> Battery Capacity (mAh)</label>
+                            <input type="number" id="capacity" placeholder="e.g. 3000">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-bolt"></i> Device Consumption (mA)</label>
+                            <input type="number" id="consumption" placeholder="e.g. 500">
+                        </div>
+                        
+                        <button class="btn-calc" onclick="calculateBattery()">Calculate Runtime</button>
+                        
+                        <div id="results" class="result-box" style="display:none;">
+                            <h3><i class="fas fa-clock"></i> Estimated Runtime</h3>
+                            <div id="result-rows"></div>
+                            <div class="button-group">
+                                <button class="btn-save" id="btn-save"><i class="fas fa-save"></i> Save Result</button>
+                                <button class="btn-reset" id="btn-reset"><i class="fas fa-redo"></i> Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calc-info-box fade-in delay-1">
+                        <h4><i class="fas fa-info-circle"></i> How it works</h4>
+                        <p>This calculator estimates runtime based on capacity and load.</p>
+                        <ul>
+                            <li><strong>Capacity:</strong> The total energy storage in milliamp-hours (mAh).</li>
+                            <li><strong>Consumption:</strong> The current draw of your device in milliamps (mA).</li>
+                            <li><strong>Efficiency:</strong> A 70% efficiency factor is applied to account for real-world conditions (heat, age, conversion loss).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </main>
+    </div>
+
+    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
+    <script src="/js/component-loader.js"></script>
+    <script src="/js/calc-utils.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script>
+        function calculateBattery() {
+            const capacity = parseFloat(document.getElementById('capacity').value);
+            const consumption = parseFloat(document.getElementById('consumption').value);
+
+            if (!capacity || !consumption || consumption <= 0) {
+                alert("Please enter valid positive numbers.");
+                return;
+            }
+
+            // Formula: (Capacity * Efficiency) / Consumption
+            const efficiency = 0.7;
+            const hours = (capacity * efficiency) / consumption;
+            
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            const timeStr = `${h} hours ${m} minutes`;
+
+            const rows = [
+                { label: "Battery Capacity", val: capacity + " mAh" },
+                { label: "Device Load", val: consumption + " mA" },
+                { label: "Efficiency Factor", val: "70% (Safe Estimate)" },
+                { label: "Estimated Runtime", val: timeStr, highlight: true }
+            ];
+
+            window.showResultCard('results');
+            window.renderResults('result-rows', rows);
+
+            // Setup save button
+            const saveBtn = document.getElementById('btn-save');
+            const newBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            
+            newBtn.addEventListener('click', () => {
+                const inputs = [{ label: "Capacity", val: capacity + " mAh" }, { label: "Load", val: consumption + " mA" }];
+                const ok = window.saveCalcToHistory("Battery Life Calculator", inputs, rows);
+                if(ok) {
+                    const orig = newBtn.innerHTML;
+                    newBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                    newBtn.style.background = '#10b981';
+                    setTimeout(() => { newBtn.innerHTML = orig; newBtn.style.background = ''; }, 2000);
+                }
+            });
+        }
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            document.getElementById('capacity').value = '';
+            document.getElementById('consumption').value = '';
+            document.getElementById('results').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

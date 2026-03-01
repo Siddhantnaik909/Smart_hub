@@ -1,129 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Chronos Analytics Elite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Age Calculator Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
     <style>
-        .stat-row { opacity: 0; transform: translateX(-20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .stat-row.show { opacity: 1; transform: translateX(0); }
-        
-        .forecast-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
-        .forecast-table th { text-align: left; padding: 10px; border-bottom: 2px solid var(--accent-color); color: var(--accent-color); }
-        .forecast-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        
-        .badge-day {
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: bold;
-            font-size: 0.75rem;
+        .calc-wrapper {
+            max-width: 740px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .life-progress-container {
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            height: 12px;
-            width: 100%;
-            margin: 15px 0;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
         }
-        .life-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-color), #00ffcc);
-            width: 0%;
-            transition: width 2s cubic-bezier(0.65, 0, 0.35, 1);
-            box-shadow: 0 0 10px var(--accent-color);
+
+        .live-counter-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
         }
 
         .live-counter {
-            font-family: 'monospace';
-            color: var(--accent-color);
+            font-family: 'Space Mono', monospace;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.2rem;
-            text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
+        }
+
+        .stat-data h5 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-data p {
+            margin: 5px 0 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .life-progress-container {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 15px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #10b981);
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        #resultsArea {
+            display: none;
+        }
+
+        #resultsArea.visible {
+            display: block;
+            animation: calcFadeUp 0.5s ease;
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard-layout" id="dashboard-wrapper">
         <div class="overlay" id="mobile-overlay"></div>
         <div id="sidebar-placeholder"></div>
-        
         <main class="main-content">
             <div id="header-placeholder"></div>
             <div class="page-body">
                 <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-infinity"></i> Chronos Analytics Elite</h2>
-                            <p>Deep-time mapping and real-time biological aging.</p>
+
+                    <div class="calc-wrapper">
+                        <div class="cat-card hero-banner">
+                            <i class="fas fa-fingerprint"
+                                style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                            <h2 style="margin:0 0 10px; font-size:1.8rem;">Chronos Age Analytics</h2>
+                            <p style="opacity:0.8; margin:0 auto; max-width:400px;">Calculate exact age down to the
+                                second, upcoming milestones, and biological life progress.</p>
                         </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span><i class="fa-solid fa-cake-candles"></i> Birth Date</span>
-                                <input type="date" id="dob-input" class="form-control">
+
+                        <div class="cat-card">
+                            <div class="sub-cat-list">
+                                <div class="sub-link">
+                                    <span><i class="fas fa-calendar-alt" style="color:#6366f1;width:20px;"></i> Date of
+                                        Birth</span>
+                                    <input type="date" id="dobVal" class="form-control"
+                                        style="flex:1; max-width:250px;">
+                                </div>
+                                <div class="sub-link">
+                                    <span><i class="fas fa-clock" style="color:#10b981;width:20px;"></i> Time of Birth
+                                        (Optional)</span>
+                                    <input type="time" id="tobVal" class="form-control" value="00:00"
+                                        style="flex:1; max-width:250px;">
+                                </div>
+                                <button id="calcBtn" class="btn-calc"><i class="fas fa-play"></i> Initialize
+                                    Scan</button>
                             </div>
-                            <div class="sub-link">
-                                <span><i class="fa-solid fa-clock"></i> Birth Time</span>
-                                <input type="time" id="tob-input" class="form-control" value="00:00">
-                            </div>
-                            <button id="run-elite-scan" class="btn-calc">Initialize Chronos Scan</button>
                         </div>
+
+                        <div id="resultsArea">
+                            <div class="live-counter-box">
+                                <h3
+                                    style="margin:0; font-size: 1rem; color: var(--text-muted); text-transform:uppercase; letter-spacing:1px;">
+                                    <i class="fas fa-satellite-dish"></i> Real-time Age Tracking</h3>
+                                <div class="live-counter" id="liveCounter">
+                                    --
+                                </div>
+                            </div>
+
+                            <div class="stat-grid" id="statGrid"></div>
+
+                            <div class="life-progress-container">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <h4 style="margin:0;"><i class="fas fa-heartbeat"
+                                                style="color:#ef4444; margin-right:8px;"></i> Life Progress Path</h4>
+                                        <p style="margin:5px 0 0; font-size:0.85rem; color:var(--text-muted);">Based on
+                                            global average life expectancy (73.4 years)</p>
+                                    </div>
+                                    <strong id="lifePct"
+                                        style="font-size:1.5rem; color:var(--primary-color);">0%</strong>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill" id="lifeBar"></div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:20px;">
+                                <button id="saveBtn" class="btn-save" style="width:100%"><i class="fas fa-save"></i>
+                                    Save Analytics to History</button>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        
-                        <h3><i class="fa-solid fa-stopwatch"></i> Live Precise Age</h3>
-                        <div class="sub-cat-list">
-                            <div class="sub-link" style="justify-content: center; padding: 20px;">
-                                <div id="live-age-counter" class="live-counter">Select Birth Date...</div>
-                            </div>
-                        </div>
-
-                        <h3><i class="fa-solid fa-hourglass-half"></i> Life Remaining Analysis</h3>
-                        <div class="sub-cat-list">
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
-                                <div style="display:flex; justify-content: space-between; width:100%;">
-                                    <span>Life Path Progress (Based on 80y Average)</span>
-                                    <strong id="life-percent-text">0%</strong>
-                                </div>
-                                <div class="life-progress-container">
-                                    <div id="life-progress-bar" class="life-progress-bar"></div>
-                                </div>
-                                <small id="life-remaining-text" style="opacity: 0.7;"></small>
-                            </div>
-                        </div>
-
-                        <h3 style="margin-top:25px;"><i class="fa-solid fa-chart-line"></i> Timeline Stats</h3>
-                        <div class="sub-cat-list" id="elite-metrics"></div>
-
-                        <h3 style="margin-top:25px;"><i class="fa-solid fa-calendar-days"></i> 10-Year Birthday Forecast</h3>
-                        <table class="forecast-table">
-                            <thead>
-                                <tr>
-                                    <th>Year</th>
-                                    <th>Age</th>
-                                    <th>Day of Week</th>
-                                </tr>
-                            </thead>
-                            <tbody id="forecast-body"></tbody>
-                        </table>
-
-                        <button id="save-report" class="btn-save" style="margin-top:25px;">
-                            <i class="fa-solid fa-save"></i> Export Chronos Report
-                        </button>
-                    </div>
                 </section>
                 <div id="footer-placeholder"></div>
             </div>
@@ -131,103 +251,119 @@
     </div>
 
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
+        let _liveInt = null;
+        let _lastInputs = null;
+        let _lastResults = null;
 
-        let updateInterval;
+        document.getElementById('calcBtn').addEventListener('click', () => {
+            const dob = document.getElementById('dobVal').value;
+            const tob = document.getElementById('tobVal').value;
+            if (!dob) { alert("Please select a date of birth."); return; }
 
-        document.getElementById('run-elite-scan').addEventListener('click', function() {
-            const dobVal = document.getElementById('dob-input').value;
-            const tobVal = document.getElementById('tob-input').value;
-            if (!dobVal) return;
+            const birthDate = new Date(`${dob}T${tob || '00:00'}`);
+            if (birthDate > new Date()) { alert("Birth date cannot be in the future."); return; }
 
-            const birth = new Date(`${dobVal}T${tobVal}`);
-            const resultsDiv = document.getElementById('results');
-            
-            resultsDiv.style.display = 'block';
-            resultsDiv.classList.remove('hidden');
+            // Show results section
+            document.getElementById('resultsArea').classList.add('visible');
 
-            // 1. Live Precise Age Counter
-            if(updateInterval) clearInterval(updateInterval);
-            updateInterval = setInterval(() => {
+            // 1. Live ticker
+            if (_liveInt) clearInterval(_liveInt);
+            const counterEl = document.getElementById('liveCounter');
+
+            const updateTicker = () => {
                 const now = new Date();
-                const diff = now - birth;
+                let diff = now - birthDate;
 
-                const yrs = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-                const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
-                const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                // Calculate precise breakdowns
+                const y = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+                diff -= y * (1000 * 60 * 60 * 24 * 365.25);
 
-                document.getElementById('live-age-counter').innerText = 
-                    `${yrs}Y ${days}D ${hrs}H ${mins}M ${secs}S`;
-            }, 1000);
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff -= d * (1000 * 60 * 60 * 24);
 
-            // 2. Life Remaining Logic
-            const avgLife = 80;
-            const ageYears = (new Date() - birth) / (1000 * 60 * 60 * 24 * 365.25);
-            const progress = Math.min((ageYears / avgLife) * 100, 100);
-            
-            const bar = document.getElementById('life-progress-bar');
-            bar.style.width = '0%';
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                diff -= h * (1000 * 60 * 60);
+
+                const m = Math.floor(diff / (1000 * 60));
+                diff -= m * (1000 * 60);
+
+                const s = Math.floor(diff / 1000);
+
+                counterEl.innerHTML = `
+                    <div class="time-unit">${y} <span class="time-label">Years</span></div><div style="opacity:0.2">:</div>
+                    <div class="time-unit">${d} <span class="time-label">Days</span></div><div style="opacity:0.2">:</div>
+                    <div class="time-unit">${h.toString().padStart(2, '0')} <span class="time-label">Hrs</span></div><div style="opacity:0.2">:</div>
+                    <div class="time-unit">${m.toString().padStart(2, '0')} <span class="time-label">Min</span></div><div style="opacity:0.2">:</div>
+                    <div class="time-unit">${s.toString().padStart(2, '0')} <span class="time-label">Sec</span></div>
+                `;
+            };
+            updateTicker();
+            _liveInt = setInterval(updateTicker, 1000);
+
+            // 2. Exact statistics
+            const now = new Date();
+            const totalDays = Math.floor((now - birthDate) / 86400000);
+            const totalWeeks = Math.floor(totalDays / 7);
+            const nextBday = new Date(now.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            if (now > nextBday) nextBday.setFullYear(now.getFullYear() + 1);
+            const daysToBday = Math.ceil((nextBday - now) / 86400000);
+
+            const grid = document.getElementById('statGrid');
+            const stats = [
+                { i: 'fa-calendar-day', c: '#6366f1', l: 'Total Days Alive', v: totalDays.toLocaleString() },
+                { i: 'fa-calendar-week', c: '#10b981', l: 'Total Weeks', v: totalWeeks.toLocaleString() },
+                { i: 'fa-cake-candles', c: '#f59e0b', l: 'Next Birthday', v: `In ${daysToBday} days` },
+                { i: 'fa-star', c: '#8b5cf6', l: 'Day of Birth', v: birthDate.toLocaleDateString('en-US', { weekday: 'long' }) },
+            ];
+            grid.innerHTML = stats.map(s => `
+                <div class="stat-card">
+                    <div class="stat-icon" style="color:${s.c}; background:${s.c}20"><i class="fas ${s.i}"></i></div>
+                    <div class="stat-data"><h5>${s.l}</h5><p>${s.v}</p></div>
+                </div>
+            `).join('');
+
+            // 3. Life Progress Bar
+            const avgLifeDays = 73.4 * 365.25;
+            const pct = Math.min((totalDays / avgLifeDays) * 100, 100).toFixed(2);
             setTimeout(() => {
-                bar.style.width = progress.toFixed(1) + '%';
-                document.getElementById('life-percent-text').innerText = progress.toFixed(1) + '%';
+                document.getElementById('lifeBar').style.width = `${pct}%`;
+                document.getElementById('lifePct').innerText = `${pct}%`;
             }, 100);
 
-            document.getElementById('life-remaining-text').innerText = 
-                `Approx. ${(avgLife - ageYears).toFixed(2)} years remaining in the standard life cycle.`;
-
-            // 3. Static Metrics & Forecast
-            renderMetrics(birth);
-            renderForecast(birth);
+            // Prepare history save state
+            _lastInputs = [
+                { label: 'Date of Birth', val: birthDate.toLocaleDateString() },
+                { label: 'Time of Birth', val: tob || 'Not set' }
+            ];
+            _lastResults = [
+                { label: 'Age Summary', val: `${Math.floor((now - birthDate) / (1000 * 60 * 60 * 24 * 365.25))} Years`, highlight: true },
+                { label: 'Total Days Alive', val: totalDays.toLocaleString() },
+                { label: 'Next Birthday', val: `In ${daysToBday} days` },
+                { label: 'Life Progress (Avg)', val: `${pct}% completed` }
+            ];
         });
 
-        function renderMetrics(birth) {
-            const now = new Date();
-            const totalDays = Math.floor((now - birth) / 86400000);
-            const metrics = [
-                { l: "Total Leap Years", v: countLeaps(birth.getFullYear(), now.getFullYear()) },
-                { l: "Age in Martian Years", v: ((now-birth)/(1000*60*60*24*687)).toFixed(2) },
-                { l: "Day of Birth", v: birth.toLocaleDateString('en-US', {weekday: 'long'}) }
-            ];
-            const area = document.getElementById('elite-metrics');
-            area.innerHTML = '';
-            metrics.forEach((m, i) => {
-                const div = document.createElement('div');
-                div.className = 'sub-link stat-row';
-                div.innerHTML = `<span>${m.l}</span><strong>${m.v}</strong>`;
-                area.appendChild(div);
-                setTimeout(() => div.classList.add('show'), i * 150);
-            });
-        }
-
-        function renderForecast(birth) {
-            const body = document.getElementById('forecast-body');
-            body.innerHTML = '';
-            const currentYear = new Date().getFullYear();
-            for (let i = 1; i <= 10; i++) {
-                const yr = currentYear + i;
-                const day = new Date(yr, birth.getMonth(), birth.getDate()).toLocaleDateString('en-US', {weekday: 'long'});
-                const row = document.createElement('tr');
-                row.className = 'stat-row';
-                row.innerHTML = `<td>${yr}</td><td>${yr - birth.getFullYear()}</td><td><span class="badge-day">${day}</span></td>`;
-                body.appendChild(row);
-                setTimeout(() => row.classList.add('show'), (i + 4) * 100);
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            if (!_lastResults) return;
+            const ok = window.saveCalcToHistory('Age Calculator Pro', _lastInputs, _lastResults);
+            if (ok) {
+                const orig = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Saved Analytics!';
+                this.style.background = '#10b981';
+                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
             }
-        }
+        });
 
-        function countLeaps(s, e) {
-            let c = 0;
-            for (let i = s; i <= e; i++) {
-                if ((i % 4 === 0 && i % 100 !== 0) || (i % 400 === 0)) c++;
-            }
-            return c;
-        }
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if (title) title.textContent = 'Age Calculator Pro';
+        });
     </script>
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
+    <script src="/js/calc-utils.js"></script>
     <script src="/js/custom.js"></script>
 </body>
+
 </html>

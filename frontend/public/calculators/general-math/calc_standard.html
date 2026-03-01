@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,39 +9,186 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
     <style>
-        .calc-grid-buttons {
+        .calc-wrapper {
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .premium-calc {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .calc-header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .calc-header-controls h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .history-trigger {
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .history-trigger:hover {
+            opacity: 1;
+        }
+
+        .display-container {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 2px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .display-expression {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            min-height: 24px;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .display-main {
+            font-size: 3.5rem;
+            font-weight: 300;
+            color: #fff;
+            background: transparent;
+            border: none;
+            text-align: right;
+            width: 100%;
+            outline: none;
+            letter-spacing: -1px;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .calc-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 14px;
         }
-        .calc-btn {
-            padding: 20px;
-            font-size: 1.2rem;
-            border: 1px solid var(--border-color);
-            background: var(--bg-main);
-            color: var(--text-header);
-            border-radius: 12px;
+
+        .btn-glass {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
         }
-        .calc-btn:hover { background: var(--bg-hover); transform: translateY(-2px); }
-        .calc-btn.operator { background: rgba(99, 102, 241, 0.1); color: var(--primary-color); font-weight: bold; }
-        .calc-btn.equal { background: var(--primary-gradient); color: white; grid-column: span 2; }
-        .calc-btn.clear { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        #display {
-            width: 100%;
-            padding: 20px;
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .btn-glass:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-op {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border-color: rgba(99, 102, 241, 0.2);
+            font-size: 1.8rem;
+        }
+
+        .btn-op:hover {
+            background: rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-action {
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .btn-action:hover {
+            background: rgba(244, 63, 94, 0.2);
+        }
+
+        .btn-eq {
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
             font-size: 2rem;
-            text-align: right;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            background: var(--bg-main);
-            color: var(--text-header);
-            font-family: monospace;
+        }
+
+        .btn-eq:hover {
+            background: linear-gradient(135deg, #4f46e5, #6d28d9);
+            box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+            aspect-ratio: auto;
+            border-radius: 40px;
+            justify-content: flex-start;
+            padding-left: 32px;
+        }
+
+        /* Responsive scaling */
+        @media (max-width: 480px) {
+            .premium-calc {
+                padding: 16px;
+                border-radius: 24px;
+            }
+
+            .calc-grid {
+                gap: 10px;
+            }
+
+            .btn-glass {
+                font-size: 1.2rem;
+            }
+
+            .display-main {
+                font-size: 2.8rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard-layout" id="dashboard-wrapper">
         <div class="overlay" id="mobile-overlay"></div>
@@ -48,71 +196,197 @@
         <main class="main-content">
             <div id="header-placeholder"></div>
             <div class="page-body">
-                <div class="container" style="max-width: 400px;">
-                    <div class="calc-card fade-in">
-                        <input type="text" id="display" readonly value="0">
-                        <div class="calc-grid-buttons">
-                            <button class="calc-btn clear" onclick="clearDisplay()">C</button>
-                            <button class="calc-btn operator" onclick="appendOperator('/')">÷</button>
-                            <button class="calc-btn operator" onclick="appendOperator('*')">×</button>
-                            <button class="calc-btn operator" onclick="deleteLast()"><i class="fas fa-backspace"></i></button>
-                            
-                            <button class="calc-btn" onclick="appendNumber('7')">7</button>
-                            <button class="calc-btn" onclick="appendNumber('8')">8</button>
-                            <button class="calc-btn" onclick="appendNumber('9')">9</button>
-                            <button class="calc-btn operator" onclick="appendOperator('-')">-</button>
-                            
-                            <button class="calc-btn" onclick="appendNumber('4')">4</button>
-                            <button class="calc-btn" onclick="appendNumber('5')">5</button>
-                            <button class="calc-btn" onclick="appendNumber('6')">6</button>
-                            <button class="calc-btn operator" onclick="appendOperator('+')">+</button>
-                            
-                            <button class="calc-btn" onclick="appendNumber('1')">1</button>
-                            <button class="calc-btn" onclick="appendNumber('2')">2</button>
-                            <button class="calc-btn" onclick="appendNumber('3')">3</button>
-                            <button class="calc-btn equal" onclick="calculate()">=</button>
-                            
-                            <button class="calc-btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
-                            <button class="calc-btn" onclick="appendNumber('.')">.</button>
+                <section class="container fade-in">
+
+                    <div class="calc-wrapper">
+                        <div class="premium-calc stagger-1">
+                            <div class="calc-header-controls">
+                                <h3><i class="fas fa-calculator" style="margin-right:6px"></i> Standard</h3>
+                                <button class="history-trigger" onclick="window.location.href='/history.html'"
+                                    title="View History">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                            </div>
+
+                            <div class="display-container">
+                                <div class="display-expression" id="exprBox"></div>
+                                <input type="text" class="display-main" id="displayBox" value="0" readonly>
+                            </div>
+
+                            <div class="calc-grid">
+                                <button class="btn-glass btn-action" onclick="app.clearAll()">AC</button>
+                                <button class="btn-glass btn-action" onclick="app.deleteLast()"><i
+                                        class="fas fa-arrow-left"></i></button>
+                                <button class="btn-glass btn-op" onclick="app.appendOp('%')">%</button>
+                                <button class="btn-glass btn-op" onclick="app.appendOp('/')">÷</button>
+
+                                <button class="btn-glass" onclick="app.appendNum('7')">7</button>
+                                <button class="btn-glass" onclick="app.appendNum('8')">8</button>
+                                <button class="btn-glass" onclick="app.appendNum('9')">9</button>
+                                <button class="btn-glass btn-op" onclick="app.appendOp('*')">×</button>
+
+                                <button class="btn-glass" onclick="app.appendNum('4')">4</button>
+                                <button class="btn-glass" onclick="app.appendNum('5')">5</button>
+                                <button class="btn-glass" onclick="app.appendNum('6')">6</button>
+                                <button class="btn-glass btn-op" onclick="app.appendOp('-')">−</button>
+
+                                <button class="btn-glass" onclick="app.appendNum('1')">1</button>
+                                <button class="btn-glass" onclick="app.appendNum('2')">2</button>
+                                <button class="btn-glass" onclick="app.appendNum('3')">3</button>
+                                <button class="btn-glass btn-op" onclick="app.appendOp('+')">+</button>
+
+                                <button class="btn-glass btn-zero" onclick="app.appendNum('0')">0</button>
+                                <button class="btn-glass" onclick="app.appendNum('.')">.</button>
+                                <button class="btn-glass btn-eq" onclick="app.calculate()">=</button>
+                            </div>
                         </div>
+
+                        <!-- We use a hidden save button just for compatibility with the utility or history saving if needed -->
+                        <button id="saveBtn" style="display:none"></button>
                     </div>
-                </div>
+
+                </section>
+                <div id="footer-placeholder"></div>
             </div>
-            <div id="footer-placeholder"></div>
         </main>
     </div>
+
     <script>
-        let currentInput = '0';
-        
-        function updateDisplay() {
-            document.getElementById('display').value = currentInput;
-        }
+        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
 
-        function appendNumber(num) {
-            if (currentInput === '0' && num !== '.') currentInput = num;
-            else currentInput += num;
-            updateDisplay();
-        }
+        const app = {
+            cur: '0',
+            prev: '',
+            op: null,
+            resetNext: false,
 
-        function appendOperator(op) {
-            const lastChar = currentInput.slice(-1);
-            if (['+', '-', '*', '/'].includes(lastChar)) currentInput = currentInput.slice(0, -1);
-            currentInput += op;
-            updateDisplay();
-        }
+            update() {
+                const box = document.getElementById('displayBox');
+                // Auto scale font size based on length
+                if (this.cur.length > 9) box.style.fontSize = '2.2rem';
+                else if (this.cur.length > 7) box.style.fontSize = '2.8rem';
+                else box.style.fontSize = '3.5rem';
 
-        function clearDisplay() { currentInput = '0'; updateDisplay(); }
-        function deleteLast() { currentInput = currentInput.slice(0, -1) || '0'; updateDisplay(); }
-        
-        function calculate() {
-            try {
-                currentInput = eval(currentInput).toString();
-                updateDisplay();
-            } catch { currentInput = 'Error'; updateDisplay(); setTimeout(clearDisplay, 1500); }
-        }
+                // Add commas for thousands
+                if (this.cur !== 'Error' && !this.cur.includes('e')) {
+                    const parts = this.cur.split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    box.value = parts.join('.');
+                } else {
+                    box.value = this.cur;
+                }
+
+                // Show expression
+                let expr = this.prev;
+                if (this.op) {
+                    const opChar = this.op === '/' ? '÷' : this.op === '*' ? '×' : this.op === '-' ? '−' : this.op;
+                    expr += ` ${opChar} `;
+                }
+                document.getElementById('exprBox').innerText = expr;
+            },
+
+            clearAll() {
+                this.cur = '0';
+                this.prev = '';
+                this.op = null;
+                this.resetNext = false;
+                this.update();
+            },
+
+            deleteLast() {
+                if (this.resetNext || this.cur === 'Error') return;
+                this.cur = this.cur.slice(0, -1);
+                if (this.cur === '' || this.cur === '-') this.cur = '0';
+                this.update();
+            },
+
+            appendNum(num) {
+                if (this.resetNext) {
+                    this.cur = num;
+                    this.resetNext = false;
+                } else {
+                    if (this.cur === '0' && num !== '.') this.cur = num;
+                    else if (num === '.' && this.cur.includes('.')) return;
+                    else if (this.cur.replace(/[^0-9]/g, '').length < 15) this.cur += num;
+                }
+                this.update();
+            },
+
+            appendOp(operator) {
+                if (this.cur === 'Error') return;
+
+                if (operator === '%') {
+                    this.cur = (parseFloat(this.cur) / 100).toString();
+                    this.update();
+                    return;
+                }
+
+                if (this.op && !this.resetNext) {
+                    this.calculate(false);
+                }
+
+                this.prev = this.cur;
+                this.op = operator;
+                this.resetNext = true;
+                this.update();
+            },
+
+            calculate(isFinal = true) {
+                if (!this.op || this.cur === 'Error') return;
+
+                const n1 = parseFloat(this.prev);
+                const n2 = parseFloat(this.cur);
+                let res = 0;
+
+                switch (this.op) {
+                    case '+': res = n1 + n2; break;
+                    case '-': res = n1 - n2; break;
+                    case '*': res = n1 * n2; break;
+                    case '/':
+                        if (n2 === 0) { this.cur = 'Error'; this.op = null; this.prev = ''; this.update(); return; }
+                        res = n1 / n2;
+                        break;
+                }
+
+                const finalStr = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(8)).toString();
+
+                // Save to history automatically on equals
+                if (isFinal && window.saveCalcToHistory && this.prev) {
+                    const opStr = this.op === '/' ? '÷' : this.op === '*' ? '×' : this.op === '-' ? '−' : this.op;
+                    window.saveCalcToHistory('Standard Calculator',
+                        [{ label: 'Expression', val: `${n1} ${opStr} ${n2}` }],
+                        [{ label: 'Result', val: finalStr, highlight: true }]
+                    );
+                }
+
+                this.cur = finalStr;
+                if (isFinal) {
+                    this.prev = '';
+                    this.op = null;
+                }
+                this.resetNext = true;
+                this.update();
+            }
+        };
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9' || e.key === '.') app.appendNum(e.key);
+            else if (['+', '-', '*', '/', '%'].includes(e.key)) app.appendOp(e.key);
+            else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); app.calculate(); }
+            else if (e.key === 'Backspace') app.deleteLast();
+            else if (e.key === 'Escape') app.clearAll();
+        });
+
+        document.addEventListener('componentsLoaded', () => {
+            const title = document.getElementById('page-title-display');
+            if (title) title.textContent = 'Standard Calculator';
+        });
     </script>
-    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
-    <script src="/js/app.js"></script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calc-utils.js"></script>
     <script src="/js/custom.js"></script>
 </body>
+
 </html>

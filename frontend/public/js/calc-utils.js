@@ -7,21 +7,59 @@
 window.renderResults = function (containerId, rows) {
     const el = document.getElementById(containerId);
     if (!el) return;
+
+    // Global copy helper if not exists
+    if (!window._copyResultVal) {
+        window._copyResultVal = function(val, btn) {
+            const text = String(val).replace(/<[^>]*>?/gm, '');
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.color = '#10b981';
+                btn.style.borderColor = '#10b981';
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 2000);
+            });
+        };
+    }
+
+    // Global share helper if not exists
+    if (!window._shareResultVal) {
+        window._shareResultVal = function(label, val, btn) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Smart Hub Result',
+                    text: `${label}: ${val}`
+                }).catch(console.error);
+            } else {
+                window._copyResultVal(val, btn);
+            }
+        };
+    }
+
     el.innerHTML = rows.map((r, i) =>
-        `<div class="result-row" id="_rr${i}" style="
-            display:flex;justify-content:space-between;align-items:center;
-            padding:12px 0;border-bottom:1px solid var(--border-color);
-            opacity:0;transform:translateY(16px);transition:all 0.38s ease;">
-            <span style="font-size:0.95rem;color:var(--text-muted)">${r.label}</span>
-            <span style="font-size:${r.highlight ? '1.35rem' : '1.1rem'};font-weight:700;
-                color:${r.highlight ? '#10b981' : 'var(--primary-color)'}">
-                ${r.val}
-            </span>
+        `<div class="result-row" id="_rr${i}">
+            <span class="result-label">${r.label}</span>
+            <div class="result-val-group">
+                <span class="result-val" style="font-size:${r.highlight ? '1.35rem' : '1.1rem'};
+                    color:${r.highlight ? '#10b981' : 'var(--primary-color)'}">
+                    ${r.val}
+                </span>
+                <button class="btn-copy-mini" onclick="window._copyResultVal('${String(r.val).replace(/'/g, "\\'").replace(/\n/g, "\\n")}', this)" title="Copy">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button class="btn-copy-mini" onclick="window._shareResultVal('${String(r.label).replace(/'/g, "\\'")}', '${String(r.val).replace(/'/g, "\\'").replace(/\n/g, "\\n")}', this)" title="Share">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
         </div>`
     ).join('');
     rows.forEach((_, i) => setTimeout(() => {
         const el = document.getElementById(`_rr${i}`);
-        if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }
+        if (el) { el.classList.add('visible'); }
     }, 60 + i * 110));
 };
 
@@ -67,8 +105,11 @@ window.attachSaveBtn = function (btnId, toolName, inputsFn, resultsFn) {
         const ok = window.saveCalcToHistory(toolName, inputs, results);
         if (ok) {
             const orig = btn.innerHTML;
+            btn.style.transition = 'all 0.2s';
+            btn.style.transform = 'scale(0.95)';
             btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
             btn.style.background = '#10b981';
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
             setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
         }
     });
@@ -83,6 +124,44 @@ window.attachSaveBtn = function (btnId, toolName, inputsFn, resultsFn) {
         @keyframes calcFadeUp {
             from { opacity:0; transform:translateY(24px); }
             to   { opacity:1; transform:translateY(0); }
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(16px);
+            transition: all 0.38s ease;
+        }
+        .result-row.visible { opacity: 1; transform: translateY(0); }
+        .result-label { font-size: 0.95rem; color: var(--text-muted); }
+        .result-val-group { display: flex; align-items: center; gap: 12px; text-align: right; }
+        .result-val { font-weight: 700; }
+        .btn-copy-mini {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .btn-copy-mini:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: var(--bg-main);
+        }
+        @media (max-width: 400px) {
+            .result-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .result-val-group { width: 100%; justify-content: space-between; }
         }
         .calc-info-box {
             background: rgba(99,102,241,0.07);

@@ -87,25 +87,46 @@ async function saveCalculation(toolName, inputDetails, outputDetails) {
         data = {
             name: toolName,
             details: `${inputDetails} ➔ ${outputDetails}`,
+            inputs: [{ label: 'Details', val: inputDetails }],
+            results: [{ label: 'Result', val: outputDetails, highlight: true }],
             date: new Date().toLocaleString(),
             timestamp: Date.now()
         };
     } else if (lastCalculationData) {
         data = lastCalculationData;
     } else {
-        // Fallback for calculators that haven't explicitly wired up `setLastCalc`
-        const gatheredInputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), select'))
-            .map(i => i.value)
-            .filter(v => v !== '')
-            .join(', ');
+        // Universal Adapter for legacy calculators without setLastCalc
+        const inputEls = Array.from(document.querySelectorAll('input:not([type="hidden"]), select'))
+            .filter(i => i.value !== '');
 
-        const possibleResultBox = document.querySelector('#results:not(.hidden), #display');
-        let gatheredOutput = possibleResultBox ? possibleResultBox.innerText || possibleResultBox.value : "Calculation Registered";
-        if (!gatheredOutput || gatheredOutput.trim() === '') gatheredOutput = "Success";
+        const inputsArr = inputEls.map(i => {
+            // Try to find a meaningful label
+            let labelText = 'Value';
+            const prev = i.previousElementSibling;
+            if (prev && prev.tagName === 'SPAN') labelText = prev.innerText;
+            else if (prev && prev.tagName === 'LABEL') labelText = prev.innerText;
+            else if (i.placeholder) labelText = i.placeholder;
+            else if (i.id) labelText = i.id;
+
+            // Clean up label text
+            labelText = labelText.replace(/[:]/g, '').trim();
+            return { label: labelText.substring(0, 30), val: i.value };
+        });
+
+        const gatheredInputs = inputEls.map(i => i.value).join(', ');
+
+        const possibleResultBox = document.querySelector('#results:not(.hidden), #display, .result-display');
+        let gatheredOutput = possibleResultBox ? (possibleResultBox.innerText || possibleResultBox.value || '') : "Calculation Registered";
+
+        // Clean up output text (remove button texts and weird whitespace)
+        gatheredOutput = gatheredOutput.replace(/Save Result|Saved!|Save to History|Clear|Calculate/gi, '').trim().replace(/\s+/g, ' ');
+        if (!gatheredOutput) gatheredOutput = "Success";
 
         data = {
-            name: toolName || "General Tool",
-            details: gatheredInputs ? `Input: [${gatheredInputs.substring(0, 40)}] ➔ ${gatheredOutput.substring(0, 40)}` : `Action: ${gatheredOutput.substring(0, 40)}`,
+            name: toolName || document.title.split('|')[1]?.trim() || "General Tool",
+            details: gatheredInputs ? `${gatheredInputs.substring(0, 40)} ➔ ${gatheredOutput.substring(0, 40)}...` : `Action: ${gatheredOutput.substring(0, 40)}`,
+            inputs: inputsArr.length ? inputsArr : [{ label: "Action", val: "Calculation Performed" }],
+            results: [{ label: "Output Summary", val: gatheredOutput.substring(0, 150), highlight: true }],
             date: new Date().toLocaleString(),
             timestamp: Date.now()
         };
@@ -151,6 +172,8 @@ window.setLastCalc = (name, inputStr, outputStr) => {
     lastCalculationData = {
         name: name,
         details: `${inputStr} ➔ ${outputStr}`,
+        inputs: [{ label: "Calculation Params", val: inputStr }],
+        results: [{ label: "Result Output", val: outputStr, highlight: true }],
         date: new Date().toLocaleString(),
         timestamp: Date.now()
     };

@@ -96,7 +96,9 @@ function _getFallback(id) {
                 ['calculators/construction/calc_wall_stud.html', 'Wall Stud Calculator']
             ]],
             ['crypto-dropdown', 'fas fa-vault', 'Cryptography', [
-                ['calculators/cryptography/tool_md5_generator.html', 'MD5 Generator']
+                ['calculators/cryptography/tool_md5_generator.html', 'MD5 Generator'],
+                ['calculators/cryptography/tool_sha256_generator.html', 'SHA-256 Generator'],
+                ['calculators/cryptography/tool_base64.html', 'Base64 Encoder/Decoder']
             ]],
             ['datetime-dropdown', 'fas fa-calendar-alt', 'Date & Time', [
                 ['calculators/date-time/calc_age.html', 'Age Calculator'],
@@ -176,7 +178,8 @@ function _getFallback(id) {
                 ['calculators/text-web/tool_case_converter.html', 'Case Converter'],
                 ['calculators/text-web/tool_lorem_ipsum.html', 'Lorem Ipsum Generator'],
                 ['calculators/text-web/tool_password.html', 'Password Strength'],
-                ['calculators/text-web/tool_word_counter.html', 'Word Counter']
+                ['calculators/text-web/tool_word_counter.html', 'Word Counter'],
+                ['calculators/text-web/tool_url_encoder.html', 'URL Encoder/Decoder']
             ]],
             ['games-dropdown', 'fas fa-gamepad', 'Games', [
                 ['calculators/fun/game_car_racing.html', 'Car Racing'],

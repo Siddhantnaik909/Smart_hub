@@ -677,23 +677,43 @@ body.sidebar-collapsed .navbar-branding {
 
 .profile-dropdown {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 15px);
     right: 0;
-    width: 260px;
+    width: 280px;
     background: var(--bg-card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    padding: 10px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.1) inset;
+    padding: 12px;
     display: none;
+    /* Block will be overridden by .active */
     flex-direction: column;
     z-index: 1001;
-    animation: fadeInScale 0.2s ease;
+    animation: dropScale 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-origin: top right;
+}
+
+@keyframes dropScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.centered-layout .profile-dropdown {
+    transform-origin: top center;
 }
 
 @media (max-width: 480px) {
     .profile-dropdown {
-        width: 200px;
+        width: 240px;
         right: -10px;
     }
 }
@@ -703,19 +723,25 @@ body.sidebar-collapsed .navbar-branding {
 }
 
 .profile-dropdown-header {
-    padding: 12px;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 4px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    padding: 16px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .profile-name {
     font-weight: 700;
     color: var(--text-header);
-    font-size: 0.95rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
 }
 
 .profile-email {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -723,25 +749,40 @@ body.sidebar-collapsed .navbar-branding {
 }
 
 .dropdown-item {
-    padding: 10px 12px;
-    border-radius: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     gap: 12px;
-    color: var(--text-body);
-    font-size: 0.9rem;
-    transition: 0.2s;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
     cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 2px;
 }
 
 .dropdown-item:hover {
     background: var(--bg-main);
     color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.dropdown-item.logout-item:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
 }
 
 .dropdown-item i {
     width: 20px;
     text-align: center;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.dropdown-item:hover i {
+    opacity: 1;
 }
 
 .dropdown-divider {
@@ -1899,6 +1940,19 @@ body.dark-mode .system-status.error {
     border-color: #ef4444;
 }
 
+.badge-new {
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+
 /* --- 11. GLOBAL TOAST NOTIFICATION --- */
 #global-toast {
     visibility: hidden;
@@ -2585,4 +2639,79 @@ body.dark-mode .content-spinner-overlay {
 .modal-btn.confirm:hover {
     background: #dc2626;
     transform: translateY(-1px);
+}
+
+/* --- CENTERED NAV HEADER OVERRIDES --- */
+.custom-centered-header {
+    height: 90px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.centered-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100%;
+    position: relative;
+    gap: 8px;
+}
+
+.absolute-toggle {
+    position: absolute !important;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.title-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary-color);
+}
+
+.title-icon {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+}
+
+.title-area .accent-text {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color) !important;
+}
+
+/* Hide extraneous layout elements if any */
+.navbar-branding {
+    display: none !important;
+}
+
+/* Force the profile button to show only Avatar and Arrow */
+.centered-layout .profile-trigger>span {
+    display: none !important;
+}
+
+.centered-layout .profile-trigger i.fa-chevron-down {
+    display: block !important;
+    margin-left: -5px;
+    color: var(--text-muted);
+}
+
+.centered-layout .profile-trigger {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    gap: 10px;
+}
+
+/* Center dropdown below the profile picture */
+.centered-layout .profile-dropdown {
+    right: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    transform-origin: top center;
 }

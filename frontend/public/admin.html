@@ -117,6 +117,8 @@
                             Logs</button>
                         <button class="btn-save" onclick="switchTab('settings')"><i class="fa-solid fa-gears"></i>
                             System Settings</button>
+                        <button class="btn-save" onclick="switchTab('tools')"><i class="fa-solid fa-toolbox"></i>
+                            Tools</button>
                     </div>
 
                     <div id="tab-overview" class="tab-content active">
@@ -367,6 +369,15 @@
                         </div>
                     </div>
 
+                    <div id="tab-tools" class="tab-content">
+                        <div class="cat-card">
+                            <h2><i class="fa-solid fa-toolbox"></i> Manage Calculators</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 20px;">Toggle calculators to show or hide them on the public catalog.</p>
+                            <div id="tools-management-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;"></div>
+                            <button class="btn-save" style="margin-top: 20px; width: 100%;" onclick="saveGlobalSettings()"><i class="fa-solid fa-cloud-arrow-up"></i> Save Visibility Changes</button>
+                        </div>
+                    </div>
+
                 </section>
                 <div id="footer-placeholder"></div>
             </div>
@@ -450,6 +461,147 @@
         let currentEditingFile = null;
         let logInterval = null;
 
+        // Tool Catalog Definition (Synced with calculators.html)
+        const TOOLS_CATALOG = [
+            {
+                cat: "Construction", icon: "fas fa-hard-hat", tools: [
+                    { name: "Brick Estimator", path: "/calculators/construction/calc_brick.html" },
+                    { name: "Concrete Calc", path: "/calculators/construction/calc_concrete.html" },
+                    { name: "Flooring Calc", path: "/calculators/construction/calc_flooring.html" },
+                    { name: "Fuel Cost Calc", path: "/calculators/construction/calc_fuel.html" },
+                    { name: "Lumber Board Feet", path: "/calculators/construction/calc_lumber.html" },
+                    { name: "Ohm's Law", path: "/calculators/construction/calc_ohm.html" },
+                    { name: "Paint Calc", path: "/calculators/construction/calc_paint.html" },
+                    { name: "Roof Area Calc", path: "/calculators/construction/calc_roof_area.html" },
+                    { name: "Wall Stud Calc", path: "/calculators/construction/calc_wall_stud.html" }
+                ]
+            },
+            {
+                cat: "Cryptography", icon: "fas fa-vault", tools: [
+                    { name: "MD5 Generator", path: "/calculators/cryptography/tool_md5_generator.html" }
+                ]
+            },
+            {
+                cat: "Date & Time", icon: "fas fa-calendar-alt", tools: [
+                    { name: "Age Calculator", path: "/calculators/date-time/calc_age.html" },
+                    { name: "Countdown Timer", path: "/calculators/date-time/calc_countdown.html" },
+                    { name: "Date Difference", path: "/calculators/date-time/calc_date_diff.html" },
+                    { name: "Hours Worked", path: "/calculators/date-time/calc_hours_worked.html" },
+                    { name: "Leap Year Checker", path: "/calculators/date-time/calc_leap_year.html" },
+                    { name: "Time Addition", path: "/calculators/date-time/calc_time_add.html" },
+                    { name: "Time Zone Converter", path: "/calculators/date-time/calc_time_zone.html" },
+                    { name: "Working Days", path: "/calculators/date-time/calc_working_days.html" }
+                ]
+            },
+            {
+                cat: "Electronics", icon: "fas fa-microchip", tools: [
+                    { name: "555 Timer", path: "/calculators/electronics/calc_555_timer.html" },
+                    { name: "Capacitor Code", path: "/calculators/electronics/calc_capacitor_code.html" },
+                    { name: "Frequency & Wavelength", path: "/calculators/electronics/calc_frequency.html" },
+                    { name: "LED Resistor", path: "/calculators/electronics/calc_led_resistor_calculator.html" },
+                    { name: "Ohm's Law", path: "/calculators/electronics/calc_ohm.html" },
+                    { name: "Power Calculator", path: "/calculators/electronics/calc_power.html" },
+                    { name: "Resistor Color Code", path: "/calculators/electronics/calc_resistor_color_code.html" },
+                    { name: "Voltage Divider", path: "/calculators/electronics/calc_voltage_divider.html" }
+                ]
+            },
+            {
+                cat: "Finance", icon: "fas fa-dollar-sign", tools: [
+                    { name: "Car Loan", path: "/calculators/finance/calc_car_loan.html" },
+                    { name: "Compound Interest", path: "/calculators/finance/calc_compound.html" },
+                    { name: "Compound Interest (Adv)", path: "/calculators/finance/calc_compound_interest.html" },
+                    { name: "Currency Converter", path: "/calculators/finance/calc_currency.html" },
+                    { name: "Discount Calculator", path: "/calculators/finance/calc_discount.html" },
+                    { name: "General Loan", path: "/calculators/finance/calc_loan.html" },
+                    { name: "Loan EMI", path: "/calculators/finance/calc_loan_emi.html" },
+                    { name: "Mortgage", path: "/calculators/finance/calc_mortgage.html" },
+                    { name: "ROI Calculator", path: "/calculators/finance/calc_roi.html" },
+                    { name: "Salary Calculator", path: "/calculators/finance/calc_salary.html" },
+                    { name: "Savings Goal", path: "/calculators/finance/calc_savings_goal.html" },
+                    { name: "Tax / GST", path: "/calculators/finance/calc_tax_gst.html" },
+                    { name: "Tip Calculator", path: "/calculators/finance/calc_tip_calculator.html" }
+                ]
+            },
+            {
+                cat: "General Math", icon: "fas fa-calculator", tools: [
+                    { name: "Average Calculator", path: "/calculators/general-math/calc_average.html" },
+                    { name: "Fractions Calculator", path: "/calculators/general-math/calc_fractions.html" },
+                    { name: "Math Toolkit", path: "/calculators/general-math/calc_math_toolkit.html" },
+                    { name: "Percentage", path: "/calculators/general-math/calc_percentage.html" },
+                    { name: "Programmer", path: "/calculators/general-math/calc_programmer.html" },
+                    { name: "Scientific Calc", path: "/calculators/general-math/calc_scientific.html" },
+                    { name: "Standard Calc", path: "/calculators/general-math/calc_standard.html" },
+                    { name: "Password Generator", path: "/calculators/general-math/tool_password.html" }
+                ]
+            },
+            {
+                cat: "Health & Fitness", icon: "fas fa-heartbeat", tools: [
+                    { name: "BMI Calculator", path: "/calculators/health-fitness/calc_bmi.html" },
+                    { name: "BMR Calculator", path: "/calculators/health-fitness/calc_bmr.html" },
+                    { name: "Body Fat %", path: "/calculators/health-fitness/calc_body_fat.html" },
+                    { name: "Calorie Calc", path: "/calculators/health-fitness/calc_calorie.html" },
+                    { name: "Calorie Tracker Pro", path: "/calculators/health-fitness/calc_calorie-calculator.html" },
+                    { name: "Ovulation", path: "/calculators/health-fitness/calc_ovulation.html" },
+                    { name: "Pregnancy Due Date", path: "/calculators/health-fitness/calc_pregnancy.html" },
+                    { name: "Water Intake", path: "/calculators/health-fitness/calc_water.html" }
+                ]
+            },
+            {
+                cat: "Network Tools", icon: "fas fa-network-wired", tools: [
+                    { name: "DNS Lookup", path: "/calculators/network/tool_dns_lookup.html" },
+                    { name: "IP Geolocation", path: "/calculators/network/tool_ip_geo.html" },
+                    { name: "Ping Test", path: "/calculators/network/tool_ping.html" },
+                    { name: "Port Scanner", path: "/calculators/network/tool_port_scanner.html" },
+                    { name: "Subnet Calc", path: "/calculators/network/calc_subnet.html" },
+                    { name: "Traceroute Tool", path: "/calculators/network/tool_traceroute.html" },
+                    { name: "Whois Lookup", path: "/calculators/network/tool_whois.html" }
+                ]
+            },
+            {
+                cat: "Students", icon: "fas fa-graduation-cap", tools: [
+                    { name: "Geometry Calc", path: "/calculators/students/calc_geometry.html" },
+                    { name: "GPA Calculator", path: "/calculators/students/calc_gpa.html" },
+                    { name: "Grade Weighted", path: "/calculators/students/calc_grade_weighted.html" },
+                    { name: "Mensuration", path: "/calculators/students/calc_mensuration.html" },
+                    { name: "Pomodoro Timer", path: "/calculators/students/calc_pomodoro.html" },
+                    { name: "Quadratic Equation", path: "/calculators/students/calc_quadratic.html" },
+                    { name: "Statistics", path: "/calculators/students/calc_statistics.html" },
+                    { name: "Unit Converter", path: "/calculators/students/calc_unit_conv.html" }
+                ]
+            },
+            {
+                cat: "Text & Web", icon: "fas fa-keyboard", tools: [
+                    { name: "Case Converter", path: "/calculators/text-web/tool_case_converter.html" },
+                    { name: "Lorem Ipsum", path: "/calculators/text-web/tool_lorem_ipsum.html" },
+                    { name: "Password Strength", path: "/calculators/text-web/tool_password.html" },
+                    { name: "Word Counter", path: "/calculators/text-web/tool_word_counter.html" }
+                ]
+            },
+            {
+                cat: "Games", icon: "fas fa-gamepad", tools: [
+                    { name: "Car Racing", path: "/calculators/fun/game_car_racing.html" },
+                    { name: "Connect 4", path: "/calculators/fun/game_connect4.html" },
+                    { name: "Multiplayer Chess", path: "/calculators/fun/game_chess.html" },
+                    { name: "Rock Paper Scissors", path: "/calculators/fun/calc_rock_paper_scissors.html" },
+                    { name: "Tic Tac Toe", path: "/calculators/fun/game_tic_tac_toe.html" }
+                ]
+            },
+            {
+                cat: "Fun Tools", icon: "fas fa-face-grin-tears", tools: [
+                    { name: "Coin Flipper", path: "/calculators/fun/calc_coin_flipper.html" },
+                    { name: "Compatibility Test", path: "/calculators/fun/calc_compatibility.html" },
+                    { name: "Dice Roller", path: "/calculators/fun/calc_dice_roller.html" },
+                    { name: "FLAMES Game", path: "/calculators/fun/calc_flames.html" },
+                    { name: "Fortune Cookie", path: "/calculators/fun/calc_fortune_cookie.html" },
+                    { name: "Love Calculator", path: "/calculators/fun/calc_love.html" },
+                    { name: "Magic 8 Ball", path: "/calculators/fun/calc_magic_8_ball.html" },
+                    { name: "Number Guesser", path: "/calculators/fun/calc_number_guesser.html" },
+                    { name: "Random Number", path: "/calculators/fun/calc_random_number.html" },
+                    { name: "Zodiac Sign", path: "/calculators/fun/calc_zodiac.html" }
+                ]
+            }
+        ];
+
         // Helper to handle auth errors globally
         async function secureFetch(url, options = {}) {
             const res = await fetch(url, options);
@@ -490,6 +642,7 @@
             if (tabId === 'files') fetchAssetFiles();
             if (tabId === 'logs') fetchServerLogs();
             if (tabId === 'settings') initAdminSettingsToggles();
+            if (tabId === 'tools') renderAdminTools();
         }
 
         async function fetchSystemStats() {
@@ -857,6 +1010,34 @@
             } catch (e) { alert("Failed to delete user"); }
         }
 
+        function renderAdminTools() {
+            const container = document.getElementById('tools-management-grid');
+            if (!container) return;
+            
+            let html = '';
+            TOOLS_CATALOG.forEach(cat => {
+                html += `<h3 style="grid-column: 1/-1; margin-top: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; color: var(--primary-color);">${cat.cat}</h3>`;
+                cat.tools.forEach(tool => {
+                    html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <span style="font-weight: 500;">${tool.name}</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="tool-visibility-toggle" data-tool-path="${tool.path}" checked>
+                            <div class="slider"></div>
+                        </label>
+                    </div>`;
+                });
+            });
+            container.innerHTML = html;
+            
+            // Apply saved state
+            if (window.currentSettings && window.currentSettings.disabledTools) {
+                document.querySelectorAll('.tool-visibility-toggle').forEach(input => {
+                    if (window.currentSettings.disabledTools.includes(input.getAttribute('data-tool-path'))) input.checked = false;
+                });
+            }
+        }
+
         async function saveGlobalSettings() {
             const payload = {
                 darkMode: document.getElementById('setting-dark-mode').checked,
@@ -867,8 +1048,14 @@
                 accentColor: document.getElementById('setting-color-accent').value,
                 fontSize: document.getElementById('admin-text-size').value,
                 glassmorphism: document.getElementById('setting-glassmorphism').checked,
-                customCSS: document.getElementById('admin-custom-css').value
+                customCSS: document.getElementById('admin-custom-css').value,
+                disabledTools: []
             };
+
+            // Collect disabled tools
+            document.querySelectorAll('.tool-visibility-toggle').forEach(input => {
+                if (!input.checked) payload.disabledTools.push(input.getAttribute('data-tool-path'));
+            });
 
             try {
                 const token = localStorage.getItem('token');
@@ -904,6 +1091,7 @@
                     document.getElementById('admin-text-size-val').innerText = (s.fontSize || 16) + 'px';
                     document.getElementById('setting-glassmorphism').checked = !!s.glassmorphism;
                     document.getElementById('admin-custom-css').value = s.customCSS || '';
+                    window.currentSettings = s; // Store for tool renderer
                 }
             } catch (e) { }
         }
