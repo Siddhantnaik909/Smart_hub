@@ -59,20 +59,20 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: 'admin', // Default to admin for personal test use
+            role: 'user', // Set default role to 'user' instead of 'admin'
             createdAt: new Date()
         });
 
         // Create Token
         const token = jwt.sign(
-            { user: { id: result.insertedId, role: 'admin' } },
+            { user: { id: result.insertedId, role: 'user' } },
             config.jwtSecret,
             { expiresIn: '24h' }
         );
 
         res.status(201).json({
             token,
-            user: { id: result.insertedId, name, email, role: 'admin' }
+            user: { id: result.insertedId, name, email, role: 'user' }
         });
 
     } catch (error) {
@@ -99,11 +99,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Force upgrade all older accounts to 'admin' role seamlessly
-        if (user.role !== 'admin') {
-            await users.updateOne({ _id: user._id }, { $set: { role: 'admin' } });
-            user.role = 'admin';
-        }
+
 
         // Create Token
         const token = jwt.sign(
