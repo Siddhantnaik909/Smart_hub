@@ -80,7 +80,8 @@ router.post('/register', async (req, res) => {
 
         // Create Token
         const token = jwt.sign(
-            { user: { id: result.insertedId, role: 'user'
+            { user: { id: result.insertedId, role: 'user', username: finalUsername } },
+            config.jwtSecret,
             { expiresIn: '24h' }
         );
 
@@ -116,11 +117,13 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { user: { id: user._id, role: user.role, username: user.username || user.email } },
             config.jwtSecret,
-            { expiresIn: '24h' };
+            { expiresIn: '24h' }
+        );
 
         res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, username: user.username } });
     } catch (error) {
-
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

@@ -2,7 +2,8 @@
   "name": "my-project-root",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm start --prefix backend"
+    "start": "npm start --prefix backend",
+    "fix-users": "npm run fix-users --prefix backend"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.3",
