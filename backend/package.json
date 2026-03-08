@@ -8,6 +8,8 @@
     "dev": "node server.js",
     "backup": "node scripts/backup.js",
     "restore": "node scripts/restore.js",
+    "fix-users": "node fixUsers.js",
+    "promote-admin": "node promoteToAdmin.js",
     "check": "node --check server.js"
   },
   "dependencies": {

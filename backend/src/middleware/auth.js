@@ -1,27 +1,30 @@
-const jwt = require("jsonwebtoken");
-const { config } = require("../config/env");
+const jwt = require('jsonwebtoken');
+const { config } = require('../config/env');
 
-function authRequired(req, res, next) {
-  const authHeader = req.headers.authorization || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-  if (!token) return res.status(401).json({ error: "Missing token" });
-  try {
-    const decoded = jwt.verify(token, config.jwtSecret);
-    req.user = decoded.user || decoded;
-    return next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-}
-
-function allowRoles(...roles) {
-  return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ error: "Unauthenticated" });
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Forbidden" });
+const authRequired = (req, res, next) => {
+    const tokenHeader = req.headers['authorization'];
+    
+    if (!tokenHeader) {
+        return res.status(401).json({ message: 'Access Denied: No Token Provided' });
     }
-    return next();
-  };
-}
+
+    try {
+        const token = tokenHeader.split(' ')[1]; // Remove 'Bearer '
+        const decoded = jwt.verify(token, config.jwtSecret);
+        req.user = decoded.user; // Attach user payload to request
+        next();
+    } catch (err) {
+        res.status(403).json({ message: 'Invalid Token' });
+    }
+};
+
+const allowRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Access Denied: Insufficient Privileges' });
+        }
+        next();
+    };
+};
 
 module.exports = { authRequired, allowRoles };

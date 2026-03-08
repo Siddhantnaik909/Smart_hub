@@ -21,6 +21,7 @@ mongoose.connect(mongoUri)
             await users.insertOne({
                 name: 'System Admin',
                 email: 'admin@smarthub.com',
+                username: 'admin',
                 password: hashedPassword,
                 role: 'admin',
                 createdAt: new Date()

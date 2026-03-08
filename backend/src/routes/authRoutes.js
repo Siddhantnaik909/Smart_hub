@@ -42,7 +42,15 @@ const getUsers = (req) => req.app.locals.dbReady.collection('users');
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, username } = req.body;
+
+        if (!req.app.locals.dbReady) {
+            return res.status(503).json({ message: 'System initializing, please wait...' });
+        }
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Name, email, and password are required' });
+        }
+
         const users = getUsers(req);
 
         // Check if user exists
@@ -54,27 +62,32 @@ router.post('/register', async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Generate username: Use provided username, or derive from email, or fallback to timestamp
+        let finalUsername = username;
+        if (!finalUsername) {
+            finalUsername = email.split('@')[0] || `user${Date.now()}`;
+        }
+
         // Create user
         const result = await users.insertOne({
             name,
             email,
+            username: finalUsername,
             password: hashedPassword,
-            role: 'admin', // Default to admin for personal test use
+            role: 'user', // Default to user
             createdAt: new Date()
         });
 
         // Create Token
         const token = jwt.sign(
-            { user: { id: result.insertedId, role: 'admin' } },
-            config.jwtSecret,
+            { user: { id: result.insertedId, role: 'user'
             { expiresIn: '24h' }
         );
 
         res.status(201).json({
             token,
-            user: { id: result.insertedId, name, email, role: 'admin' }
+            user: { id: result.insertedId, name, email, role: 'user', username: finalUsername }
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -99,23 +112,15 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Force upgrade all older accounts to 'admin' role seamlessly
-        if (user.role !== 'admin') {
-            await users.updateOne({ _id: user._id }, { $set: { role: 'admin' } });
-            user.role = 'admin';
-        }
-
         // Create Token
         const token = jwt.sign(
-            { user: { id: user._id, role: user.role } },
+            { user: { id: user._id, role: user.role, username: user.username || user.email } },
             config.jwtSecret,
-            { expiresIn: '24h' }
-        );
+            { expiresIn: '24h' };
 
-        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, username: user.username } });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+
     }
 });
 
