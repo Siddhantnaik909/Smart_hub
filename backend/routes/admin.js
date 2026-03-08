@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
+const { ObjectId } = require('mongodb');
+const bcrypt = require('bcryptjs');
 const { authRequired, allowRoles } = require('../src/middleware/auth');
 const verifyToken = authRequired;
 const isAdmin = allowRoles("admin");
-const User = require('../src/models/User');
 
 // Security: Restrict file access to the frontend/public directory
 const ALLOWED_ROOT = path.resolve(__dirname, '../../frontend/public');
@@ -206,7 +207,7 @@ router.post('/files/copy', verifyToken, isAdmin, async (req, res) => {
 // 8. Get All Users
 router.get('/users', verifyToken, isAdmin, async (req, res) => {
     try {
-        const users = await User.find({}).select('-password');
+        const users = await req.app.locals.db.collection('users').find({}).project({ password: 0 }).toArray();
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -216,12 +217,12 @@ router.get('/users', verifyToken, isAdmin, async (req, res) => {
 // 9. Update User Role
 router.put('/users/:id/role', verifyToken, isAdmin, async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ error: "User not found" });
-
-        user.role = req.body.role;
-        await user.save();
-        res.json({ message: "User role updated successfully", user });
+        const result = await req.app.locals.db.collection('users').updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { role: req.body.role } }
+        );
+        if (result.matchedCount === 0) return res.status(404).json({ error: "User not found" });
+        res.json({ message: "User role updated successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -230,7 +231,11 @@ router.put('/users/:id/role', verifyToken, isAdmin, async (req, res) => {
 // 10. Delete User
 router.delete('/users/:id', verifyToken, isAdmin, async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.params.id);
+        if (!req.app.locals.db) {
+            return res.status(503).json({ error: "Database not ready. Please try again in a moment." });
+        }
+        const result = await req.app.locals.db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
+        if (result.deletedCount === 0) return res.status(404).json({ error: "User not found" });
         res.json({ message: "User deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -244,14 +249,16 @@ router.post('/users', verifyToken, isAdmin, async (req, res) => {
         if (!name || !email || !password) {
             return res.status(400).json({ error: "Name, email, and password are required to create a user." });
         }
-        const existing = await User.findOne({ email });
+        const db = req.app.locals.db;
+        const existing = await db.collection('users').findOne({ email });
         if (existing) {
             return res.status(400).json({ error: "User with this email already exists" });
         }
 
-        const newUser = new User({ name, email, password, role: role || 'user', photo });
-        await newUser.save();
-        res.status(201).json({ message: "User created successfully", user: { _id: newUser._id, name, email, role: newUser.role, photo: newUser.photo } });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = { name, email, password: hashedPassword, role: role || 'user', photo, createdAt: new Date() };
+        const result = await db.collection('users').insertOne(newUser);
+        res.status(201).json({ message: "User created successfully", user: { _id: result.insertedId, ...newUser } });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -261,16 +268,18 @@ router.post('/users', verifyToken, isAdmin, async (req, res) => {
 router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
     try {
         const { name, email, role, photo } = req.body;
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ error: "User not found" });
+        const updateFields = {};
+        if (name) updateFields.name = name;
+        if (email) updateFields.email = email;
+        if (role) updateFields.role = role;
+        if (photo !== undefined) updateFields.photo = photo;
 
-        if (name) user.name = name;
-        if (email) user.email = email;
-        if (role) user.role = role;
-        if (photo !== undefined) user.photo = photo;
-
-        await user.save();
-        res.json({ message: "User details updated successfully", user: { _id: user._id, name: user.name, email: user.email, role: user.role, photo: user.photo } });
+        const result = await req.app.locals.db.collection('users').updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: updateFields }
+        );
+        if (result.matchedCount === 0) return res.status(404).json({ error: "User not found" });
+        res.json({ message: "User details updated successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -279,7 +288,7 @@ router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
 // 11. System Stats (Real)
 router.get('/stats', verifyToken, isAdmin, async (req, res) => {
     try {
-        const usersCount = await User.countDocuments({});
+        const usersCount = await req.app.locals.db.collection('users').countDocuments({});
         res.json({ users: usersCount, tools: 85 });
     } catch (err) {
         res.status(500).json({ error: err.message });
