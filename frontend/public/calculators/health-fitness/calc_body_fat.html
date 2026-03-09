@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | US Navy Body Fat Analyzer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -49,7 +49,8 @@
                                 <input type="number" id="bfHip" class="form-control" placeholder="At widest point">
                             </div>
                             
-                            <button id="calc-bf-btn" class="btn-calc" onclick="calculateBodyFat()">Analyze Composition</button>
+                            <button id="calculateBtn" class="btn-calc">Analyze Composition</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
                         </div>
                     </div>
 
@@ -77,7 +78,7 @@
                         </div>
 
                         <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button id="save-bf-btn" class="btn-save" style="flex: 1;">
+                            <button class="btn-save" style="flex: 1;">
                                 <i class="fa-solid fa-save"></i> Save to Log
                             </button>
                             <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
@@ -100,58 +101,74 @@
             document.getElementById('bfHipGroup').style.display = (gender === 'female') ? 'flex' : 'none';
         }
 
-        function calculateBodyFat() {
-            const gender = document.getElementById('bfGender').value;
-            const h = parseFloat(document.getElementById('bfHeight').value);
-            const n = parseFloat(document.getElementById('bfNeck').value);
-            const w = parseFloat(document.getElementById('bfWaist').value);
-            const hip = parseFloat(document.getElementById('bfHip').value) || 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateBtn = document.getElementById('calculateBtn');
 
-            if (!h || !n || !w || (gender === 'female' && !hip)) {
-                alert("Please fill in all required measurements.");
-                return;
-            }
+            calculateBtn.addEventListener('click', () => {
+                const gender = document.getElementById('bfGender').value;
+                const allInputs = document.querySelectorAll('#bfHeight, #bfNeck, #bfWaist, #bfHip');
+                const requiredInputs = (gender === 'male')
+                    ? [document.getElementById('bfHeight'), document.getElementById('bfNeck'), document.getElementById('bfWaist')]
+                    : Array.from(allInputs);
 
-            let bfp = 0;
-            if (gender === 'male') {
-                bfp = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
-            } else {
-                bfp = 495 / (1.29579 - 0.35004 * Math.log10(w + hip - n) + 0.22100 * Math.log10(h)) - 450;
-            }
+                if (!validateInputs(requiredInputs, { checkPositive: true })) {
+                    return;
+                }
 
-            const finalBfp = bfp.toFixed(1);
-            const resCard = document.getElementById('results');
-            const resultDisplay = document.getElementById('bfResult');
-            const catDisplay = document.getElementById('bfCategory');
-            const resArea = document.getElementById('result-display-area');
+                const h = parseFloat(document.getElementById('bfHeight').value);
+                const n = parseFloat(document.getElementById('bfNeck').value);
+                const w = parseFloat(document.getElementById('bfWaist').value);
+                const hip = parseFloat(document.getElementById('bfHip').value) || 0;
 
-            // Category Logic (ACE Standards)
-            let category = "";
-            if (gender === 'male') {
-                if (bfp < 6) category = "Essential Fat";
-                else if (bfp < 14) category = "Athlete";
-                else if (bfp < 18) category = "Fitness";
-                else if (bfp < 25) category = "Average";
-                else category = "Obese";
-            } else {
-                if (bfp < 14) category = "Essential Fat";
-                else if (bfp < 21) category = "Athlete";
-                else if (bfp < 25) category = "Fitness";
-                else if (bfp < 32) category = "Average";
-                else category = "Obese";
-            }
+                let bfp = 0;
+                if (gender === 'male') {
+                    bfp = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
+                } else {
+                    bfp = 495 / (1.29579 - 0.35004 * Math.log10(w + hip - n) + 0.22100 * Math.log10(h)) - 450;
+                }
 
-            resultDisplay.innerText = finalBfp + "%";
-            catDisplay.innerText = category;
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
+                const finalBfp = bfp.toFixed(1);
+                const resCard = document.getElementById('results');
+                const resultDisplay = document.getElementById('bfResult');
+                const catDisplay = document.getElementById('bfCategory');
+                const resArea = document.getElementById('result-display-area');
 
-            resArea.innerHTML = `
-                <div class="sub-link"><span>Methodology</span><strong>U.S. Navy Formula</strong></div>
-                <div class="sub-link"><span>Lean Body Mass</span><strong>${(100 - bfp).toFixed(1)}%</strong></div>
-                <div class="sub-link"><span>Fitness Level</span><strong>${category}</strong></div>
-            `;
-        }
+                // Category Logic (ACE Standards)
+                let category = "";
+                if (gender === 'male') {
+                    if (bfp < 6) category = "Essential Fat";
+                    else if (bfp < 14) category = "Athlete";
+                    else if (bfp < 18) category = "Fitness";
+                    else if (bfp < 25) category = "Average";
+                    else category = "Obese";
+                } else {
+                    if (bfp < 14) category = "Essential Fat";
+                    else if (bfp < 21) category = "Athlete";
+                    else if (bfp < 25) category = "Fitness";
+                    else if (bfp < 32) category = "Average";
+                    else category = "Obese";
+                }
+
+                resultDisplay.innerText = finalBfp + "%";
+                catDisplay.innerText = category;
+                resCard.style.display = 'block';
+                resCard.classList.remove('hidden');
+
+                resArea.innerHTML = `
+                    <div class="sub-link"><span>Methodology</span><strong>U.S. Navy Formula</strong></div>
+                    <div class="sub-link"><span>Lean Body Mass</span><strong>${(100 - bfp).toFixed(1)}%</strong></div>
+                    <div class="sub-link"><span>Fitness Level</span><strong>${category}</strong></div>
+                `;
+
+                // Save to history
+                const inputData = [{ label: 'Gender', val: gender }, { label: 'Height', val: `${h}cm` }, { label: 'Neck', val: `${n}cm` }, { label: 'Waist', val: `${w}cm` }];
+                if (gender === 'female') inputData.push({ label: 'Hip', val: `${hip}cm` });
+                window.setLastCalc('Body Fat Analyzer', inputData, [
+                    { label: 'Body Fat %', val: `${finalBfp}%`, highlight: true },
+                    { label: 'Category', val: category }
+                ]);
+            });
+        });
     </script>
 
     <script src="/js/component-loader.js"></script>

@@ -1,15 +1,31 @@
 const express = require('express');
 const router = express.Router();
+const Setting = require('../models/Setting'); // Assuming you have a Setting model
 
-// Re-export the existing admin routes logic if it exists, 
-// or we can point server.js to the correct file.
-// Since I cannot move files easily in this format, I will create a bridge.
+router.get('/settings', async (req, res) => {
+    try {
+        const settings = await Setting.findOne({}); // Assuming only one settings document
+        res.json(settings);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching settings' });
+    }
+});
 
-// However, looking at the user's previous context, they had `backend/routes/admin.js`.
-// The `server.js` tries to require `./src/routes/adminRoutes`.
-// I will assume the user wants the logic from `backend/routes/admin.js` to be available here.
+router.post('/settings', async (req, res) => {
+    try {
+        //const settings = await Setting.findOne({});
+        //settings.set(req.body);
+        //await settings.save();
 
-// For now, let's just make sure the server doesn't crash if this file is missing.
-// Ideally, you should move `backend/routes/admin.js` to `backend/src/routes/adminRoutes.js`.
+        //Upsert is generally safer here, but depends if you initialize a document first
+        await Setting.updateOne({}, req.body, { upsert: true, setDefaultsOnInsert: true, });
+        res.json({ message: 'Settings updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error updating settings' });
+    }
+});
 
-module.exports = require('../../routes/admin');
+
+module.exports = router;

@@ -161,6 +161,56 @@ function initTheme() {
         document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%)`);
     }
 
+    const btnStyle = localStorage.getItem('buttonStyle');
+    if (btnStyle) {
+        let radius = '12px';
+        if (btnStyle === 'round') radius = '24px';
+        else if (btnStyle === 'sharp') radius = '0px';
+        else if (btnStyle === 'leaf') radius = '12px 0 12px 0';
+        document.documentElement.style.setProperty('--btn-radius', radius);
+    }
+
+    const font = localStorage.getItem('fontFamily');
+    if (font) document.documentElement.style.setProperty('--font-main', font);
+
+    const anim = localStorage.getItem('cardAnimation');
+    if (anim && anim !== 'none') document.body.classList.add(`anim-${anim}`);
+
+    const shadowIntensity = localStorage.getItem('shadowIntensity');
+    if (shadowIntensity) {
+        const intensity = shadowIntensity / 100;
+        const y = 1 + (intensity * 15);
+        const blur = 3 + (intensity * 27);
+        const opacity = 0.02 + (intensity * 0.13);
+        const hover_y = 2 + (intensity * 23);
+        const hover_blur = 6 + (intensity * 34);
+        const hover_opacity = 0.04 + (intensity * 0.16);
+        document.documentElement.style.setProperty('--shadow-card', `0 ${y}px ${blur}px rgba(0,0,0, ${opacity})`);
+        document.documentElement.style.setProperty('--shadow-hover', `0 ${hover_y}px ${hover_blur}px rgba(0,0,0, ${hover_opacity})`);
+    }
+
+    const sbBgStart = localStorage.getItem('sidebarBgStart');
+    const sbBgEnd = localStorage.getItem('sidebarBgEnd');
+    if (sbBgStart && sbBgEnd) {
+        document.documentElement.style.setProperty('--sidebar-bg', `linear-gradient(180deg, ${sbBgStart}, ${sbBgEnd})`);
+    }
+    const sbText = localStorage.getItem('sidebarTextColor');
+    if (sbText) {
+        document.documentElement.style.setProperty('--sidebar-text', sbText);
+    }
+    const sbActive = localStorage.getItem('sidebarActiveColor');
+    if (sbActive) {
+        document.documentElement.style.setProperty('--sidebar-active', sbActive);
+    }
+    const sbWidth = localStorage.getItem('sidebarWidth');
+    if (sbWidth) {
+        document.documentElement.style.setProperty('--sidebar-width', `${sbWidth}px`);
+    }
+    const sbFontSize = localStorage.getItem('sidebarFontSize');
+    if (sbFontSize) {
+        document.documentElement.style.setProperty('--sidebar-font-size', `${sbFontSize}px`);
+    }
+
     const fontSize = localStorage.getItem('customFontSize');
     if (fontSize) {
         document.documentElement.style.fontSize = `${fontSize}px`;
@@ -243,4 +293,3 @@ function updateUserInterface() {
         }
     }
 }
-

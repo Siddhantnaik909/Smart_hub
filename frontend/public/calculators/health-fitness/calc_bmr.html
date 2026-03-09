@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | BMR Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -49,7 +49,8 @@
                                 <input type="number" id="bmrWeight" class="form-control" placeholder="Kilograms">
                             </div>
                             
-                            <button id="calc-bmr-btn" class="btn-calc">Calculate BMR</button>
+                            <button id="calculateBtn" class="btn-calc">Calculate BMR</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
                         </div>
                     </div>
 
@@ -58,10 +59,11 @@
                         
                         <div class="sub-cat-list" id="result-display-area">
                             </div>
-                        
-                        <button id="save-bmr" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Result
-                        </button>
+                        <div class="button-group" style="margin-top: 20px;">
+                            <button class="btn-save">
+                                <i class="fa-solid fa-save"></i> Save Result
+                            </button>
+                        </div>
                     </div>
                 </section>
                 <div id="footer-placeholder"></div>
@@ -73,38 +75,47 @@
         window.FRONTEND_ROOT = "/"; 
         window.COMPONENT_ROOT = "/components/"; 
 
-        document.getElementById('calc-bmr-btn').addEventListener('click', () => {
-            const gender = document.getElementById('bmrGender').value;
-            const age = parseFloat(document.getElementById('bmrAge').value);
-            const height = parseFloat(document.getElementById('bmrHeight').value);
-            const weight = parseFloat(document.getElementById('bmrWeight').value);
-            const resArea = document.getElementById('result-display-area');
-            const resDiv = document.getElementById('results');
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const inputs = document.querySelectorAll('#bmrAge, #bmrHeight, #bmrWeight');
 
-            if (!age || !height || !weight) {
-                alert("Please fill in all fields correctly.");
-                return;
-            }
+            calculateBtn.addEventListener('click', () => {
+                if (!validateInputs(inputs, { checkPositive: true })) {
+                    return;
+                }
 
-            // Mifflin-St Jeor Equation
-            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-            bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+                const gender = document.getElementById('bmrGender').value;
+                const age = parseFloat(document.getElementById('bmrAge').value);
+                const height = parseFloat(document.getElementById('bmrHeight').value);
+                const weight = parseFloat(document.getElementById('bmrWeight').value);
+                const resArea = document.getElementById('result-display-area');
+                const resDiv = document.getElementById('results');
 
-            resArea.innerHTML = `
-                <div class="sub-link">
-                    <span>Base Metabolic Rate</span>
-                    <strong style="color: var(--primary-color); font-size: 1.2rem;">${Math.round(bmr)} kcal/day</strong>
-                </div>
-                <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
-                    <span style="margin-bottom: 5px;">What this means:</span>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-                        This is the energy your body requires to function at complete rest.
-                    </p>
-                </div>
-            `;
+                // Mifflin-St Jeor Equation
+                let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+                bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+                const finalBmr = Math.round(bmr);
 
-            resDiv.style.display = 'block';
-            resDiv.classList.remove('hidden');
+                resArea.innerHTML = `
+                    <div class="sub-link">
+                        <span>Base Metabolic Rate</span>
+                        <strong style="color: var(--primary-color); font-size: 1.2rem;">${finalBmr} kcal/day</strong>
+                    </div>
+                    <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                        <span style="margin-bottom: 5px;">What this means:</span>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                            This is the energy your body requires to function at complete rest.
+                        </p>
+                    </div>
+                `;
+
+                resDiv.style.display = 'block';
+                resDiv.classList.remove('hidden');
+
+                // Save to history
+                const inputData = [{ label: 'Gender', val: gender }, { label: 'Age', val: age }, { label: 'Height', val: `${height}cm` }, { label: 'Weight', val: `${weight}kg` }];
+                window.setLastCalc('BMR Calculator', inputData, [{ label: 'BMR', val: `${finalBmr} kcal/day`, highlight: true }]);
+            });
         });
     </script>
     <script src="/js/component-loader.js"></script>

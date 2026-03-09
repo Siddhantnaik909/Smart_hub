@@ -2,26 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Prenatal Journey Architect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Pregnancy Due Date Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 <body>
     <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
         <div id="sidebar-placeholder"></div>
         
         <main class="main-content">
             <div id="header-placeholder"></div>
+            <div class="overlay" id="mobile-overlay"></div>
             
             <div class="page-body">
                 <section class="container fade-in">
                     <div class="cat-card stagger-1">
                         <div class="calculator-header">
-                            <h2><i class="fa-solid fa-baby"></i> Prenatal Journey Architect</h2>
-                            <p>Map out your pregnancy timeline, from conception milestones to your estimated due date.</p>
+                            <h2><i class="fa-solid fa-baby"></i> Pregnancy Due Date Calculator</h2>
+                            <p>Estimate your due date and see key pregnancy milestones based on your last menstrual period (LMP).</p>
                         </div>
                         
                         <div class="sub-cat-list">
@@ -30,7 +30,8 @@
                                 <input type="date" id="lmpDate" class="form-control">
                             </div>
                             
-                            <button id="calculateBtn" class="btn-calc" style="background-color: #8b5cf6;">Analyze Journey</button>
+                            <button id="calculateBtn" class="btn-calc" style="background-color: #8b5cf6;">Calculate</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
                         </div>
                     </div>
 
@@ -43,26 +44,18 @@
                             <strong id="trimesterDisplay" style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">-</strong>
                         </div>
 
-                        
-
-[Image of fetal development stages by week]
-
 
                         <div class="sub-cat-list" id="result-display-area">
                             </div>
 
-                        
-
-[Image of baby size comparison to fruits by week]
-
 
                         <div class="sub-link" style="background: rgba(139, 92, 246, 0.05); border-left: 4px solid #8b5cf6; margin-top: 15px; padding: 15px;">
                             <span style="color: #8b5cf6; font-weight: bold;"><i class="fa-solid fa-wand-magic-sparkles"></i> Milestone Tip</span>
-                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                            <p id="pro-tip" style="font-size: 0.9rem; margin-top: 8px; line-height: 1.5;"></p>
                         </div>
 
                         <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button id="save-btn" class="btn-save" style="flex: 1;">
+                            <button class="btn-save" style="flex: 1;">
                                 <i class="fa-solid fa-save"></i> Save to Timeline
                             </button>
                             <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
@@ -124,16 +117,30 @@
             resArea.innerHTML = `
                 <div class="sub-link"><span>Current Progress</span><strong>${weeks} Weeks, ${days} Days</strong></div>
                 <div class="sub-link"><span>Est. Conception Date</span><strong>${conception.toLocaleDateString('en-US', options)}</strong></div>
-                <div class="sub-link"><span>Heartbeat Milestone</span><strong>${heartbeat.toLocaleDateString('en-US', options)}</strong></div>
-                <div class="sub-link"><span>Fetal Viability Date</span><strong>${viability.toLocaleDateString('en-US', options)}</strong></div>
+                <div class="sub-link"><span>First Heartbeat (approx.)</span><strong>${heartbeat.toLocaleDateString('en-US', options)}</strong></div>
+                <div class="sub-link"><span>Viability Milestone (approx.)</span><strong>${viability.toLocaleDateString('en-US', options)}</strong></div>
             `;
 
             tipArea.innerHTML = weeks < 12 
                 ? "During the <strong>1st Trimester</strong>, the foundation for all major organs is being built. Ensure you are taking folic acid as recommended by your doctor."
-                : "Your baby is now about the size of a <strong>" + getFruit(weeks) + "</strong>! It's a great time to start documenting your journey.";
+                : "Your baby is now about the size of a <strong>" + getFruit(weeks) + "</strong>! It's a great time to start documenting your journey with photos or a journal.";
 
             resCard.style.display = 'block';
             resCard.classList.remove('hidden');
+
+            // Prepare data for the 'Save to Timeline' feature
+            if (window.setLastCalc) {
+                const inputsForHistory = [
+                    { label: 'Last Period Date', val: lmpDate.toLocaleDateString('en-US', options) }
+                ];
+                const resultsForHistory = [
+                    { label: 'Estimated Due Date', val: dueDate.toLocaleDateString('en-US', options), highlight: true },
+                    { label: 'Current Progress', val: `${weeks} Weeks, ${days} Days` },
+                    { label: 'Current Trimester', val: trimester },
+                    { label: 'Est. Conception', val: conception.toLocaleDateString('en-US', options) },
+                ];
+                window.setLastCalc('Pregnancy Calculator', inputsForHistory, resultsForHistory);
+            }
         });
 
         function getFruit(w) {

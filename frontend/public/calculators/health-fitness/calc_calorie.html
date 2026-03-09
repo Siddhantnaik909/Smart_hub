@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | Calorie Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -58,17 +58,18 @@
                                 </select>
                             </div>
                             
-                            <button id="calc-calorie-btn" class="btn-calc">Calculate TDEE</button>
+                            <button id="calculateBtn" class="btn-calc">Calculate TDEE</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
                         </div>
                     </div>
 
                     <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
                         <h3>Daily Calorie Needs</h3>
                         <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-cal" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Results
-                        </button>
+                        </div>
+                        <div class="button-group" style="margin-top: 20px;">
+                            <button class="btn-save"><i class="fa-solid fa-save"></i> Save Results</button>
+                        </div>
                     </div>
                 </section>
                 <div id="footer-placeholder"></div>
@@ -81,21 +82,21 @@
         window.COMPONENT_ROOT = "/components/"; 
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calcBtn = document.getElementById('calc-calorie-btn');
+            const calcBtn = document.getElementById('calculateBtn');
             const resultsCard = document.getElementById('results');
             const displayArea = document.getElementById('result-display-area');
+            const inputs = document.querySelectorAll('#calAge, #calHeight, #calWeight');
 
             calcBtn.addEventListener('click', () => {
+                if (!validateInputs(inputs, { checkPositive: true })) {
+                    return;
+                }
+
                 const gender = document.getElementById('calGender').value;
                 const age = parseFloat(document.getElementById('calAge').value);
                 const height = parseFloat(document.getElementById('calHeight').value);
                 const weight = parseFloat(document.getElementById('calWeight').value);
                 const activity = parseFloat(document.getElementById('calActivity').value);
-
-                if (!age || !height || !weight) {
-                    alert("Please fill in all physical measurements.");
-                    return;
-                }
 
                 // Mifflin-St Jeor Equation
                 let bmr = (10 * weight) + (6.25 * height) - (5 * age);
@@ -122,12 +123,22 @@
 
                 resultsCard.style.display = 'block';
                 resultsCard.classList.remove('hidden');
+
+                // Save to history
+                const inputData = [
+                    { label: 'Gender', val: gender }, { label: 'Age', val: age },
+                    { label: 'Height', val: `${height}cm` }, { label: 'Weight', val: `${weight}kg` }
+                ];
+                window.setLastCalc('Calorie Calculator', inputData, [
+                    { label: 'Maintenance', val: `${tdee} kcal/day`, highlight: true },
+                    { label: 'Weight Loss', val: `${lose} kcal/day` },
+                    { label: 'Weight Gain', val: `${gain} kcal/day` }
+                ]);
             });
         });
     </script>
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
     <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

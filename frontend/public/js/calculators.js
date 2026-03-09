@@ -33,8 +33,13 @@ function handleSaveClick(e) {
 function clearCalculator() {
     const inputs = document.querySelectorAll('input, textarea, select');
     inputs.forEach(input => {
-        if (input.type === 'number' || input.type === 'text') input.value = '';
-        if (input.tagName === 'SELECT') input.selectedIndex = 0;
+        if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        } else {
+            // This correctly resets text/number/date inputs to their default
+            // value specified in HTML, or clears them if no default is set.
+            input.value = input.defaultValue;
+        }
         input.classList.remove('input-error');
     });
 
@@ -44,6 +49,12 @@ function clearCalculator() {
     if (results) {
         results.style.display = 'none';
         results.classList.add('hidden');
+    }
+
+    // Also clear the content of the main result list for a cleaner state
+    const resultDisplayArea = document.getElementById('result-display-area');
+    if (resultDisplayArea) {
+        resultDisplayArea.innerHTML = '';
     }
 
     // Toggle save buttons off until next calculation
@@ -56,12 +67,26 @@ function clearCalculator() {
  * @param {NodeList} inputs - List of input elements to check
  * @returns {Boolean}
  */
-function validateInputs(inputs) {
+function validateInputs(inputs, options = { checkPositive: false }) {
     let isValid = true;
     inputs.forEach(input => {
-        const value = parseFloat(input.value);
-        // Check for empty, NaN, or negative (if applicable)
-        if (input.value === '' || isNaN(value)) {
+        let hasError = false;
+
+        // Handle date inputs separately
+        if (input.type === 'date') {
+            if (input.value.trim() === '') {
+                hasError = true;
+            }
+        } else { // Handle numeric and other text-based inputs
+            const value = parseFloat(input.value);
+            if (input.value.trim() === '' || isNaN(value)) {
+                hasError = true;
+            } else if (options.checkPositive && value <= 0) {
+                hasError = true;
+            }
+        }
+
+        if (hasError) {
             input.classList.add('input-error');
             isValid = false;
         } else {
@@ -71,7 +96,7 @@ function validateInputs(inputs) {
 
     if (!isValid) {
         // Haptic feedback or shake effect could go here
-        alert("Please fill in all fields with valid numbers.");
+        alert("Please fill in all fields with valid, positive numbers where required.");
     }
     return isValid;
 }
@@ -169,14 +194,37 @@ async function saveCalculation(toolName, inputDetails, outputDetails) {
 
 // Attach to window so individual calculator scripts can update state
 window.setLastCalc = (name, inputStr, outputStr) => {
+window.setLastCalc = (name, inputs, results) => {
+    // inputs and results can be:
+    // 1. Arrays of {label: string, val: string}
+    // 2. Simple strings (for backward compatibility)
+    const inputItems = Array.isArray(inputs) ? inputs : [{ label: "Parameters", val: String(inputs) }];
+    
+    let resultItems;
+    if (Array.isArray(results)) {
+        resultItems = results;
+        if (resultItems.length > 0 && !resultItems.some(r => r.highlight)) {
+            resultItems[0].highlight = true; // Ensure at least one is highlighted
+        }
+    } else {
+        resultItems = [{ label: "Result", val: String(results), highlight: true }];
+    }
+
+    const inputStr = inputItems.map(i => i.val).join(', ');
+    const outputStr = resultItems.map(r => r.val).join('; ');
+
     lastCalculationData = {
         name: name,
         details: `${inputStr} ➔ ${outputStr}`,
         inputs: [{ label: "Calculation Params", val: inputStr }],
         results: [{ label: "Result Output", val: outputStr, highlight: true }],
+        details: `${inputStr.substring(0, 40)} ➔ ${outputStr.substring(0, 40)}`,
+        inputs: inputItems,
+        results: resultItems,
         date: new Date().toLocaleString(),
         timestamp: Date.now()
     };
     // Enable save buttons once data exists
     document.querySelectorAll('.btn-save').forEach(btn => btn.disabled = false);
 };
+}

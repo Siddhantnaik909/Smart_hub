@@ -1,183 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exact Vedic Rashi Calculator</title>
-
-<style>
-body{
-    font-family: Arial, sans-serif;
-    background:#0f172a;
-    color:white;
-    padding:20px;
-}
-.container{max-width:650px;margin:auto;}
-.card{
-    background:#111827;
-    padding:20px;
-    border-radius:14px;
-    margin-top:20px;
-}
-input,button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:10px;
-    border:none;
-    font-size:16px;
-}
-button{
-    background:#6366f1;
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-}
-.result{margin-top:15px;padding:10px;border-top:1px solid #1f2937;}
-.center{text-align:center;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART HUB | Ovulation & Fertility Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
 </head>
-
 <body>
-<div class="container">
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-baby-carriage" style="color: #ec4899;"></i> Ovulation & Fertility Calculator</h2>
+                            <p>Estimate your most fertile days and next menstrual cycle.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link">
+                                <span>First Day of Last Period</span>
+                                <input type="date" id="lmpDate" class="form-control">
+                            </div>
+                            <div class="sub-link">
+                                <span>Average Cycle Length (Days)</span>
+                                <input type="number" id="cycleLength" class="form-control" value="28" placeholder="e.g. 28">
+                            </div>
+                            
+                            <button id="calculateBtn" class="btn-calc" style="background-color: #ec4899;">Calculate Fertile Window</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
+                        </div>
+                    </div>
 
-<div class="card">
-<h2>🇮🇳 Exact Vedic Rashi Calculator</h2>
+                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
+                        <h3>Fertility Timeline</h3>
+                        <div class="sub-cat-list" id="result-display-area">
+                            </div>
+                        <div class="button-group" style="margin-top: 20px;">
+                            <button class="btn-save">
+                                <i class="fa-solid fa-save"></i> Save Timeline
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
 
-<label>Birth Date</label>
-<input type="date" id="dob">
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
 
-<label>Birth Time</label>
-<input type="time" id="tob">
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultsCard = document.getElementById('results');
+            const displayArea = document.getElementById('result-display-area');
+            const lmpInput = document.getElementById('lmpDate');
+            const cycleInput = document.getElementById('cycleLength');
 
-<label>Birth Place (India)</label>
-<input type="text" id="place" placeholder="City name (optional)">
+            // Helper to format dates consistently
+            const formatDate = (date) => date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-<button id="calc">Calculate Exact Rashi</button>
-</div>
+            calculateBtn.addEventListener('click', () => {
+                const inputs = document.querySelectorAll('#lmpDate, #cycleLength');
+                if (!validateInputs(inputs, { checkPositive: true })) {
+                    return;
+                }
 
-<div id="output" class="card" style="display:none"></div>
+                const lmpDate = new Date(lmpInput.value + 'T00:00:00'); // Avoid timezone issues
+                const cycleLength = parseInt(cycleInput.value);
 
-</div>
+                // --- Calculations ---
+                const ovulationDay = cycleLength - 14;
+                
+                const ovulationDate = new Date(lmpDate);
+                ovulationDate.setDate(lmpDate.getDate() + ovulationDay);
 
-<script>
-// ============================
-// 🌙 CONSTANT DATA
-// ============================
+                const fertileStart = new Date(ovulationDate);
+                fertileStart.setDate(ovulationDate.getDate() - 5);
 
-const rashis = [
-"Mesh (Aries) ♈","Vrishabh (Taurus) ♉","Mithun (Gemini) ♊",
-"Karka (Cancer) ♋","Simha (Leo) ♌","Kanya (Virgo) ♍",
-"Tula (Libra) ♎","Vrishchik (Scorpio) ♏","Dhanu (Sagittarius) ♐",
-"Makar (Capricorn) ♑","Kumbha (Aquarius) ♒","Meena (Pisces) ♓"
-];
+                const fertileEnd = new Date(ovulationDate);
+                fertileEnd.setDate(ovulationDate.getDate() + 1);
 
-const nakshatras = [
-"Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra",
-"Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni",
-"Uttara Phalguni","Hasta","Chitra","Swati","Vishakha",
-"Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha",
-"Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada",
-"Uttara Bhadrapada","Revati"
-];
+                const nextPeriodDate = new Date(lmpDate);
+                nextPeriodDate.setDate(lmpDate.getDate() + cycleLength);
 
-// ============================
-// 📐 JULIAN DATE
-// ============================
+                // --- UI Update ---
+                displayArea.innerHTML = `
+                    <div class="sub-link" style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899;">
+                        <span>Estimated Ovulation Date</span>
+                        <strong>${formatDate(ovulationDate)}</strong>
+                    </div>
+                    <div class="sub-link">
+                        <span>Fertile Window</span>
+                        <strong>${formatDate(fertileStart)} - ${formatDate(fertileEnd)}</strong>
+                    </div>
+                    <div class="sub-link">
+                        <span>Estimated Next Period</span>
+                        <strong>${formatDate(nextPeriodDate)}</strong>
+                    </div>
+                `;
 
-function toJulian(date){
-    return date / 86400000 + 2440587.5;
-}
+                resultsCard.style.display = 'block';
+                resultsCard.classList.remove('hidden');
 
-// ============================
-// 🌙 MOON LONGITUDE (HIGH ACCURACY APPROX)
-// ============================
+                // --- Save to History ---
+                window.setLastCalc(
+                    'Ovulation Calculator',
+                    [
+                        { label: 'Last Period Start', val: formatDate(lmpDate) },
+                        { label: 'Cycle Length', val: `${cycleLength} days` }
+                    ],
+                    [
+                        { label: 'Estimated Ovulation', val: formatDate(ovulationDate), highlight: true },
+                        { label: 'Fertile Window', val: `${formatDate(fertileStart)} - ${formatDate(fertileEnd)}` },
+                        { label: 'Next Period Starts', val: formatDate(nextPeriodDate) }
+                    ]
+                );
+            });
+        });
+    </script>
 
-function moonLongitude(jd){
-    const T = (jd - 2451545.0)/36525;
-
-    let L0 = 218.3164477 + 481267.88123421*T;
-    let M  = 134.9633964 + 477198.8675055*T;
-    let D  = 297.8501921 + 445267.1114034*T;
-
-    // normalize
-    L0 = ((L0%360)+360)%360;
-    M  = ((M%360)+360)%360;
-    D  = ((D%360)+360)%360;
-
-    // main periodic terms
-    let lon = L0
-        + 6.289 * Math.sin(M*Math.PI/180)
-        + 1.274 * Math.sin((2*D - M)*Math.PI/180)
-        + 0.658 * Math.sin(2*D*Math.PI/180)
-        + 0.214 * Math.sin(2*M*Math.PI/180)
-        + 0.11  * Math.sin(D*Math.PI/180);
-
-    return ((lon%360)+360)%360;
-}
-
-// ============================
-// 🇮🇳 AYANAMSA (LAHIRI)
-// ============================
-
-function lahiriAyanamsa(jd){
-    const t = (jd - 2451545.0)/36525;
-    return 22.460148 + 1.396042*t + 0.000308*t*t;
-}
-
-// ============================
-// 🎯 MAIN CALC
-// ============================
-
-document.getElementById("calc").onclick = () => {
-
-    const dob = document.getElementById("dob").value;
-    const tob = document.getElementById("tob").value;
-
-    if(!dob || !tob){
-        alert("Enter date and time");
-        return;
-    }
-
-    // timezone-safe IST handling
-    const [y,m,d] = dob.split("-").map(Number);
-    const [hh,mm] = tob.split(":").map(Number);
-
-    // IST → UTC
-    const utc = Date.UTC(y, m-1, d, hh-5, mm-30, 0);
-
-    const jd = toJulian(utc);
-
-    // 🌙 moon
-    const moonLon = moonLongitude(jd);
-
-    // 🇮🇳 sidereal
-    const ayan = lahiriAyanamsa(jd);
-    let sidereal = moonLon - ayan;
-    sidereal = ((sidereal%360)+360)%360;
-
-    // 🧭 rashi
-    const rashiIndex = Math.floor(sidereal / 30);
-    const rashi = rashis[rashiIndex];
-
-    // ⭐ nakshatra
-    const nakIndex = Math.floor(sidereal / (360/27));
-    const nak = nakshatras[nakIndex];
-
-    // pada
-    const pada = Math.floor((sidereal % (360/27)) / (360/108)) + 1;
-
-    document.getElementById("output").style.display="block";
-    document.getElementById("output").innerHTML = `
-        <div class="center">
-            <h2>🔮 Exact Vedic Result</h2>
-            <h3>${rashi}</h3>
-        </div>
-        <div class="result"><b>Nakshatra:</b> ${nak}</div>
-        <div class="result"><b>Pada:</b> ${pada}</div>
-        <div class="result"><b>Moon Degree:</b> ${sidereal.toFixed(2)}°</div>
-    `;
-};
-</script>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script src="/js/calculators.js"></script>
 </body>
 </html>

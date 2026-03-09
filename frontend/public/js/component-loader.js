@@ -83,124 +83,135 @@ function _getFallback(id) {
                 <div class="dropdown-content" id="${id}-content">${items}</div>
             </div>`;
 
-        const cats = [
-            ['construction-dropdown', 'fas fa-hard-hat', 'Construction', [
-                ['calculators/construction/calc_brick.html', 'Brick Estimator'],
-                ['calculators/construction/calc_concrete.html', 'Concrete Calculator'],
-                ['calculators/construction/calc_flooring.html', 'Flooring Calculator'],
-                ['calculators/construction/calc_fuel.html', 'Fuel Cost Calculator'],
-                ['calculators/construction/calc_lumber.html', 'Lumber Board Feet'],
-                ['calculators/construction/calc_ohm.html', "Ohm's Law"],
-                ['calculators/construction/calc_paint.html', 'Paint Calculator'],
-                ['calculators/construction/calc_roof_area.html', 'Roof Area Calculator'],
-                ['calculators/construction/calc_wall_stud.html', 'Wall Stud Calculator']
-            ]],
-            ['crypto-dropdown', 'fas fa-vault', 'Cryptography', [
-                ['calculators/cryptography/tool_md5_generator.html', 'MD5 Generator'],
-                ['calculators/cryptography/tool_sha256_generator.html', 'SHA-256 Generator'],
-                ['calculators/cryptography/tool_base64.html', 'Base64 Encoder/Decoder']
-            ]],
-            ['datetime-dropdown', 'fas fa-calendar-alt', 'Date & Time', [
-                ['calculators/date-time/calc_age.html', 'Age Calculator'],
-                ['calculators/date-time/calc_countdown.html', 'Countdown Timer'],
-                ['calculators/date-time/calc_date_diff.html', 'Date Difference'],
-                ['calculators/date-time/calc_hours_worked.html', 'Hours Worked'],
-                ['calculators/date-time/calc_leap_year.html', 'Leap Year Checker'],
-                ['calculators/date-time/calc_time_add.html', 'Time Addition'],
-                ['calculators/date-time/calc_time_zone.html', 'Time Zone Converter'],
-                ['calculators/date-time/calc_working_days.html', 'Working Days']
-            ]],
-            ['electronics-dropdown', 'fas fa-microchip', 'Electronics', [
-                ['calculators/electronics/calc_555_timer.html', '555 Timer'],
-                ['calculators/electronics/calc_capacitor_code.html', 'Capacitor Code'],
-                ['calculators/electronics/calc_frequency.html', 'Frequency & Wavelength'],
-                ['calculators/electronics/calc_led_resistor_calculator.html', 'LED Resistor'],
-                ['calculators/electronics/calc_ohm.html', "Ohm's Law"],
-                ['calculators/electronics/calc_power.html', 'Power Calculator'],
-                ['calculators/electronics/calc_resistor_color_code.html', 'Resistor Color Code'],
-                ['calculators/electronics/calc_voltage_divider.html', 'Voltage Divider']
-            ]],
-            ['finance-dropdown', 'fas fa-dollar-sign', 'Finance', [
-                ['calculators/finance/calc_car_loan.html', 'Car Loan'],
-                ['calculators/finance/calc_compound.html', 'Compound Interest'],
-                ['calculators/finance/calc_compound_interest.html', 'Compound Interest (Adv)'],
-                ['calculators/finance/calc_currency.html', 'Currency Converter'],
-                ['calculators/finance/calc_discount.html', 'Discount Calculator'],
-                ['calculators/finance/calc_loan.html', 'General Loan'],
-                ['calculators/finance/calc_loan_emi.html', 'Loan EMI'],
-                ['calculators/finance/calc_mortgage.html', 'Mortgage Calculator'],
-                ['calculators/finance/calc_roi.html', 'ROI Calculator'],
-                ['calculators/finance/calc_salary.html', 'Salary Calculator'],
-                ['calculators/finance/calc_savings_goal.html', 'Savings Goal'],
-                ['calculators/finance/calc_tax_gst.html', 'Tax / GST'],
-                ['calculators/finance/calc_tip_calculator.html', 'Tip Calculator']
-            ]],
-            ['math-dropdown', 'fas fa-calculator', 'General Math', [
-                ['calculators/general-math/calc_average.html', 'Average Calculator'],
-                ['calculators/general-math/calc_fractions.html', 'Fractions Calculator'],
-                ['calculators/general-math/calc_math_toolkit.html', 'Math Toolkit'],
-                ['calculators/general-math/calc_percentage.html', 'Percentage Calculator'],
-                ['calculators/general-math/calc_programmer.html', 'Programmer Calculator'],
-                ['calculators/general-math/calc_scientific.html', 'Scientific Calculator'],
-                ['calculators/general-math/calc_standard.html', 'Standard Calculator'],
-                ['calculators/general-math/tool_password.html', 'Password Generator']
-            ]],
-            ['health-dropdown', 'fas fa-heartbeat', 'Health & Fitness', [
-                ['calculators/health-fitness/calc_bmi.html', 'BMI Calculator'],
-                ['calculators/health-fitness/calc_bmr.html', 'BMR Calculator'],
-                ['calculators/health-fitness/calc_body_fat.html', 'Body Fat Percentage'],
-                ['calculators/health-fitness/calc_calorie.html', 'Calorie Calculator'],
-                ['calculators/health-fitness/calc_calorie-calculator.html', 'Calorie Tracker Pro'],
-                ['calculators/health-fitness/calc_ovulation.html', 'Ovulation Calculator'],
-                ['calculators/health-fitness/calc_pregnancy.html', 'Pregnancy Due Date'],
-                ['calculators/health-fitness/calc_water.html', 'Water Intake']
-            ]],
-            ['network-dropdown', 'fas fa-network-wired', 'Network', [
-                ['calculators/network/tool_dns_lookup.html', 'DNS Lookup'],
-                ['calculators/network/tool_ip_geo.html', 'IP Geolocation'],
-                ['calculators/network/tool_ping.html', 'Ping Test'],
-                ['calculators/network/tool_port_scanner.html', 'Port Scanner'],
-                ['calculators/network/calc_subnet.html', 'Subnet Calculator'],
-                ['calculators/network/tool_traceroute.html', 'Traceroute Tool'],
-                ['calculators/network/tool_whois.html', 'Whois Lookup']
-            ]],
-            ['students-dropdown', 'fas fa-graduation-cap', 'Students', [
-                ['calculators/students/calc_geometry.html', 'Geometry Calculator'],
-                ['calculators/students/calc_gpa.html', 'GPA Calculator'],
-                ['calculators/students/calc_grade_weighted.html', 'Grade Weighted'],
-                ['calculators/students/calc_mensuration.html', 'Mensuration'],
-                ['calculators/students/calc_pomodoro.html', 'Pomodoro Timer'],
-                ['calculators/students/calc_quadratic.html', 'Quadratic Equation'],
-                ['calculators/students/calc_statistics.html', 'Statistics'],
-                ['calculators/students/calc_unit_conv.html', 'Unit Conv']
-            ]],
-            ['text-dropdown', 'fas fa-keyboard', 'Text & Web', [
-                ['calculators/text-web/tool_case_converter.html', 'Case Converter'],
-                ['calculators/text-web/tool_lorem_ipsum.html', 'Lorem Ipsum Generator'],
-                ['calculators/text-web/tool_password.html', 'Password Strength'],
-                ['calculators/text-web/tool_word_counter.html', 'Word Counter'],
-                ['calculators/text-web/tool_url_encoder.html', 'URL Encoder/Decoder']
-            ]],
-            ['games-dropdown', 'fas fa-gamepad', 'Games', [
-                ['calculators/fun/game_car_racing.html', 'Car Racing'],
-                ['calculators/fun/game_connect4.html', 'Connect 4'],
-                ['calculators/fun/game_chess.html', 'Multiplayer Chess'],
-                ['calculators/fun/calc_rock_paper_scissors.html', 'Rock Paper Scissors'],
-                ['calculators/fun/game_tic_tac_toe.html', 'Tic Tac Toe']
-            ]],
-            ['fun-dropdown', 'fas fa-face-grin-tears', 'Fun Tools', [
-                ['calculators/fun/calc_coin_flipper.html', 'Coin Flipper'],
-                ['calculators/fun/calc_compatibility.html', 'Compatibility Test'],
-                ['calculators/fun/calc_dice_roller.html', 'Dice Roller'],
-                ['calculators/fun/calc_flames.html', 'FLAMES Game'],
-                ['calculators/fun/calc_fortune_cookie.html', 'Fortune Cookie'],
-                ['calculators/fun/calc_love.html', 'Love Calculator'],
-                ['calculators/fun/calc_magic_8_ball.html', 'Magic 8 Ball'],
-                ['calculators/fun/calc_number_guesser.html', 'Number Guesser'],
-                ['calculators/fun/calc_random_number.html', 'Random Number'],
-                ['calculators/fun/calc_zodiac.html', 'Zodiac Sign']
-            ]]
-        ];
+        let cats;
+        if (window.CALCULATORS_DATA && Array.isArray(window.CALCULATORS_DATA)) {
+            // Dynamically build from global data if available
+            cats = window.CALCULATORS_DATA.map(cat => {
+                const dropdownId = `${cat.category.toLowerCase().replace(/[^a-z0-9]/g, '')}-dropdown`;
+                const items = cat.items.map(item => [item.link, item.name]);
+                return [dropdownId, cat.icon, cat.category, items];
+            });
+        } else {
+            // Fallback to hardcoded list if global data isn't loaded yet
+            cats = [
+                ['construction-dropdown', 'fas fa-hard-hat', 'Construction', [
+                    ['calculators/construction/calc_brick.html', 'Brick Estimator'],
+                    ['calculators/construction/calc_concrete.html', 'Concrete Calculator'],
+                    ['calculators/construction/calc_flooring.html', 'Flooring Calculator'],
+                    ['calculators/construction/calc_fuel.html', 'Fuel Cost Calculator'],
+                    ['calculators/construction/calc_lumber.html', 'Lumber Board Feet'],
+                    ['calculators/construction/calc_ohm.html', "Ohm's Law (Construction)"],
+                    ['calculators/construction/calc_paint.html', 'Paint Calculator'],
+                    ['calculators/construction/calc_roof_area.html', 'Roof Area Calculator'],
+                    ['calculators/construction/calc_wall_stud.html', 'Wall Stud Calculator']
+                ]],
+                ['crypto-dropdown', 'fas fa-vault', 'Cryptography', [
+                    ['calculators/cryptography/tool_md5_generator.html', 'MD5 Generator'],
+                    ['calculators/cryptography/tool_sha256_generator.html', 'SHA-256 Generator'],
+                    ['calculators/cryptography/tool_base64.html', 'Base64 Encoder/Decoder']
+                ]],
+                ['datetime-dropdown', 'fas fa-calendar-alt', 'Date & Time', [
+                    ['calculators/date-time/calc_age.html', 'Age Calculator'],
+                    ['calculators/date-time/calc_countdown.html', 'Countdown Timer'],
+                    ['calculators/date-time/calc_date_diff.html', 'Date Difference'],
+                    ['calculators/date-time/calc_hours_worked.html', 'Hours Worked'],
+                    ['calculators/date-time/calc_leap_year.html', 'Leap Year Checker'],
+                    ['calculators/date-time/calc_time_add.html', 'Time Addition'],
+                    ['calculators/date-time/calc_time_zone.html', 'Time Zone Converter'],
+                    ['calculators/date-time/calc_working_days.html', 'Working Days']
+                ]],
+                ['electronics-dropdown', 'fas fa-microchip', 'Electronics', [
+                    ['calculators/electronics/calc_555_timer.html', '555 Timer'],
+                    ['calculators/electronics/calc_battery_life.html', 'Battery Life'],
+                    ['calculators/electronics/calc_capacitor_code.html', 'Capacitor Code'],
+                    ['calculators/electronics/calc_frequency.html', 'Frequency & Wavelength'],
+                    ['calculators/electronics/calc_led_resistor_calculator.html', 'LED Resistor'],
+                    ['calculators/electronics/calc_ohm.html', "Ohm's Law"],
+                    ['calculators/electronics/calc_power.html', 'Power Calculator'],
+                    ['calculators/electronics/calc_resistor_color_code.html', 'Resistor Color Code'],
+                    ['calculators/electronics/calc_voltage_divider.html', 'Voltage Divider']
+                ]],
+                ['finance-dropdown', 'fas fa-landmark', 'Finance', [
+                    ['calculators/finance/calc_car_loan.html', 'Car Loan'],
+                    ['calculators/finance/calc_compound.html', 'Compound Interest (Simple)'],
+                    ['calculators/finance/calc_compound_interest.html', 'Compound Interest (Advanced)'],
+                    ['calculators/finance/calc_currency.html', 'Currency Converter'],
+                    ['calculators/finance/calc_discount.html', 'Discount Calculator'],
+                    ['calculators/finance/calc_loan.html', 'General Loan'],
+                    ['calculators/finance/calc_loan_emi.html', 'Loan EMI'],
+                    ['calculators/finance/calc_mortgage.html', 'Mortgage Calculator'],
+                    ['calculators/finance/calc_roi.html', 'ROI Calculator'],
+                    ['calculators/finance/calc_salary.html', 'Salary Calculator'],
+                    ['calculators/finance/calc_savings_goal.html', 'Savings Goal'],
+                    ['calculators/finance/calc_tax_gst.html', 'Tax / GST'],
+                    ['calculators/finance/calc_tip_calculator.html', 'Tip Calculator']
+                ]],
+                ['math-dropdown', 'fas fa-calculator', 'General Math', [
+                    ['calculators/general-math/calc_average.html', 'Average Calculator'],
+                    ['calculators/general-math/calc_fractions.html', 'Fractions Calculator'],
+                    ['calculators/general-math/calc_math_toolkit.html', 'Math Toolkit'],
+                    ['calculators/general-math/calc_percentage.html', 'Percentage Calculator'],
+                    ['calculators/general-math/calc_programmer.html', 'Programmer Calculator'],
+                    ['calculators/general-math/calc_scientific.html', 'Scientific Calculator'],
+                    ['calculators/general-math/calc_standard.html', 'Standard Calculator'],
+                    ['calculators/general-math/tool_password.html', 'Password Generator']
+                ]],
+                ['health-dropdown', 'fas fa-heart-pulse', 'Health & Fitness', [
+                    ['calculators/health-fitness/calc_bmi.html', 'BMI Calculator'],
+                    ['calculators/health-fitness/calc_bmr.html', 'BMR Calculator'],
+                    ['calculators/health-fitness/calc_body_fat.html', 'Body Fat Percentage'],
+                    ['calculators/health-fitness/calc_calorie.html', 'Calorie Calculator'],
+                    ['calculators/health-fitness/calc_ovulation.html', 'Ovulation Calculator'],
+                    ['calculators/health-fitness/calc_pregnancy.html', 'Pregnancy Due Date'],
+                    ['calculators/health-fitness/calc_water.html', 'Water Intake']
+                ]],
+                ['network-dropdown', 'fas fa-network-wired', 'Network', [
+                    ['calculators/network/tool_dns_lookup.html', 'DNS Lookup'],
+                    ['calculators/network/tool_ip_geo.html', 'IP Geolocation'],
+                    ['calculators/network/tool_ping.html', 'Ping Test'],
+                    ['calculators/network/tool_port_scanner.html', 'Port Scanner'],
+                    ['calculators/network/calc_subnet.html', 'Subnet Calculator'],
+                    ['calculators/network/tool_traceroute.html', 'Traceroute Tool'],
+                    ['calculators/network/tool_whois.html', 'Whois Lookup']
+                ]],
+                ['students-dropdown', 'fas fa-user-graduate', 'Students', [
+                    ['calculators/students/calc_geometry.html', 'Geometry Calculator'],
+                    ['calculators/students/calc_gpa.html', 'GPA Calculator'],
+                    ['calculators/students/calc_grade_weighted.html', 'Weighted Grade'],
+                    ['calculators/students/calc_mensuration.html', 'Mensuration'],
+                    ['calculators/students/calc_pomodoro.html', 'Pomodoro Timer'],
+                    ['calculators/students/calc_quadratic.html', 'Quadratic Equation'],
+                    ['calculators/students/calc_statistics.html', 'Statistics'],
+                    ['calculators/students/calc_unit_conv.html', 'Unit Conv']
+                ]],
+                ['text-dropdown', 'fas fa-file-code', 'Text & Web', [
+                    ['calculators/text-web/tool_case_converter.html', 'Case Converter'],
+                    ['calculators/text-web/tool_lorem_ipsum.html', 'Lorem Ipsum Generator'],
+                    ['calculators/text-web/tool_password.html', 'Password Strength'],
+                    ['calculators/text-web/tool_word_counter.html', 'Word Counter'],
+                    ['calculators/text-web/tool_url_encoder.html', 'URL Encoder/Decoder']
+                ]],
+                ['games-dropdown', 'fas fa-gamepad', 'Games', [
+                    ['calculators/fun/game_car_racing.html', 'Car Racing'],
+                    ['calculators/fun/game_connect4.html', 'Connect 4'],
+                    ['calculators/fun/game_chess.html', 'Multiplayer Chess'],
+                    ['calculators/fun/game_tic_tac_toe.html', 'Tic Tac Toe']
+                ]],
+                ['fun-dropdown', 'fas fa-face-grin-tears', 'Fun Tools', [
+                    ['calculators/fun/calc_coin_flipper.html', 'Coin Flipper'],
+                    ['calculators/fun/calc_compatibility.html', 'Compatibility Test'],
+                    ['calculators/fun/calc_dice_roller.html', 'Dice Roller'],
+                    ['calculators/fun/calc_flames.html', 'FLAMES Game'],
+                    ['calculators/fun/calc_fortune_cookie.html', 'Fortune Cookie'],
+                    ['calculators/fun/calc_love.html', 'Love Calculator'],
+                    ['calculators/fun/calc_magic_8_ball.html', 'Magic 8 Ball'],
+                    ['calculators/fun/calc_number_guesser.html', 'Number Guesser'],
+                    ['calculators/fun/calc_rock_paper_scissors.html', 'Rock Paper Scissors'],
+                    ['calculators/fun/calc_random_number.html', 'Random Number'],
+                    ['calculators/fun/calc_zodiac.html', 'Zodiac Sign']
+                ]]
+            ];
+        }
 
         const catDropdowns = cats.map(([id, icon, label, items]) =>
             dd(id, icon, label, items.map(([href, name]) => `<a href="${href}">${name}</a>`).join(''))
@@ -215,6 +226,9 @@ function _getFallback(id) {
             <div class="user-profile">
                 <div class="user-avatar">SH</div>
                 <div class="user-info"><h4>Smart Hub</h4><p>Offline Mode</p></div>
+            </div>
+            <div style="padding: 0 15px 15px;">
+                <input type="text" placeholder="Filter tools..." onkeyup="window.filterSidebar(this)" style="width:100%; padding:8px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:inherit; font-size:0.9rem; outline:none;">
             </div>
             <nav class="side-menu">
                 <a href="index.html" data-title="Dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
@@ -333,3 +347,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.dispatchEvent(new Event('componentsLoaded'));
 });
+
+// --- Sidebar Filter Logic ---
+window.filterSidebar = function(input) {
+    const term = input.value.toLowerCase();
+    const dropdowns = document.querySelectorAll('.side-menu .dropdown');
+
+    dropdowns.forEach(dd => {
+        const links = dd.querySelectorAll('.dropdown-content a');
+        let hasMatch = false;
+
+        links.forEach(link => {
+            const text = link.innerText.toLowerCase();
+            const match = text.includes(term);
+            link.style.display = match ? 'flex' : 'none';
+            if (match) hasMatch = true;
+        });
+
+        if (term.length > 0) {
+            dd.style.display = hasMatch ? 'block' : 'none';
+            dd.querySelector('.dropdown-content').style.display = hasMatch ? 'block' : 'none';
+        } else {
+            dd.style.display = 'block';
+            links.forEach(l => l.style.display = 'flex');
+            dd.querySelector('.dropdown-content').style.display = 'none';
+        }
+    });
+};

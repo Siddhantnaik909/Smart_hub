@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART HUB | SHA-256 Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+    <div class="dashboard-layout" id="dashboard-wrapper">
+        <div class="overlay" id="mobile-overlay"></div>
+        <div id="sidebar-placeholder"></div>
+        
+        <main class="main-content">
+            <div id="header-placeholder"></div>
+            
+            <div class="page-body">
+                <section class="container fade-in">
+                    <div class="cat-card stagger-1">
+                        <div class="calculator-header">
+                            <h2><i class="fa-solid fa-shield-alt" style="color: var(--primary-color);"></i> SHA-256 Generator</h2>
+                            <p>Generate secure SHA-256 hashes for your text data.</p>
+                        </div>
+                        
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <span>Input Text</span>
+                                <textarea id="input-text" class="form-control" rows="4" placeholder="Enter text to hash..." style="width: 100%; margin-top: 10px;"></textarea>
+                            </div>
+                            <button id="calc-btn" class="btn-calc">Generate Hash</button>
+                        </div>
+                    </div>
+
+                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
+                        <h3><i class="fas fa-fingerprint"></i> SHA-256 Hash</h3>
+                        <div class="sub-cat-list">
+                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
+                                <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:5px;">
+                                    <span>Output</span>
+                                    <button id="copy-btn" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size: 0.9rem;"><i class="far fa-copy"></i> Copy</button>
+                                </div>
+                                <code id="hash-output" style="display:block; width:100%; padding:15px; background:rgba(0,0,0,0.2); border-radius:8px; word-break:break-all; font-family:monospace; color: var(--accent-color);"></code>
+                            </div>
+                        </div>
+                        <div class="button-group" style="margin-top: 15px;">
+                            <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Save to History</button>
+                        </div>
+                    </div>
+                </section>
+                <div id="footer-placeholder"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.FRONTEND_ROOT = "/"; 
+        window.COMPONENT_ROOT = "/components/"; 
+    </script>
+    <script src="/js/component-loader.js"></script>
+    <script src="/js/calc-utils.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script>
+        async function generateSHA256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        document.getElementById('calc-btn').addEventListener('click', async () => {
+            const input = document.getElementById('input-text').value;
+            if(!input) return alert("Please enter some text.");
+            
+            const hash = await generateSHA256(input);
+            
+            const resCard = document.getElementById('results');
+            const output = document.getElementById('hash-output');
+            
+            output.innerText = hash;
+            resCard.style.display = 'block';
+            
+            // Setup save button
+            const saveBtn = document.getElementById('save-btn');
+            const newBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            
+            newBtn.addEventListener('click', () => {
+                const rows = [{ label: "Hash", val: hash, highlight: true }];
+                const inputs = [{ label: "Input", val: input.substring(0, 50) + (input.length>50?"...":"") }];
+                const ok = window.saveCalcToHistory("SHA-256 Generator", inputs, rows);
+                if(ok) {
+                    const orig = newBtn.innerHTML;
+                    newBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                    newBtn.style.background = '#10b981';
+                    setTimeout(() => { newBtn.innerHTML = orig; newBtn.style.background = ''; }, 2000);
+                }
+            });
+        });
+
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            const text = document.getElementById('hash-output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

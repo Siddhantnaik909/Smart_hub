@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMART HUB | Water Intake Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -42,17 +42,18 @@
                                 <input type="number" id="exercise" class="form-control" placeholder="e.g. 30" value="0">
                             </div>
                             
-                            <button id="calc-water-btn" class="btn-calc" style="background-color: var(--accent-cyan);">Calculate Intake</button>
+                            <button id="calculateBtn" class="btn-calc" style="background-color: var(--accent-cyan);">Calculate Intake</button>
+                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
                         </div>
                     </div>
 
                     <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
                         <h3>Daily Recommendation</h3>
                         <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-water" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Results
-                        </button>
+                        </div>
+                        <div class="button-group" style="margin-top: 20px;">
+                            <button class="btn-save"><i class="fa-solid fa-save"></i> Save Results</button>
+                        </div>
                     </div>
 
                     <div class="cat-card stagger-3" style="margin-top: 20px;">
@@ -73,19 +74,19 @@
         window.COMPONENT_ROOT = "/components/"; 
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calcBtn = document.getElementById('calc-water-btn');
+            const calcBtn = document.getElementById('calculateBtn');
             const resultsCard = document.getElementById('results');
             const displayArea = document.getElementById('result-display-area');
+            const weightInput = document.getElementById('weight');
 
             calcBtn.addEventListener('click', () => {
-                const weightVal = parseFloat(document.getElementById('weight').value);
-                const unit = document.getElementById('unit').value;
-                const exercise = parseFloat(document.getElementById('exercise').value) || 0;
-
-                if (!weightVal || weightVal <= 0) {
-                    alert("Please enter a valid weight.");
+                if (!validateInputs([weightInput], { checkPositive: true })) {
                     return;
                 }
+
+                const weightVal = parseFloat(weightInput.value);
+                const unit = document.getElementById('unit').value;
+                const exercise = parseFloat(document.getElementById('exercise').value) || 0;
 
                 // Standardize to kg
                 const weightKg = (unit === 'lbs') ? weightVal / 2.20462 : weightVal;
@@ -112,12 +113,21 @@
 
                 resultsCard.style.display = 'block';
                 resultsCard.classList.remove('hidden');
+
+                // Save to history
+                const inputData = [
+                    { label: 'Weight', val: `${weightVal} ${unit}` },
+                    { label: 'Exercise', val: `${exercise} min` }
+                ];
+                window.setLastCalc('Water Intake', inputData, [
+                    { label: 'Daily Intake', val: `${liters.toFixed(2)} Liters`, highlight: true },
+                    { label: 'Approx. Glasses', val: `${glasses} glasses` }
+                ]);
             });
         });
     </script>
     <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
     <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

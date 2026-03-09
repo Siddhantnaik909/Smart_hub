@@ -326,7 +326,23 @@ router.post('/settings', verifyToken, isAdmin, async (req, res) => {
             glassmorphism,
             compactMode,
             siteName,
-            customCSS
+            customCSS,
+            enableCustomCSS,
+            customJS,
+            enableCustomJS,
+            buttonStyle,
+            cardAnimation,
+            fontFamily,
+            siteLogo,
+            categoryOrder,
+            shadowIntensity,
+            sidebarBgStart,
+            sidebarBgEnd,
+            sidebarTextColor,
+            sidebarActiveColor,
+            sidebarWidth,
+            sidebarFontSize,
+            customCategories
         } = req.body;
 
         const currentSettings = {};
@@ -347,7 +363,23 @@ router.post('/settings', verifyToken, isAdmin, async (req, res) => {
             glassmorphism: glassmorphism !== undefined ? !!glassmorphism : currentSettings.glassmorphism,
             compactMode: compactMode !== undefined ? !!compactMode : currentSettings.compactMode,
             siteName: siteName || currentSettings.siteName,
-            customCSS: customCSS || currentSettings.customCSS
+            customCSS: customCSS || currentSettings.customCSS,
+            enableCustomCSS: enableCustomCSS !== undefined ? !!enableCustomCSS : currentSettings.enableCustomCSS,
+            customJS: customJS || currentSettings.customJS,
+            enableCustomJS: enableCustomJS !== undefined ? !!enableCustomJS : currentSettings.enableCustomJS,
+            buttonStyle: buttonStyle || currentSettings.buttonStyle,
+            cardAnimation: cardAnimation || currentSettings.cardAnimation,
+            fontFamily: fontFamily || currentSettings.fontFamily,
+            siteLogo: siteLogo !== undefined ? siteLogo : currentSettings.siteLogo,
+            categoryOrder: categoryOrder || currentSettings.categoryOrder,
+            shadowIntensity: shadowIntensity || currentSettings.shadowIntensity,
+            sidebarBgStart: sidebarBgStart || currentSettings.sidebarBgStart,
+            sidebarBgEnd: sidebarBgEnd || currentSettings.sidebarBgEnd,
+            sidebarTextColor: sidebarTextColor || currentSettings.sidebarTextColor,
+            sidebarActiveColor: sidebarActiveColor || currentSettings.sidebarActiveColor,
+            sidebarWidth: sidebarWidth || currentSettings.sidebarWidth,
+            sidebarFontSize: sidebarFontSize || currentSettings.sidebarFontSize,
+            customCategories: customCategories || currentSettings.customCategories || []
         };
 
         await fs.mkdir(path.dirname(SETTINGS_FILE), { recursive: true });

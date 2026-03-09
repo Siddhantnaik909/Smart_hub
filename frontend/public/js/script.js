@@ -105,7 +105,6 @@ window.CALCULATORS_DATA = [
             { name: "BMR Calculator", link: "/calculators/health-fitness/calc_bmr.html" },
             { name: "Body Fat Percentage", link: "/calculators/health-fitness/calc_body_fat.html" },
             { name: "Calorie Calculator", link: "/calculators/health-fitness/calc_calorie.html" },
-            { name: "Calorie Tracker Pro", link: "/calculators/health-fitness/calc_calorie-calculator.html" },
             { name: "Ovulation Calculator", link: "/calculators/health-fitness/calc_ovulation.html" },
             { name: "Pregnancy Due Date", link: "/calculators/health-fitness/calc_pregnancy.html" },
             { name: "Water Intake", link: "/calculators/health-fitness/calc_water.html" }
@@ -148,7 +147,6 @@ window.CALCULATORS_DATA = [
             { name: "Car Racing", link: "/calculators/fun/game_car_racing.html" },
             { name: "Connect 4", link: "/calculators/fun/game_connect4.html" },
             { name: "Multiplayer Chess", link: "/calculators/fun/game_chess.html" },
-            { name: "Rock Paper Scissors", link: "/calculators/fun/calc_rock_paper_scissors.html" },
             { name: "Tic Tac Toe", link: "/calculators/fun/game_tic_tac_toe.html" }
         ]
     },
@@ -162,6 +160,7 @@ window.CALCULATORS_DATA = [
             { name: "Love Calculator", link: "/calculators/fun/calc_love.html" },
             { name: "Magic 8 Ball", link: "/calculators/fun/calc_magic_8_ball.html" },
             { name: "Number Guesser", link: "/calculators/fun/calc_number_guesser.html" },
+            { name: "Rock Paper Scissors", link: "/calculators/fun/calc_rock_paper_scissors.html" },
             { name: "Random Number", link: "/calculators/fun/calc_random_number.html" },
             { name: "Zodiac Sign", link: "/calculators/fun/calc_zodiac.html" }
         ]
@@ -500,6 +499,11 @@ function updateUserInterface() {
             </div>
         `;
     }
+
+    // Initialize Admin Live Editor if user is admin
+    if (isLoggedIn && user.role === 'admin') {
+        initAdminLiveEditor();
+    }
 }
 
 window.confirmLogout = function () {
@@ -524,6 +528,7 @@ async function initializeAdminPanel() {
     if (typeof window.fetchAssetFiles === 'function') {
         window.fetchAssetFiles();
     }
+    initAdminPreview();
 }
 
 async function fetchAdminStats() {
@@ -689,6 +694,30 @@ async function fetchAdminSettings() {
             document.title = `${settings.siteName} | SMART HUB`;
         }
 
+        // 2.1 Site Logo
+        if (settings.siteLogo) {
+            const logoSelectors = ['.brand-block', '.navbar-branding', '.auth-logo'];
+            logoSelectors.forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) {
+                    // Hide existing icon if present
+                    const icon = el.querySelector('i');
+                    if (icon) icon.style.display = 'none';
+                    
+                    // Check or create img
+                    let img = el.querySelector('.custom-site-logo');
+                    if (!img) {
+                        img = document.createElement('img');
+                        img.classList.add('custom-site-logo');
+                        img.style.maxHeight = '32px';
+                        img.style.marginRight = '10px';
+                        el.prepend(img);
+                    }
+                    img.src = settings.siteLogo;
+                }
+            });
+        }
+
         // 3. Theme Colors
         if (settings.primaryColor) {
             localStorage.setItem('themeColor', settings.primaryColor);
@@ -699,6 +728,64 @@ async function fetchAdminSettings() {
         if (settings.accentColor) {
             localStorage.setItem('accentColor', settings.accentColor);
             document.documentElement.style.setProperty('--accent-purple', settings.accentColor);
+        }
+
+        // 3.5 Button Style & Fonts & Animations
+        if (settings.buttonStyle) {
+            localStorage.setItem('buttonStyle', settings.buttonStyle);
+            let radius = '12px';
+            if (settings.buttonStyle === 'round') radius = '24px';
+            else if (settings.buttonStyle === 'sharp') radius = '0px';
+            else if (settings.buttonStyle === 'leaf') radius = '12px 0 12px 0';
+            document.documentElement.style.setProperty('--btn-radius', radius);
+        }
+        if (settings.fontFamily) {
+            localStorage.setItem('fontFamily', settings.fontFamily);
+            document.documentElement.style.setProperty('--font-main', settings.fontFamily);
+        }
+        if (settings.cardAnimation) {
+            localStorage.setItem('cardAnimation', settings.cardAnimation);
+            document.body.classList.remove('anim-fade-up', 'anim-zoom-in', 'anim-slide-up', 'anim-bounce');
+            if (settings.cardAnimation !== 'none') {
+                document.body.classList.add(`anim-${settings.cardAnimation}`);
+            }
+        }
+
+        // 3.6 Shadow Intensity
+        if (settings.shadowIntensity) {
+            localStorage.setItem('shadowIntensity', settings.shadowIntensity);
+            const intensity = settings.shadowIntensity / 100;
+            const y = 1 + (intensity * 15);
+            const blur = 3 + (intensity * 27);
+            const opacity = 0.02 + (intensity * 0.13);
+            const hover_y = 2 + (intensity * 23);
+            const hover_blur = 6 + (intensity * 34);
+            const hover_opacity = 0.04 + (intensity * 0.16);
+            document.documentElement.style.setProperty('--shadow-card', `0 ${y}px ${blur}px rgba(0,0,0, ${opacity})`);
+            document.documentElement.style.setProperty('--shadow-hover', `0 ${hover_y}px ${hover_blur}px rgba(0,0,0, ${hover_opacity})`);
+        }
+
+        // 3.7 Sidebar Theme
+        if (settings.sidebarBgStart && settings.sidebarBgEnd) {
+            localStorage.setItem('sidebarBgStart', settings.sidebarBgStart);
+            localStorage.setItem('sidebarBgEnd', settings.sidebarBgEnd);
+            document.documentElement.style.setProperty('--sidebar-bg', `linear-gradient(180deg, ${settings.sidebarBgStart}, ${settings.sidebarBgEnd})`);
+        }
+        if (settings.sidebarTextColor) {
+            localStorage.setItem('sidebarTextColor', settings.sidebarTextColor);
+            document.documentElement.style.setProperty('--sidebar-text', settings.sidebarTextColor);
+        }
+        if (settings.sidebarActiveColor) {
+            localStorage.setItem('sidebarActiveColor', settings.sidebarActiveColor);
+            document.documentElement.style.setProperty('--sidebar-active', settings.sidebarActiveColor);
+        }
+        if (settings.sidebarWidth) {
+            localStorage.setItem('sidebarWidth', settings.sidebarWidth);
+            document.documentElement.style.setProperty('--sidebar-width', `${settings.sidebarWidth}px`);
+        }
+        if (settings.sidebarFontSize) {
+            localStorage.setItem('sidebarFontSize', settings.sidebarFontSize);
+            document.documentElement.style.setProperty('--sidebar-font-size', `${settings.sidebarFontSize}px`);
         }
 
         // 4. Layout & UI Scaling
@@ -732,14 +819,34 @@ async function fetchAdminSettings() {
         }
 
         // 6. Direct CSS Injection
-        if (settings.customCSS) {
-            let styleTag = document.getElementById('global-custom-css');
+        const cssInput = document.getElementById('setting-custom-css');
+        const cssToggle = document.getElementById('setting-enable-css');
+
+        if (cssInput) cssInput.value = settings.customCSS || '';
+        if (cssToggle) cssToggle.checked = !!settings.enableCustomCSS;
+
+        let styleTag = document.getElementById('global-custom-css');
+        
+        if (settings.customCSS && settings.enableCustomCSS) {
             if (!styleTag) {
                 styleTag = document.createElement('style');
                 styleTag.id = 'global-custom-css';
                 document.head.appendChild(styleTag);
             }
             styleTag.innerHTML = settings.customCSS;
+        } else if (styleTag) {
+            styleTag.remove();
+        }
+
+        // 6.5 Direct JS Injection
+        const existingJs = document.getElementById('global-custom-js');
+        if (existingJs) existingJs.remove();
+
+        if (settings.customJS && settings.enableCustomJS) {
+            const script = document.createElement('script');
+            script.id = 'global-custom-js';
+            script.textContent = settings.customJS;
+            document.body.appendChild(script);
         }
 
         // 7. Maintenance Mode Check
@@ -755,6 +862,11 @@ async function fetchAdminSettings() {
                     </div>`;
                 return;
             }
+        }
+
+        // 8. Tool Visibility & Ordering
+        if (settings.disabledTools || settings.categoryOrder) {
+            applyToolSettings(settings.disabledTools, settings.categoryOrder);
         }
     } catch (e) {
         console.warn("Running in offline settings mode.");
@@ -838,24 +950,49 @@ function loadRecentActivity() {
     // Render Full History Page List (using displayHistory instead of history)
     if (fullList) {
         fullList.innerHTML = displayHistory.length === 0 ?
-            `<div style="text-align: center; padding: 100px 20px; opacity: 0.5;">
+            `<div class="history-empty-state">
                 <i class="fa-solid fa-clock-rotate-left" style="font-size: 4rem; margin-bottom: 20px;"></i>
                 <h3>No logs found for this period</h3>
                 <p>Try modifying your history date filter, or perform some queries first.</p>
             </div>` :
-            `<div class="cat-card" style="padding: 0;">
-                ${displayHistory.map(item => `
-                    <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-header);"><i class="fa-solid fa-calculator" style="margin-right: 8px; color: var(--primary-color);"></i>${item.tool || item.name}</div>
-                            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">${item.details || 'General Processing Command Issued'}</div>
+            `<div class="history-items-container">
+                ${displayHistory.map((item, index) => {
+                // Generate detailed list of inputs and results
+                const inputsHtml = item.inputs && item.inputs.length > 0
+                    ? item.inputs.map(i => `<li><span class="label">${escapeHTML(i.label || 'Input')}:</span> <span class="value">${escapeHTML(String(i.val))}</span></li>`).join('')
+                    : '<li>No input details recorded.</li>';
+
+                const resultsHtml = item.results && item.results.length > 0
+                    ? item.results.map(r => `<li ${r.highlight ? 'class="highlight"' : ''}><span class="label">${escapeHTML(r.label || 'Result')}:</span> <span class="value">${escapeHTML(String(r.val))}</span></li>`).join('')
+                    : '<li>No results recorded.</li>';
+
+                return `
+                <div class="history-item">
+                    <div class="history-item-header" onclick="this.parentElement.classList.toggle('expanded')">
+                        <div class="history-item-title">
+                            <i class="fa-solid fa-calculator" style="color: var(--primary-color);"></i>
+                            <span>${escapeHTML(item.name || 'Calculation')}</span>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.85rem; font-weight: bold;">${safeDate(item)}</div>
-                            <div style="font-size: 0.75rem; opacity: 0.5;">${safeTime(item)}</div>
+                        <div class="history-item-summary">
+                            <div class="history-item-date">
+                                <span>${safeDate(item)}</span>
+                                <span class="time">${safeTime(item)}</span>
+                            </div>
+                            <i class="fas fa-chevron-down expand-icon"></i>
                         </div>
                     </div>
-                `).join('')}
+                    <div class="history-item-body">
+                        <div class="detail-section">
+                            <h5>Inputs</h5>
+                            <ul>${inputsHtml}</ul>
+                        </div>
+                        <div class="detail-section">
+                            <h5>Result</h5>
+                            <ul>${resultsHtml}</ul>
+                        </div>
+                    </div>
+                </div>
+            `}).join('')}
             </div>`;
 
         // Attach clear listener if button is present
@@ -919,4 +1056,450 @@ function loadFavorites() {
             <span style="font-weight:600;">${tool.name}</span>
         </a>
     `).join('');
+}
+
+/* --- 11. ADMIN LIVE PREVIEW --- */
+function initAdminPreview() {
+    const btnSelect = document.getElementById('setting-btn-style');
+    const fontSelect = document.getElementById('setting-font-family');
+    const animSelect = document.getElementById('setting-card-anim');
+    const colorInput = document.getElementById('setting-primary-color');
+    
+    if (!btnSelect) return; // Not on settings page
+
+    const update = () => {
+        const previewBtn = document.getElementById('preview-btn');
+        const previewCard = document.getElementById('preview-card');
+        
+        if (previewBtn) {
+            const style = btnSelect.value;
+            let radius = '12px';
+            if (style === 'round') radius = '24px';
+            else if (style === 'sharp') radius = '0px';
+            else if (style === 'leaf') radius = '12px 0 12px 0';
+            previewBtn.style.borderRadius = radius;
+            previewBtn.style.fontFamily = fontSelect.value;
+
+            if (colorInput) {
+                const col = colorInput.value;
+                previewBtn.style.background = `linear-gradient(135deg, ${col} 0%, ${col}dd 100%)`;
+                const colorDisplay = document.getElementById('color-code-display');
+                if (colorDisplay) colorDisplay.innerText = col;
+            }
+        }
+
+        if (previewCard) {
+            previewCard.style.fontFamily = fontSelect.value;
+            const anim = animSelect.value;
+            
+            // Reset animation to trigger reflow
+            previewCard.style.animation = 'none';
+            previewCard.offsetHeight; 
+            
+            if (anim !== 'none') {
+                let keyframe = anim === 'fade-up' ? 'fadeInUp' : (anim === 'zoom-in' ? 'zoomIn' : (anim === 'bounce' ? 'bounceIn' : 'slideUp'));
+                previewCard.style.animation = `${keyframe} 0.6s ease forwards`;
+            }
+
+            if (colorInput) {
+                const icon = previewCard.querySelector('.cat-icon_wrapper');
+                if (icon) {
+                    icon.style.color = colorInput.value;
+                    icon.style.background = `${colorInput.value}1a`;
+                }
+            }
+        }
+    };
+
+    btnSelect.addEventListener('change', update);
+    fontSelect.addEventListener('change', update);
+    animSelect.addEventListener('change', update);
+    if (colorInput) colorInput.addEventListener('input', update);
+}
+
+/* --- 11.5 CUSTOM CSS PREVIEW --- */
+window.applyCustomCSSPreview = function() {
+    const css = document.getElementById('setting-custom-css')?.value;
+    if (css === undefined) return;
+    
+    let styleTag = document.getElementById('global-custom-css');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'global-custom-css';
+        document.head.appendChild(styleTag);
+    }
+    styleTag.innerHTML = css;
+    showGlobalToast('Custom CSS applied to preview', 'info');
+};
+
+/* --- 12. SAVE SETTINGS --- */
+window.saveGlobalSettings = async function() {
+    const saveBtn = document.getElementById('save-settings-btn');
+    if (saveBtn && window.setButtonLoading) window.setButtonLoading(saveBtn, true);
+
+    const settings = {
+        siteName: document.getElementById('setting-site-name')?.value,
+        primaryColor: document.getElementById('setting-primary-color')?.value,
+        accentColor: document.getElementById('setting-accent-color')?.value,
+        darkMode: document.getElementById('setting-dark-mode')?.checked,
+        glassmorphism: document.getElementById('setting-glass')?.checked,
+        buttonStyle: document.getElementById('setting-btn-style')?.value,
+        fontFamily: document.getElementById('setting-font-family')?.value,
+        cardAnimation: document.getElementById('setting-card-anim')?.value,
+        layoutMode: document.getElementById('setting-layout-mode')?.value,
+        fontSize: document.getElementById('setting-font-size')?.value,
+        customCSS: document.getElementById('setting-custom-css')?.value,
+        enableCustomCSS: document.getElementById('setting-enable-css')?.checked,
+        sidebarBgStart: document.getElementById('setting-sidebar-bg-start')?.value,
+        sidebarBgEnd: document.getElementById('setting-sidebar-bg-end')?.value,
+        sidebarTextColor: document.getElementById('setting-sidebar-text')?.value,
+        sidebarActiveColor: document.getElementById('setting-sidebar-active')?.value,
+        sidebarWidth: document.getElementById('setting-sidebar-width')?.value,
+        sidebarFontSize: document.getElementById('setting-sidebar-font-size')?.value
+    };
+
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/admin/settings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(settings)
+        });
+
+        if (res.ok) {
+            showGlobalToast('Settings saved successfully!', 'success');
+            localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(settings));
+            fetchAdminSettings(); 
+        } else {
+            const err = await res.json();
+            showGlobalToast(err.error || 'Failed to save settings.', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showGlobalToast('Connection error while saving.', 'error');
+    } finally {
+        if (saveBtn && window.setButtonLoading) window.setButtonLoading(saveBtn, false);
+    }
+};
+
+/* --- 13. ADMIN LIVE VISUAL EDITOR --- */
+function initAdminLiveEditor() {
+    if (document.getElementById('admin-live-toolbar')) return;
+
+    // Don't show on admin.html itself to prevent breaking the dashboard logic
+    if (window.location.pathname.includes('admin.html')) return;
+
+    const toolbar = document.createElement('div');
+    toolbar.id = 'admin-live-toolbar';
+    toolbar.innerHTML = `
+        <div style="position:fixed; bottom:20px; right:80px; z-index:9999; display:flex; gap:10px; align-items:center;">
+            <div id="edit-controls" style="display:none; gap:8px; background:var(--bg-card); padding:8px 12px; border-radius:50px; box-shadow:var(--shadow-hover); border:1px solid var(--primary-color); animation: fadeIn 0.3s; align-items:center;">
+                
+                <button id="mode-text" class="btn-icon" style="width:32px; height:32px; font-size:0.85rem; border-radius:50%; background:var(--primary-color); color:white; border:1px solid var(--primary-color);" title="Text Edit Mode">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button id="mode-move" class="btn-icon" style="width:32px; height:32px; font-size:0.85rem; border-radius:50%; border:1px solid transparent;" title="Move Elements (Drag & Drop)">
+                    <i class="fas fa-arrows-alt"></i>
+                </button>
+                <button id="mode-anim" class="btn-icon" style="width:32px; height:32px; font-size:0.85rem; border-radius:50%; border:1px solid transparent;" title="Animation & Style Fixer">
+                    <i class="fas fa-magic"></i>
+                </button>
+                
+                <div style="width:1px; height:20px; background:var(--border-color); margin:0 4px;"></div>
+
+                <button id="save-edit-btn" class="btn-icon" style="width:32px; height:32px; border-radius:50%; background:#10b981; color:white; border:none;" title="Save Changes">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button id="cancel-edit-btn" class="btn-icon" style="width:32px; height:32px; border-radius:50%; background:#ef4444; color:white; border:none;" title="Cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <button id="toggle-edit-btn" class="btn-icon" style="width:48px; height:48px; border-radius:50%; background:var(--bg-card); color:var(--primary-color); border:2px solid var(--primary-color); box-shadow:var(--shadow-card); transition:all 0.3s;" title="Enable Visual Editor">
+                <i class="fas fa-pen"></i>
+            </button>
+        </div>
+    `;
+    document.body.appendChild(toolbar);
+
+    // State
+    let currentMode = 'text';
+    let draggedEl = null;
+    let animPopup = null;
+
+    const toggleBtn = document.getElementById('toggle-edit-btn');
+    const controls = document.getElementById('edit-controls');
+    const saveBtn = document.getElementById('save-edit-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const modeBtns = {
+        text: document.getElementById('mode-text'),
+        move: document.getElementById('mode-move'),
+        anim: document.getElementById('mode-anim')
+    };
+    
+    // --- MODE SWITCHING ---
+    const setMode = (mode) => {
+        currentMode = mode;
+        
+        // UI Update
+        Object.keys(modeBtns).forEach(k => {
+            if (k === mode) {
+                modeBtns[k].style.background = 'var(--primary-color)';
+                modeBtns[k].style.color = 'white';
+            } else {
+                modeBtns[k].style.background = 'transparent';
+                modeBtns[k].style.color = 'var(--text-header)';
+            }
+        });
+
+        // Logic Switch
+        if (mode === 'text') {
+            document.designMode = 'on';
+            disableMoveMode();
+            disableAnimMode();
+            showGlobalToast('Text Mode: Click to edit text.', 'info');
+        } else if (mode === 'move') {
+            document.designMode = 'off';
+            enableMoveMode();
+            disableAnimMode();
+            showGlobalToast('Move Mode: Drag elements to reorder.', 'info');
+        } else if (mode === 'anim') {
+            document.designMode = 'off';
+            disableMoveMode();
+            enableAnimMode();
+            showGlobalToast('Anim Mode: Click element to set animation.', 'info');
+        }
+    };
+
+    // --- MOVE MODE LOGIC ---
+    const enableMoveMode = () => {
+        const style = document.createElement('style');
+        style.id = 'editor-move-style';
+        style.innerHTML = `
+            body * { cursor: grab !important; }
+            body *.dragging { opacity: 0.5; cursor: grabbing !important; }
+            body *.drag-over { border-top: 3px solid var(--primary-color) !important; }
+        `;
+        document.head.appendChild(style);
+
+        document.querySelectorAll('div, section, article, p, h1, h2, h3, ul, li, img').forEach(el => {
+            if (!toolbar.contains(el)) {
+                el.setAttribute('draggable', 'true');
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragover', handleDragOver);
+                el.addEventListener('dragleave', handleDragLeave);
+                el.addEventListener('drop', handleDrop);
+                el.addEventListener('dragend', handleDragEnd);
+            }
+        });
+    };
+
+    const disableMoveMode = () => {
+        const style = document.getElementById('editor-move-style');
+        if (style) style.remove();
+        
+        document.querySelectorAll('[draggable="true"]').forEach(el => {
+            el.removeAttribute('draggable');
+            el.removeEventListener('dragstart', handleDragStart);
+            el.removeEventListener('dragover', handleDragOver);
+            el.removeEventListener('dragleave', handleDragLeave);
+            el.removeEventListener('drop', handleDrop);
+            el.removeEventListener('dragend', handleDragEnd);
+        });
+    };
+
+    function handleDragStart(e) {
+        if (currentMode !== 'move') return;
+        draggedEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        this.classList.add('dragging');
+        e.stopPropagation();
+    }
+    function handleDragOver(e) {
+        if (currentMode !== 'move') return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        this.classList.add('drag-over');
+        e.stopPropagation();
+    }
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+    function handleDrop(e) {
+        if (currentMode !== 'move' || !draggedEl) return;
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('drag-over');
+        
+        if (draggedEl !== this && !draggedEl.contains(this)) {
+            this.parentNode.insertBefore(draggedEl, this);
+        }
+    }
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        draggedEl = null;
+    }
+
+    // --- ANIM MODE LOGIC ---
+    const enableAnimMode = () => {
+        const style = document.createElement('style');
+        style.id = 'editor-anim-style';
+        style.innerHTML = `body * { cursor: alias !important; } .anim-highlight { outline: 2px dashed #f59e0b; }`;
+        document.head.appendChild(style);
+        
+        document.addEventListener('click', handleAnimClick, true);
+        document.addEventListener('mouseover', handleAnimHover, true);
+        document.addEventListener('mouseout', handleAnimOut, true);
+    };
+
+    const disableAnimMode = () => {
+        const style = document.getElementById('editor-anim-style');
+        if (style) style.remove();
+        document.removeEventListener('click', handleAnimClick, true);
+        document.removeEventListener('mouseover', handleAnimHover, true);
+        document.removeEventListener('mouseout', handleAnimOut, true);
+        if (animPopup) animPopup.remove();
+    };
+
+    function handleAnimHover(e) {
+        if (currentMode !== 'anim' || toolbar.contains(e.target)) return;
+        e.target.classList.add('anim-highlight');
+    }
+    function handleAnimOut(e) {
+        e.target.classList.remove('anim-highlight');
+    }
+    function handleAnimClick(e) {
+        if (currentMode !== 'anim') return;
+        if (toolbar.contains(e.target) || (animPopup && animPopup.contains(e.target))) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        openAnimPopup(e.target);
+    }
+
+    function openAnimPopup(el) {
+        if (animPopup) animPopup.remove();
+        
+        animPopup = document.createElement('div');
+        animPopup.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--bg-card); padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-color);
+            z-index: 10000; width: 300px; animation: fadeIn 0.2s;
+        `;
+        
+        const classes = ['fade-in', 'delay-1', 'delay-2', 'delay-3', 'cat-card'];
+        
+        let checks = classes.map(cls => `
+            <label style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;">
+                <span>${cls}</span>
+                <input type="checkbox" ${el.classList.contains(cls) ? 'checked' : ''} onchange="this.checked ? document.querySelector('.editing-anim-target').classList.add('${cls}') : document.querySelector('.editing-anim-target').classList.remove('${cls}')">
+            </label>
+        `).join('');
+
+        animPopup.innerHTML = `
+            <h4 style="margin:0 0 10px 0;">Edit Classes</h4>
+            <div style="max-height:200px; overflow-y:auto;">${checks}</div>
+            <div style="margin-top:10px; text-align:right;">
+                <button onclick="this.parentElement.parentElement.remove()" class="btn-primary" style="padding:5px 10px; font-size:0.8rem;">Done</button>
+            </div>
+        `;
+        
+        document.querySelectorAll('.editing-anim-target').forEach(x => x.classList.remove('editing-anim-target'));
+        el.classList.add('editing-anim-target');
+        
+        document.body.appendChild(animPopup);
+    }
+
+    // --- CONTROLS ---
+    toggleBtn.onclick = () => {
+        toggleBtn.style.display = 'none';
+        controls.style.display = 'flex';
+        setMode('text');
+    };
+
+    modeBtns.text.onclick = () => setMode('text');
+    modeBtns.move.onclick = () => setMode('move');
+    modeBtns.anim.onclick = () => setMode('anim');
+
+    cancelBtn.onclick = () => {
+        if(confirm("Discard unsaved changes and reload?")) location.reload();
+    };
+
+    saveBtn.onclick = async () => {
+        if(!confirm("Save changes to the server? This will overwrite the static file.")) return;
+
+        // Cleanup
+        document.designMode = 'off';
+        disableMoveMode();
+        disableAnimMode();
+        toolbar.remove(); // Remove toolbar before saving
+        if (animPopup) animPopup.remove();
+        document.querySelectorAll('.editing-anim-target').forEach(x => x.classList.remove('editing-anim-target'));
+        
+        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        
+        // Restore UI
+        document.body.appendChild(toolbar);
+        toggleBtn.style.display = 'flex';
+        controls.style.display = 'none';
+
+        let path = window.location.pathname;
+        if (path.endsWith('/') || path === '') path += 'index.html';
+        if (!path.startsWith('/')) path = '/' + path;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/admin/files/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ path, content: htmlContent })
+            });
+            showGlobalToast(res.ok ? 'Page saved successfully!' : 'Save failed.', res.ok ? 'success' : 'error');
+        } catch (e) { showGlobalToast('Connection failed.', 'error'); }
+    };
+}
+
+/* --- 14. TOOL VISIBILITY HELPER --- */
+function applyToolSettings(disabledPaths, order) {
+    if (!window.CALCULATORS_DATA) return;
+
+    // 0. Merge Custom Categories (if loaded in settings)
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_CACHE_KEY) || '{}');
+    if (settings.customCategories && Array.isArray(settings.customCategories)) {
+        // Avoid duplicates if function runs multiple times
+        const existingCats = window.CALCULATORS_DATA.map(c => c.category);
+        settings.customCategories.forEach(cc => {
+            if (!existingCats.includes(cc.category)) {
+                window.CALCULATORS_DATA.push(cc);
+            }
+        });
+    }
+
+    // Filter items
+    if (disabledPaths) {
+        window.CALCULATORS_DATA.forEach(cat => {
+            if (!cat._originalItems) cat._originalItems = [...cat.items];
+            cat.items = cat._originalItems.filter(t => !disabledPaths.includes(t.link));
+        });
+    }
+
+    // Sort categories
+    if (order) {
+        window.CALCULATORS_DATA.sort((a, b) => {
+            const idxA = order.indexOf(a.category);
+            const idxB = order.indexOf(b.category);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return 0;
+        });
+    }
+
+    window.CALCULATORS = window.CALCULATORS_DATA;
+    if (typeof window.buildCalculators === 'function') window.buildCalculators();
 }
