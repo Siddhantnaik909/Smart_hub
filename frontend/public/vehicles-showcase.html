@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fleet Diagnostics | Smart Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#3525cd",
+                    "primary-container": "#4f46e5",
+                    "surface": "#fbf9f8",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f6f3f3",
+                    "surface-container": "#f0eded",
+                    "on-surface": "#1b1c1c",
+                    "on-surface-variant": "#464555",
+                    "outline": "#777587",
+                    "outline-variant": "#c7c4d8"
+                },
+                fontFamily: {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .material-symbols-outlined { font-family: 'Material Symbols Outlined';  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+
+<!-- TopNavBar -->
+<header class="w-full fixed top-0 z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="flex justify-between items-center w-full px-6 md:px-12 py-4 max-w-[1920px] mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+                <span class="material-symbols-outlined">commute</span>
+            </div>
+            <div class="text-xl font-bold tracking-tighter text-on-surface uppercase">Smart Hub <span class="text-primary">Transport</span></div>
+        </div>
+        <a href="/index.html" class="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Hub
+        </a>
+    </div>
+</header>
+
+<main class="pt-32 pb-16 px-6 md:px-12 max-w-[1440px] mx-auto">
+    <header class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Fleet Diagnostics</h1>
+        <p class="text-lg text-on-surface-variant max-w-2xl leading-relaxed">Real-time performance metrics and structural specifications for active fleet vehicles including sports cars, superbikes, and maritime cruisers.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Car Design Card -->
+        <div class="bg-surface-container-lowest rounded-3xl shadow-lg border border-outline-variant/20 overflow-hidden group hover:-translate-y-2 transition-all duration-300">
+            <div class="h-56 overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1000" alt="Sports Car" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-4 left-6 z-20">
+                    <span class="px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2 inline-block">Automotive</span>
+                    <h3 class="text-2xl font-bold text-white tracking-tight">Apex GT-R Concept</h3>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <p class="text-sm text-on-surface-variant leading-relaxed">High-performance grand tourer engineered for precise aerodynamics, maximum downforce, and extreme track output.</p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm font-bold">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">speed</span> Top Speed</span>
+                        <span class="text-on-surface">205 mph</span>
+                    </div>
+                    <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+                        <div class="bg-primary h-full w-[85%] rounded-full"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-2 border-t border-outline-variant/20">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">timer</span> 0-60 mph</span>
+                        <span class="text-on-surface">2.9s</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-1">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">settings_applications</span> Engine</span>
+                        <span class="text-on-surface">4.0L Twin-Turbo V8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bike Design Card -->
+        <div class="bg-surface-container-lowest rounded-3xl shadow-lg border border-outline-variant/20 overflow-hidden group hover:-translate-y-2 transition-all duration-300">
+            <div class="h-56 overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=1000" alt="Superbike" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-4 left-6 z-20">
+                    <span class="px-3 py-1 bg-[#10b981] text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2 inline-block">Motorcycle</span>
+                    <h3 class="text-2xl font-bold text-white tracking-tight">Phantom R1 Superbike</h3>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <p class="text-sm text-on-surface-variant leading-relaxed">Lightweight carbon-fiber frame chassis mated to a hyper-responsive inline-four cylinder block for street supremacy.</p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm font-bold">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">speed</span> Top Speed</span>
+                        <span class="text-on-surface">186 mph</span>
+                    </div>
+                    <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+                        <div class="bg-[#10b981] h-full w-[90%] rounded-full"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-2 border-t border-outline-variant/20">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">scale</span> Dry Weight</span>
+                        <span class="text-on-surface">440 lbs</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-1">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">settings_applications</span> Engine</span>
+                        <span class="text-on-surface">998cc Inline-Four</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ship Design Card -->
+        <div class="bg-surface-container-lowest rounded-3xl shadow-lg border border-outline-variant/20 overflow-hidden group hover:-translate-y-2 transition-all duration-300">
+            <div class="h-56 overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1544333323-1492d0ccbd65?auto=format&fit=crop&q=80&w=1000" alt="Ship" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-4 left-6 z-20">
+                    <span class="px-3 py-1 bg-[#06b6d4] text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-2 inline-block">Maritime</span>
+                    <h3 class="text-2xl font-bold text-white tracking-tight">Oceanic Voyager Yacht</h3>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <p class="text-sm text-on-surface-variant leading-relaxed">Long-range luxury explorer vessel equipped with advanced sonar navigation and twin diesel-electric props.</p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm font-bold">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">sailing</span> Cruise Speed</span>
+                        <span class="text-on-surface">24 Knots</span>
+                    </div>
+                    <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+                        <div class="bg-[#06b6d4] h-full w-[60%] rounded-full"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-2 border-t border-outline-variant/20">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">straighten</span> Length Overall</span>
+                        <span class="text-on-surface">180 ft (55m)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold pt-1">
+                        <span class="text-outline flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">group</span> Capacity</span>
+                        <span class="text-on-surface">12 Guests, 14 Crew</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+<script type="module" src="/js/script.js"></script>
+</body>
+</html>

@@ -11,13 +11,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } }); // Allow frontend domain
 const PORT = process.env.PORT || 3000; // Unified Port
+app.locals.io = io; // Attach io to app.locals for use in routes
 
 // Initialize Sockets
 require('./src/sockets/gameSockets')(io);
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 
 // --- Static File Serving ---
 const publicPath = path.join(__dirname, '../frontend/public');
@@ -45,7 +48,12 @@ mongoose.connect(config.mongoUri)
 
 // --- API Routes ---
 const authRoutes = require('./src/routes/authRoutes');
-const adminRoutes = require('./routes/admin'); // Linked admin functionality
+const adminRoutes = require('./routes/admin'); 
+const catalogRoutes = require('./src/routes/catalogRoutes'); 
+const historyRoutes = require('./src/routes/historyRoutes'); 
+const uiRoutes = require('./src/routes/uiRoutes');
+const connectorRoutes = require('./src/routes/connectorRoutes');
+const gameRoutes = require('./src/routes/gameRoutes');
 
 // Public API for sidebar features (Fixes the ERR_CONNECTION_REFUSED)
 app.get('/api/admin/client/features', (req, res) => {
@@ -54,6 +62,11 @@ app.get('/api/admin/client/features', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/catalog', catalogRoutes);
+app.use('/api/history', historyRoutes);
+app.use('/api/ui', uiRoutes);
+app.use('/api/connectors', connectorRoutes);
+app.use('/api/games', gameRoutes);
 
 // Root Redirect
 app.get('/', (req, res) => {

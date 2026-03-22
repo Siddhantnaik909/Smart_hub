@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema({
     photo: {
         type: String,
         default: 'https://via.placeholder.com/150'
+    },
+    preferences: {
+        unitWeight: { type: String, default: 'kg' },
+        theme: { type: String, default: 'light' }
     }
 }, { timestamps: true });
 

@@ -1,275 +1,349 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | 555 Timer Elite Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
-    <style>
-        .electronics-hero {
-            background: rgba(255, 165, 0, 0.05);
-            border: 1px dashed var(--accent-orange);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 20px;
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | 555 Timer Calculator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
         }
-        .main-val { font-size: 2.5rem; font-weight: 800; color: var(--accent-orange); line-height: 1; }
-        .mode-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--accent-orange); background: transparent; color: var(--accent-orange); cursor: pointer; font-weight: 700; transition: 0.3s; }
-        .mode-btn.active { background: var(--accent-orange); color: #000; box-shadow: 0 0 15px rgba(255, 165, 0, 0.3); }
-        
-        #waveform-canvas {
-            width: 100%;
-            height: 140px;
-            background: #18181b;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .mode-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mode-btn.active { 
+            background: #8b5cf6; 
+            color: white; 
+            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-microchip" style="color: var(--accent-orange);"></i> 555 Timer Pro Analysis</h2>
-                            <p>Calculate precise frequency and timing for NE555 multivibrator circuits.</p>
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                            <button class="mode-btn active" id="btn-astable">Astable (Oscillator)</button>
-                            <button class="mode-btn" id="btn-monostable">Monostable (One-Shot)</button>
-                        </div>
-
-                        <div id="schematic-view" style="text-align: center; margin: 20px 0;">
-                            
-                        </div>
-
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Resistor R1 (Ohms Ω)</span>
-                                <input type="number" id="r1" class="form-control" value="10000">
-                            </div>
-                            <div class="sub-link" id="r2-row">
-                                <span>Resistor R2 (Ohms Ω)</span>
-                                <input type="number" id="r2" class="form-control" value="10000">
-                            </div>
-                            <div class="sub-link">
-                                <span>Capacitor C1 (Farads F)</span>
-                                <input type="number" id="c1" class="form-control" value="0.000001">
-                            </div>
-                            <button id="calc-btn" class="btn-calc" style="background-color: var(--accent-orange);">Run Analysis Scan</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
-                        <h3>Simulation Results</h3>
-                        <div class="electronics-hero">
-                            <span class="main-val" id="primary-res">0 Hz</span>
-                            <span class="hero-label" id="primary-label">Output Frequency</span>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link" id="duty-row">
-                                <span>Duty Cycle</span>
-                                <strong id="res-duty">0%</strong>
-                            </div>
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start; width: 100%;">
-                                <span>Output Waveform</span>
-                                <canvas id="waveform-canvas"></canvas>
-                            </div>
-                        </div>
-                        <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Log Technical Specs</button>
-                    </div>
-
-                    <div class="sub-link stagger-3" style="background: rgba(0, 255, 204, 0.05); border-left: 4px solid var(--accent-color); margin-top: 20px; padding: 15px; flex-direction: column; align-items: flex-start;">
-                        <span style="color: var(--accent-color); font-weight: bold;"><i class="fa-solid fa-lightbulb"></i> Pro Tip</span>
-                        <p id="mode-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">
-                            In <strong>Astable mode</strong>, the duty cycle will always be greater than 50% because $R_1 + R_2$ handles the charge cycle, while only $R_2$ handles the discharge.
-                        </p>
-                    </div>
-
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
-    <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-    </script>
-    <script src="/js/component-loader.js"></script>
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>ELECTRONICS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">555 Timer</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">555 Timer.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Design stable oscillators and timers with ease! Calculate the frequency, duty cycle, and period for Astable and Monostable 555 timer circuits.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/electronics/calc_capacitor_code.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Capacitor Code</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/electronics/calc_frequency.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Frequency Calc</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-right flex flex-col justify-end min-h-[260px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="mode-tag">ASTABLE MODE</span>
+                            <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="duty-tag">--- DUTY</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting parameters...</div>
+                        <div id="calc-display" class="text-7xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 Hz
+                        </div>
+                    </div>
+
+                    <!-- Mode Toggle -->
+                    <div class="px-8 flex gap-4">
+                        <button onclick="setMode('astable')" id="btn-astable" class="mode-btn active flex-1 py-4 rounded-xl font-bold text-[10px] tracking-widest uppercase border-2 border-surface-container-high hover:border-primary/20 transition-all">Astable</button>
+                        <button onclick="setMode('monostable')" id="btn-monostable" class="mode-btn flex-1 py-4 rounded-xl font-bold text-[10px] tracking-widest uppercase border-2 border-surface-container-high hover:border-primary/20 transition-all">Monostable</button>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Core Components</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Resistor R1 (Ω)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="r1" value="10000" oninput="calculate555()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="10000">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2" id="r2-box">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Resistor R2 (Ω)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="r2" value="10000" oninput="calculate555()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="10000">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Capacitor C1 (µF)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="c1" value="1" oninput="calculate555()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="1">
+                                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-on-surface-variant opacity-40">µF</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Signal Analysis</h4>
+                                <div class="bg-primary/5 border border-primary/20 rounded-2xl p-8 space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg">
+                                            <span class="material-symbols-outlined">analytics</span>
+                                        </div>
+                                        <div>
+                                            <span id="periodValue" class="text-3xl font-black text-on-surface">0.00 ms</span>
+                                            <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block opacity-60">Total Period (T)</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2 pt-4 border-t border-primary/10">
+                                        <span class="text-[10px] font-black text-primary uppercase tracking-widest block">Pro Tip</span>
+                                        <p id="pro-tip" class="text-xs text-on-surface-variant leading-relaxed font-medium italic">Astable mode creates a continuous square wave. Monostable creates a single pulse.</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="resHigh" class="text-xl font-black text-on-surface block truncate">0.00 ms</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">High Time</span>
+                                    </div>
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="resLow" class="text-xl font-black text-on-surface block truncate">0.00 ms</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Low Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                LIMIT: MIN DC > 50% (ASTABLE)
+                            </p>
+                            <button onclick="save555Log()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save to History</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Circuit Tip: In Astable mode, the high time (output = high) is always longer than the low time because C1 charges through R1+R2 but only discharges through R2. To get close to 50% duty cycle, make R2 much larger than R1."
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="/js/calc-utils.js"></script>
-    <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
-
     <script>
-        let state = { mode: 'astable', lastValid: null };
+        let currentMode = 'astable';
 
-        function setMode(m) {
-            state.mode = m;
-            document.getElementById('btn-astable').classList.toggle('active', m === 'astable');
-            document.getElementById('btn-monostable').classList.toggle('active', m === 'monostable');
-            const r2Row = document.getElementById('r2-row');
-            const schematic = document.getElementById('schematic-view');
-            const tip = document.getElementById('mode-tip');
-
-            if (m === 'astable') {
-                r2Row.style.display = 'flex';
-                schematic.innerHTML = '';
-                tip.innerHTML = `
-                    <strong>How Astable Works:</strong><br>
-                    The 555 timer oscillates continuously, producing a square wave.<br>
-                    1. <strong>Charge (High):</strong> Capacitor C1 charges through R1 + R2.<br>
-                    2. <strong>Discharge (Low):</strong> C1 discharges through R2 only.<br>
-                    3. <strong>Result:</strong> A steady stream of pulses (Clock).`;
-            } else {
-                r2Row.style.display = 'none';
-                schematic.innerHTML = '';
-                tip.innerHTML = `
-                    <strong>How Monostable Works:</strong><br>
-                    The 555 timer acts as a "One-Shot" pulse generator.<br>
-                    1. <strong>Trigger:</strong> A negative signal on Pin 2 starts the cycle.<br>
-                    2. <strong>Output:</strong> Pin 3 goes High for a specific duration ($T$).<br>
-                    3. <strong>Formula:</strong> $T = 1.1 \\times R1 \\times C1$.`;
-            }
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-astable').classList.toggle('active', mode === 'astable');
+            document.getElementById('btn-monostable').classList.toggle('active', mode === 'monostable');
+            document.getElementById('r2-box').style.display = (mode === 'astable' ? 'block' : 'none');
+            document.getElementById('mode-tag').innerText = mode.toUpperCase() + ' MODE';
+            calculate555();
         }
 
-        function calculateCircuit() {
+        function calculate555() {
             const r1 = parseFloat(document.getElementById('r1').value);
             const r2 = parseFloat(document.getElementById('r2').value) || 0;
-            const c = parseFloat(document.getElementById('c1').value);
-            const results = document.getElementById('results');
+            const cuf = parseFloat(document.getElementById('c1').value);
 
-            if (!r1 || !c || r1 <= 0 || c <= 0) return alert("Please enter valid component values.");
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const dutyTag = document.getElementById('duty-tag');
+            const periodEl = document.getElementById('periodValue');
+            const highEl = document.getElementById('resHigh');
+            const lowEl = document.getElementById('resLow');
+            const tip = document.getElementById('pro-tip');
 
-            if (state.mode === 'astable') {
-                if (r2 <= 0) return alert("R2 required for Astable mode.");
-                results.style.display = 'block';
-                const freq = 1.44 / ((r1 + 2 * r2) * c);
-                const duty = ((r1 + r2) / (r1 + 2 * r2)) * 100;
+            if (isNaN(r1) || isNaN(cuf) || r1 <= 0 || cuf <= 0) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 Hz`;
+                statusText.innerText = "Awaiting components...";
+                periodEl.innerText = "0.00 ms";
+                highEl.innerText = "0.00 ms";
+                lowEl.innerText = "0.00 ms";
+                dutyTag.innerText = "--- DUTY";
+                return;
+            }
 
-                document.getElementById('primary-res').innerText = freq > 1000 ? (freq/1000).toFixed(2) + " kHz" : freq.toFixed(2) + " Hz";
-                document.getElementById('primary-label').innerHTML = "Frequency (f)<br><span style='font-size:0.8rem; font-weight:normal; opacity:0.7'>Cycles per second</span>";
-                document.getElementById('res-duty').innerText = duty.toFixed(1) + "%";
-                document.getElementById('duty-row').style.display = 'flex';
-                drawWaveform('astable', duty);
-                state.lastValid = { tool: '555 Astable', res: freq.toFixed(2) + "Hz" };
-            } else {
-                results.style.display = 'block';
-                const tPulse = 1.1 * r1 * c;
-                document.getElementById('primary-res').innerText = tPulse.toFixed(4) + " s";
-                document.getElementById('primary-label').innerHTML = "Pulse Width (T)<br><span style='font-size:0.8rem; font-weight:normal; opacity:0.7'>Duration of High signal</span>";
-                document.getElementById('duty-row').style.display = 'none';
-                drawWaveform('monostable');
-                state.lastValid = { tool: '555 Monostable', res: tPulse.toFixed(4) + "s" };
+            const c = cuf * 1e-6; // Convert µF to F
 
-                // Setup save button
-                const saveBtn = document.getElementById('save-btn');
-                const newBtn = saveBtn.cloneNode(true);
-                saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            if (currentMode === 'astable') {
+                if (r2 <= 0) {
+                    display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>ERROR`;
+                    statusText.innerText = "R2 must be > 0";
+                    return;
+                }
+
+                const log2 = Math.LN2;
+                const th = 0.693 * (r1 + r2) * c;
+                const tl = 0.693 * r2 * c;
+                const period = th + tl;
+                const freq = 1 / period;
+                const duty = (th / period) * 100;
+
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${freq > 1000 ? (freq/1000).toFixed(2) + ' kHz' : freq.toFixed(2) + ' Hz'}`;
+                statusText.innerText = "Oscillation frequency resolved";
+                dutyTag.innerText = duty.toFixed(1) + "% DUTY";
+                periodEl.innerText = (period * 1000).toFixed(2) + " ms";
+                highEl.innerText = (th * 1000).toFixed(2) + " ms";
+                lowEl.innerText = (tl * 1000).toFixed(2) + " ms";
                 
-                newBtn.addEventListener('click', () => {
-                    const rows = [{ label: "Result", val: state.lastValid.res, highlight: true }];
-                    const inputs = [{ label: "Mode", val: state.mode }, { label: "R1", val: r1 }, { label: "C1", val: c }];
-                    if(state.mode === 'astable') inputs.push({ label: "R2", val: r2 });
-                    const ok = window.saveCalcToHistory("555 Timer", inputs, rows);
-                    if(ok) {
-                        const orig = newBtn.innerHTML;
-                        newBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                        newBtn.style.background = '#10b981';
-                        setTimeout(() => { newBtn.innerHTML = orig; newBtn.style.background = ''; }, 2000);
-                    }
-                });
+                tip.innerText = `At ${freq.toFixed(2)}Hz, each cycle lasts ${(period * 1000).toFixed(2)}ms. The output is HIGH for ${duty.toFixed(1)}% of the time.`;
+
+            } else {
+                // Monostable: pulse width T = 1.1 * R1 * C
+                const t = 1.1 * r1 * c;
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${t.toFixed(4)} s`;
+                statusText.innerText = "One-shot pulse duration (T)";
+                dutyTag.innerText = "ONE-SHOT";
+                periodEl.innerText = (t * 1000).toFixed(2) + " ms";
+                highEl.innerText = (t * 1000).toFixed(2) + " ms";
+                lowEl.innerText = "N/A";
+
+                tip.innerText = `A trigger will generate a single square pulse lasting for ${t.toFixed(3)} seconds.`;
             }
         }
 
-        function drawWaveform(mode, duty) {
-            const canvas = document.getElementById('waveform-canvas');
-            if (!canvas) return;
-            
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.scale(dpr, dpr);
-            const w = rect.width;
-            const h = rect.height;
+        async function save555Log() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val.includes('0.00') || val === 'ERROR') return;
 
-            ctx.clearRect(0, 0, w, h);
-            
-            // Grid
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            for(let i=0; i<h; i+=20) { ctx.moveTo(0, i); ctx.lineTo(w, i); }
-            for(let i=0; i<w; i+=20) { ctx.moveTo(i, 0); ctx.lineTo(i, h); }
-            ctx.stroke();
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
 
-            // Waveform
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 3;
-            ctx.lineJoin = 'round';
-            ctx.beginPath();
+            const inputs = [
+                { label: 'Mode', val: currentMode.toUpperCase() },
+                { label: 'R1/C1', val: `${document.getElementById('r1').value}Ω / ${document.getElementById('c1').value}µF` }
+            ];
+            const results = [
+                { label: 'Value', val: val, highlight: true },
+                { label: 'High Time', val: document.getElementById('resHigh').innerText }
+            ];
 
-            const margin = 20;
-            const groundY = h - margin;
-            const highY = margin;
-
-            if (mode === 'astable') {
-                const d = duty / 100;
-                const cycleW = w / 3.5; 
-                const highW = cycleW * d;
-                const lowW = cycleW * (1 - d);
-                let x = 0;
-                ctx.moveTo(x, highY);
-                while (x < w) {
-                    ctx.lineTo(x + highW, highY); x += highW;
-                    ctx.lineTo(x, groundY);
-                    ctx.lineTo(x + lowW, groundY); x += lowW;
-                    ctx.lineTo(x, highY);
+            try {
+                const ok = await window.saveCalcToHistory('555 Timer', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('555 Timer', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
                 }
-            } else {
-                ctx.moveTo(0, groundY);
-                ctx.lineTo(30, groundY);
-                ctx.lineTo(30, highY);
-                ctx.lineTo(w - 30, highY);
-                ctx.lineTo(w - 30, groundY);
-                ctx.lineTo(w, groundY);
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
             }
-            ctx.stroke();
-
-            // Labels
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.font = '11px sans-serif';
-            ctx.fillText('Vcc', 5, highY + 12);
-            ctx.fillText('GND', 5, groundY - 6);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('btn-astable').addEventListener('click', () => setMode('astable'));
-            document.getElementById('btn-monostable').addEventListener('click', () => setMode('monostable'));
-            document.getElementById('calc-btn').addEventListener('click', calculateCircuit);
-            
-            // Initialize default mode
-            setMode('astable');
+            calculate555();
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('555 Timer', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
+    <script type="module" src="/js/script.js"></script>
 </body>
 </html>

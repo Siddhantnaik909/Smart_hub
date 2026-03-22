@@ -1,144 +1,312 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Calorie Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Daily Food & Activity</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-fire-flame-curved"></i> Calorie Calculator</h2>
-                            <p>Calculate your Daily Total Energy Expenditure (TDEE) based on your activity and goals.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Gender</span>
-                                <select id="calGender" class="form-control">
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Age (years)</span>
-                                <input type="number" id="calAge" class="form-control" placeholder="e.g. 25">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Height (cm)</span>
-                                <input type="number" id="calHeight" class="form-control" placeholder="e.g. 175">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Weight (kg)</span>
-                                <input type="number" id="calWeight" class="form-control" placeholder="e.g. 70">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Activity Level</span>
-                                <select id="calActivity" class="form-control">
-                                    <option value="1.2">Sedentary (No exercise)</option>
-                                    <option value="1.375">Light (1-3 days/week)</option>
-                                    <option value="1.55">Moderate (3-5 days/week)</option>
-                                    <option value="1.725">Active (6-7 days/week)</option>
-                                    <option value="1.9">Very Active (Physical job)</option>
-                                </select>
-                            </div>
-                            
-                            <button id="calculateBtn" class="btn-calc">Calculate TDEE</button>
-                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Daily Calorie Needs</h3>
-                        <div class="sub-cat-list" id="result-display-area">
-                        </div>
-                        <div class="button-group" style="margin-top: 20px;">
-                            <button class="btn-save"><i class="fa-solid fa-save"></i> Save Results</button>
-                        </div>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>HEALTH TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Calorie Engine</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Daily Fuel.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Manage your energy balance. See how many calories you burn through exercise and daily life, and set your food goals.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Calorie History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">restaurant</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> Eating Tip
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        A balanced diet includes protein for muscles, carbs for energy, and healthy fats for your brain. Track your needs here!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">MAINTAIN WEIGHT</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="status-tag">Awaiting Info</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Total Daily Burn (Estimated)</div>
+                        <div id="calc-display" class="text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden uppercase">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 kcal
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 pb-4 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Gender</label>
+                                            <select id="calGender" onchange="calculateTDEE()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm cursor-pointer">
+                                                <option value="male">MALE</option>
+                                                <option value="female">FEMALE</option>
+                                            </select>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Age (Yrs)</label>
+                                            <input type="number" id="calAge" oninput="calculateTDEE()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="25">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Weight (kg)</label>
+                                            <input type="number" id="calWeight" oninput="calculateTDEE()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="70">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Height (cm)</label>
+                                            <input type="number" id="calHeight" oninput="calculateTDEE()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="175">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">How Active Are You?</label>
+                                        <select id="calActivity" onchange="calculateTDEE()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm cursor-pointer">
+                                            <option value="1.2">Sedentary (Idle)</option>
+                                            <option value="1.375">Light (Low Activity)</option>
+                                            <option value="1.55">Moderate (Active)</option>
+                                            <option value="1.725">Active (Gym/Sports)</option>
+                                            <option value="1.9">Very Active (Heavy Work)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-slate-100 rounded-xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:text-primary hover:bg-white transition-all shadow-sm">Reset Inputs</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div class="p-6 bg-purple-50 border border-purple-100 rounded-2xl shadow-sm">
+                                        <span class="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Weight Loss Goal</span>
+                                        <p id="loseRes" class="text-2xl font-black text-on-surface tracking-tighter">---</p>
+                                        <p class="text-[9px] text-slate-500 font-bold mt-1 tracking-widest italic">-500 kcal per day</p>
+                                    </div>
+                                    <div class="p-6 bg-emerald-50 border border-emerald-100 rounded-2xl shadow-sm">
+                                        <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest block mb-2">Weight Gain Goal</span>
+                                        <p id="gainRes" class="text-2xl font-black text-on-surface tracking-tighter">---</p>
+                                        <p class="text-[9px] text-emerald-500 font-bold mt-1 tracking-widest italic">+500 kcal per day</p>
+                                    </div>
+                                </div>
+                                <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Daily Energy Burn</p>
+                                    <p id="metTotal" class="text-2xl font-black text-on-surface tracking-tighter">0 kcal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_calorie-calculator.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_ovulation.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="saveCalorieLog()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Weekly Total</h5>
+                        <p id="metWeekly" class="text-sm font-black text-on-surface uppercase tracking-tight">0 kcal</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Food Burn</h5>
+                        <p id="metTEF" class="text-sm font-black text-on-surface uppercase tracking-tight">0 kcal</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Daily Life Burn</h5>
+                        <p id="metNEAT" class="text-sm font-black text-primary uppercase tracking-tight">0 kcal</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Met-Status</h5>
+                        <p id="metStatus" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        function calculateTDEE() {
+            const gender = document.getElementById('calGender').value;
+            const age = parseFloat(document.getElementById('calAge').value);
+            const weight = parseFloat(document.getElementById('calWeight').value);
+            const height = parseFloat(document.getElementById('calHeight').value);
+            const activity = parseFloat(document.getElementById('calActivity').value);
+            const display = document.getElementById('calc-display');
+            const status = document.getElementById('calc-status');
+            const tag = document.getElementById('status-tag');
+            const loseEl = document.getElementById('loseRes');
+            const gainEl = document.getElementById('gainRes');
+            const totalEl = document.getElementById('metTotal');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (isNaN(age) || isNaN(weight) || isNaN(height) || age <= 0 || weight <= 0 || height <= 0) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 kcal`;
+                tag.innerText = "Awaiting Info";
+                tag.className = "px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase";
+                loseEl.innerText = "---";
+                gainEl.innerText = "---";
+                totalEl.innerText = "0 kcal";
+                saveBtn.classList.add('hidden');
+                resetMetrics();
+                return;
+            }
+
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+            const tdee = Math.round(bmr * activity);
+            const lose = tdee - 500;
+            const gain = tdee + 500;
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${tdee} kcal`;
+            status.innerText = "Burn Estimated";
+            saveBtn.classList.remove('hidden');
+
+            tag.innerText = activity >= 1.55 ? "ACTIVE DAY" : "STANDARD DAY";
+            tag.className = `px-3 py-1 rounded-lg ${activity >= 1.55 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'} text-[10px] font-black tracking-widest uppercase`;
+            
+            loseEl.innerText = lose + " kcal";
+            gainEl.innerText = gain + " kcal";
+            totalEl.innerText = tdee + " kcal";
+            
+            updateMetrics(tdee, bmr, activity);
+        }
+
+        function updateMetrics(tdee, bmr, activity) {
+            document.getElementById('metWeekly').innerText = (tdee * 7).toLocaleString() + " kcal";
+            document.getElementById('metTEF').innerText = Math.round(tdee * 0.1) + " kcal";
+            document.getElementById('metNEAT').innerText = Math.round(tdee - bmr - (tdee * 0.1)) + " kcal";
+            document.getElementById('metStatus').innerText = activity >= 1.725 ? "Active" : "Stable";
+        }
+
+        function resetMetrics() {
+            document.querySelectorAll('[id^="met"]').forEach(el => el.innerText = '---');
+        }
+
+        function resetInputs() {
+            ['calAge', 'calWeight', 'calHeight'].forEach(id => document.getElementById(id).value = '');
+            calculateTDEE();
+        }
+
+        async function saveCalorieLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '0 kcal') return;
+            const inputs = [
+                { label: 'Weight', val: document.getElementById('calWeight').value + ' kg' },
+                { label: 'Type', val: document.getElementById('calActivity').options[document.getElementById('calActivity').selectedIndex].text }
+            ];
+            const results = [
+                { label: 'Burn Rate', val: val, highlight: true },
+                { label: 'Lose Goal', val: document.getElementById('loseRes').innerText }
+            ];
+            const ok = await window.saveCalcToHistory('Daily Fuel', inputs, results);
+            if (ok) initSidebarHistory('Daily Fuel', 'sidebar-history-container');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calcBtn = document.getElementById('calculateBtn');
-            const resultsCard = document.getElementById('results');
-            const displayArea = document.getElementById('result-display-area');
-            const inputs = document.querySelectorAll('#calAge, #calHeight, #calWeight');
-
-            calcBtn.addEventListener('click', () => {
-                if (!validateInputs(inputs, { checkPositive: true })) {
-                    return;
-                }
-
-                const gender = document.getElementById('calGender').value;
-                const age = parseFloat(document.getElementById('calAge').value);
-                const height = parseFloat(document.getElementById('calHeight').value);
-                const weight = parseFloat(document.getElementById('calWeight').value);
-                const activity = parseFloat(document.getElementById('calActivity').value);
-
-                // Mifflin-St Jeor Equation
-                let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-                bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
-
-                const tdee = Math.round(bmr * activity);
-                const lose = tdee - 500;
-                const gain = tdee + 500;
-
-                displayArea.innerHTML = `
-                    <div class="sub-link">
-                        <span>Maintenance</span>
-                        <span style="font-weight: 700; color: var(--primary-color);">${tdee} kcal/day</span>
-                    </div>
-                    <div class="sub-link">
-                        <span>Weight Loss (-0.5kg/wk)</span>
-                        <span style="font-weight: 600; color: #e74c3c;">${lose} kcal/day</span>
-                    </div>
-                    <div class="sub-link">
-                        <span>Weight Gain (+0.5kg/wk)</span>
-                        <span style="font-weight: 600; color: #2ecc71;">${gain} kcal/day</span>
-                    </div>
-                `;
-
-                resultsCard.style.display = 'block';
-                resultsCard.classList.remove('hidden');
-
-                // Save to history
-                const inputData = [
-                    { label: 'Gender', val: gender }, { label: 'Age', val: age },
-                    { label: 'Height', val: `${height}cm` }, { label: 'Weight', val: `${weight}kg` }
-                ];
-                window.setLastCalc('Calorie Calculator', inputData, [
-                    { label: 'Maintenance', val: `${tdee} kcal/day`, highlight: true },
-                    { label: 'Weight Loss', val: `${lose} kcal/day` },
-                    { label: 'Weight Gain', val: `${gain} kcal/day` }
-                ]);
-            });
+            initSidebarHistory('Daily Fuel', 'sidebar-history-container');
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
 </body>
 </html>

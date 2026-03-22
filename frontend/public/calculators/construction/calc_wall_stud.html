@@ -1,206 +1,345 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Wall Stud Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
-    <style>
-        .calc-wrapper {
-            max-width: 740px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Smart Hub | Professional Framing Architect</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "var(--primary-color, #8b5cf6)",
+            "surface": "#f8fafc",
+            "on-surface": "#0f172a",
+            "on-surface-variant": "#475569",
+            "surface-container-low": "#f1f5f9",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#e2e8f0",
+            "surface-container": "#f1f5f9",
+            "secondary-fixed": "#ede9fe",
+            "on-secondary-fixed": "#4c1d95",
+            "primary-fixed-dim": "#c4b5fd",
+            "primary-container": "#7c3aed",
+            "on-primary": "#ffffff",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    :root {
+      --primary-color: #8b5cf6;
+    }
 
-        #results {
-            display: none;
-        }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
 
-        #results.visible {
-            display: block;
-            animation: calcFadeUp 0.45s ease;
-        }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
 
-        @keyframes calcFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
 </head>
 
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="calc-wrapper">
-
-                        <div class="cat-card">
-                            <div class="calculator-header">
-                                <h2><i class="fas fa-ruler-combined" style="color:var(--primary-color)"></i> Pro Framing
-                                    Estimator</h2>
-                                <p>Calculate structural studs, top/bottom plates, and corner assemblies for wall
-                                    framing.</p>
-                            </div>
-                        </div>
-
-                        <div class="calc-info-box">
-                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
-                            <ol style="padding-left:18px">
-                                <li>Enter the <strong>wall length</strong> in feet, inches, or meters.</li>
-                                <li>Select the <strong>stud spacing</strong> — 16" O.C. is standard for residential; 24"
-                                    for utility walls.</li>
-                                <li>Enter <strong>corner count</strong> — each corner needs 2 extra studs for framing
-                                    pockets (California Corner).</li>
-                                <li>Choose a <strong>waste factor</strong> — 10% is recommended for most projects.</li>
-                            </ol>
-                            <div class="calc-formula-box">
-                                Basic Studs = ⌈ Wall Length (in) ÷ Spacing ⌉ + 1 (end stud)<br>
-                                Corner Studs = Corners × 2<br>
-                                Final Count = (Basic + Corner) × Waste Factor<br>
-                                Plate Lumber = Wall Length (ft) × 3 (1 bottom + 2 top plates)
-                            </div>
-                        </div>
-
-                        <div class="cat-card">
-                            <div class="sub-cat-list">
-                                <div class="sub-link">
-                                    <span>Wall Length</span>
-                                    <div style="display:flex;gap:10px;flex:1">
-                                        <input type="number" id="wallLength" class="form-control" placeholder="e.g. 20">
-                                        <select id="units" class="form-control" style="max-width:90px">
-                                            <option value="feet">ft</option>
-                                            <option value="inches">in</option>
-                                            <option value="meters">m</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="sub-link">
-                                    <span>Stud Spacing (On-Center)</span>
-                                    <select id="spacing" class="form-control">
-                                        <option value="16">16" O.C. (Standard)</option>
-                                        <option value="24">24" O.C. (Utility)</option>
-                                        <option value="12">12" O.C. (Heavy Duty)</option>
-                                    </select>
-                                </div>
-                                <div class="sub-link">
-                                    <span>Corner / Intersection Count</span>
-                                    <input type="number" id="corners" class="form-control" value="2" min="0">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Waste Factor</span>
-                                    <select id="wasteFactor" class="form-control">
-                                        <option value="1.05">5% Waste</option>
-                                        <option value="1.10" selected>10% Waste (Recommended)</option>
-                                        <option value="1.15">15% Waste (Bulk Order)</option>
-                                    </select>
-                                </div>
-                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Generate Lumber
-                                    List</button>
-                            </div>
-                        </div>
-
-                        <div class="cat-card" id="results">
-                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
-                                Lumber Requirements</h3>
-                            <div id="resultArea"></div>
-                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
-                                Save to History</button>
-                        </div>
-
-                        <div class="calc-tip-box">
-                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                            <ul style="padding-left:18px">
-                                <li><strong>16" on-center</strong> is the US standard for load-bearing walls. It matches
-                                    4'×8' drywall sheets perfectly.</li>
-                                <li>Use <strong>24" O.C.</strong> spacing for energy-efficient "advanced framing" — uses
-                                    less wood and fits more insulation.</li>
-                                <li>Add extra studs for <strong>each door or window opening</strong> — jack studs, king
-                                    studs, and cripple studs.</li>
-                                <li><strong>Top plates</strong>: Use double top plates for load-bearing walls; single
-                                    for non-bearing partitions.</li>
-                                <li>Always check local building codes — stud spacing requirements may vary by region.
-                                </li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
-            </div>
-        </main>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+  <nav
+    class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+    <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+      <div class="flex items-center gap-8">
+        <span id="nav-site-logo-text"
+          class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+        <div class="hidden md:flex items-center gap-6">
+          <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+          <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+          <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+          <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+          <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+        </div>
+      </div>
+      <div
+        class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 overflow-hidden">
+        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" />
+      </div>
     </div>
-    <script>
-        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
-        let _lastInputs = null, _lastResults = null;
+  </nav>
 
-        document.getElementById('calcBtn').addEventListener('click', function () {
-            let length = parseFloat(document.getElementById('wallLength').value);
-            const unit = document.getElementById('units').value;
-            const spacing = parseFloat(document.getElementById('spacing').value);
-            const corners = parseInt(document.getElementById('corners').value) || 0;
-            const waste = parseFloat(document.getElementById('wasteFactor').value);
-            if (!length || length <= 0) { alert("Please enter a valid wall length."); return; }
-            let lengthInches = unit === 'feet' ? length * 12 : unit === 'meters' ? length * 39.3701 : length;
-            const lengthFt = lengthInches / 12;
-            const basicStuds = Math.ceil(lengthInches / spacing) + 1;
-            const cornerStuds = corners * 2;
-            const totalBase = basicStuds + cornerStuds;
-            const finalCount = Math.ceil(totalBase * waste);
-            const plateFt = Math.ceil(lengthFt * 3);
+  <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+    <div class="mb-12">
+      <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+        <span>CONSTRUCTION</span>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Structural Framing</span>
+      </nav>
+      <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Wall Stud Calculator.</h1>
+      <p class="text-on-surface-variant text-lg max-w-2xl">This tool helps you figure out how many studs you need for a wall. Just enter the length and spacing, and we'll do the math for you!</p>
+    </div>
 
-            _lastInputs = [
-                { label: 'Wall Length', val: `${length} ${unit}` },
-                { label: 'Stud Spacing', val: `${spacing}" O.C.` },
-                { label: 'Corners', val: `${corners}` },
-                { label: 'Waste Factor', val: `${((waste - 1) * 100).toFixed(0)}%` },
-            ];
-            _lastResults = [
-                { label: 'Basic Studs', val: `${basicStuds} pcs` },
-                { label: 'Corner Studs', val: `${cornerStuds} pcs` },
-                { label: 'Final Stud Count (with waste)', val: `${finalCount} pcs`, highlight: true },
-                { label: 'Plate Lumber', val: `~${plateFt} linear ft`, highlight: false },
-                { label: 'Spacing Used', val: `${spacing}" O.C.` },
-            ];
-            window.renderResults('resultArea', _lastResults);
-            window.showResultCard('results');
-        });
+    <div class="grid grid-cols-12 gap-8 items-start">
+      <!-- Sidebar -->
+      <div class="col-span-12 lg:col-span-4 space-y-8">
+        <div class="bg-white p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Job Registry</h3>
+            <span onclick="clearSidebarHistory()"
+              class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors"
+              title="Clear History">delete_sweep</span>
+          </div>
+          <div class="space-y-6" id="sidebar-history-container">
+            <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent framing plans.
+            </p>
+          </div>
+        </div>
+        <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+            <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+            <div class="space-y-4">
+                <a href="/calculators/construction/calc_roof_area.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                    <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                    <div>
+                        <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                        <div class="text-xs font-bold text-on-surface uppercase">Roof Area Architect</div>
+                    </div>
+                </a>
+                <a href="/calculators/construction/calc_lumber.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                    <div>
+                        <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                        <div class="text-xs font-bold text-on-surface uppercase">Lumber Calculator</div>
+                    </div>
+                    <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                </a>
+            </div>
+        </div>
 
-        document.getElementById('saveBtn').addEventListener('click', function () {
-            if (!_lastResults) { alert('Calculate first!'); return; }
-            const ok = window.saveCalcToHistory('Wall Stud Calculator', _lastInputs, _lastResults);
-            if (ok) {
-                const orig = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.background = '#10b981';
-                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+      <!-- Content Area -->
+      <div class="col-span-12 lg:col-span-8">
+        <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
+          <!-- Display -->
+          <div
+            class="bg-white m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[220px] shadow-inner relative overflow-hidden">
+            <div class="absolute top-8 left-8 flex gap-2">
+              <span
+                class="px-2 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">Structural
+                load</span>
+            </div>
+            <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 opacity-60">
+              Plate Stock: 0 lin.ft</div>
+            <div id="calc-display"
+              class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden">
+              <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 <span
+                class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">Studs</span>
+            </div>
+          </div>
+          <!-- Controls -->
+          <div class="p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-4">
+                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Wall Metrics</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Length (ft)</label>
+                    <input type="number" id="wallLength" oninput="calculateStuds()"
+                      class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg"
+                      placeholder="20" value="20">
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Spacing (in OC)</label>
+                    <select id="spacing" onchange="calculateStuds()"
+                      class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold">
+                      <option value="16">16" O.C. (Standard)</option>
+                      <option value="24">24" O.C. (Utility)</option>
+                      <option value="12">12" O.C. (Heavy Duty)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Structural Details
+                </h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Corners / Inter</label>
+                    <input type="number" id="corners" oninput="calculateStuds()"
+                      class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold"
+                      value="2">
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Waste Buffer</label>
+                    <select id="wasteFactor" onchange="calculateStuds()"
+                      class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold">
+                      <option value="1.10">10% Waste</option>
+                      <option value="1.05">5% Waste</option>
+                      <option value="1.15">15% High</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="flex flex-col md:flex-row gap-8 items-center justify-between pt-8 border-t border-surface-container-high">
+              <div class="flex gap-4">
+                <button onclick="saveStudProject()"
+                  class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Commit
+                  List</button>
+                <button onclick="window.print()"
+                  class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined">print</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+          <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="material-symbols-outlined text-primary">analytics</span>
+              <h5 class="font-bold uppercase tracking-widest text-[10px]">Component Breakdown</h5>
+            </div>
+            <div class="space-y-4 text-sm">
+              <div class="flex justify-between items-center"><span class="text-on-surface-variant">Core
+                  Studs</span><span id="resBasic" class="font-bold">0 pcs</span></div>
+              <div class="flex justify-between items-center"><span class="text-on-surface-variant">Corner
+                  Studs</span><span id="resCorner" class="font-bold">0 pcs</span></div>
+              <div class="flex justify-between items-center"><span class="text-on-surface-variant">Waste
+                  Units</span><span id="resWaste" class="font-bold">0 pcs</span></div>
+            </div>
+          </div>
+          <div
+            class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm flex flex-col justify-center">
+            <p class="text-[11px] text-on-surface-variant leading-loose opacity-80 italic">
+              "Pro Tip: Plates are calculated as 1 bottom and 2 top plates (standard load-bearing code). For door and
+              window openings, add 3-4 extra studs per opening for jack/king/cripple assemblies."
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+    <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+      <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work
+        smarter</span>
+      <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+        <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+        <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+        <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/calc-utils.js"></script>
+  <script>
+    function calculateStuds() {
+      const wallLenInput = document.getElementById('wallLength');
+      const spacingSelect = document.getElementById('spacing');
+      const cornersInput = document.getElementById('corners');
+      const wasteSelect = document.getElementById('wasteFactor');
+
+      if (!wallLenInput || !spacingSelect || !cornersInput || !wasteSelect) return;
+
+      const length = parseFloat(wallLenInput.value) || 0;
+      const spacing = parseFloat(spacingSelect.value) || 16;
+      const corners = parseInt(cornersInput.value) || 0;
+      const waste = parseFloat(wasteSelect.value) || 1.1;
+
+      if (length <= 0) return;
+
+      const basicStuds = Math.ceil((length * 12) / spacing) + 1;
+      const cornerStuds = corners * 2;
+      const totalBase = basicStuds + cornerStuds;
+      const finalCount = Math.ceil(totalBase * waste);
+      const plates = Math.ceil(length * 3);
+
+      // Update UI
+      const status = document.getElementById('calc-status');
+      if (status) status.innerText = `Plate Stock: ~${plates} lin.ft`;
+
+      const display = document.getElementById('calc-display');
+      if (display) {
+        display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${finalCount} <span class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">STUDS</span>`;
+      }
+
+      const resBasic = document.getElementById('resBasic');
+      if (resBasic) resBasic.innerText = `${basicStuds} pcs`;
+
+      const resCorner = document.getElementById('resCorner');
+      if (resCorner) resCorner.innerText = `${cornerStuds} pcs`;
+
+      const resWaste = document.getElementById('resWaste');
+      if (resWaste) resWaste.innerText = `${Math.ceil(totalBase * (waste - 1))} pcs`;
+    }
+
+    async function saveStudProject() {
+      const displayEl = document.getElementById('calc-display');
+      if (!displayEl) return;
+      const count = displayEl.innerText.replace(/STUDS/gi, '').trim();
+      if (count === '0' || !count) return;
+
+      const btn = event.currentTarget;
+      const orig = btn.innerText;
+      btn.innerText = 'SAVING...';
+      btn.disabled = true;
+
+      const inputs = [
+        { label: 'Wall', val: `${document.getElementById('wallLength').value} ft @ ${document.getElementById('spacing').value}" OC` },
+        { label: 'Detail', val: `${document.getElementById('corners').value} corners` }
+      ];
+      const results = [
+        { label: 'Total Studs', val: count + ' pcs', highlight: true },
+        { label: 'Plates', val: (document.getElementById('calc-status') ? document.getElementById('calc-status').innerText.replace('Plate Stock: ', '') : '') }
+      ];
+
+      try {
+        const ok = await window.saveCalcToHistory('Wall Stud Calculator', inputs, results);
+        if (ok) {
+          btn.innerText = 'SAVED TO REGISTRY';
+          btn.classList.add('bg-emerald-600');
+          setTimeout(() => {
+            btn.innerText = orig;
+            btn.classList.remove('bg-emerald-600');
+            btn.disabled = false;
+            if (typeof initSidebarHistory === 'function') {
+              initSidebarHistory('Wall Stud Calculator', 'sidebar-history-container');
             }
-        });
+          }, 2000);
+        } else {
+          btn.innerText = orig;
+          btn.disabled = false;
+        }
+      } catch (e) {
+        btn.innerText = orig;
+        btn.disabled = false;
+      }
+    }
 
-        document.addEventListener('componentsLoaded', () => {
-            const t = document.getElementById('page-title-display');
-            if (t) t.textContent = 'Wall Stud Calculator';
-        });
-    </script>
-    <script src="/js/component-loader.js"></script>
-    <script type="module" src="/js/script.js"></script>
-    <script src="/js/calc-utils.js"></script>
-    <script src="/js/custom.js"></script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (typeof initSidebarHistory === 'function') {
+          initSidebarHistory('Wall Stud Calculator', 'sidebar-history-container');
+        }
+      } catch (e) { }
+      calculateStuds();
+    });
+  </script>
+  <script type="module" src="/js/script.js"></script>
 </body>
 
 </html>

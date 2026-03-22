@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Base64 Encoder & Decoder</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        textarea::placeholder { opacity: 0.3; font-weight: 500; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CRYPTOGRAPHY</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Base64 Converter</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Base64 Studio.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Easily encode and decode text to Base64 format! Whether you're a developer working with binary data or just want to obfuscate a message, our tool is fast and secure.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/electronics/calc_power.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Power Calc</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/cryptography/tool_md5_generator.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">MD5 Generator</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[160px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="mode-tag">INPUT DATA</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="byte-tag">0 BYTES</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting payload...</div>
+                        <div id="calc-display" class="text-xs font-bold tracking-tight text-on-surface-variant opacity-80 mt-2 truncate max-w-full font-mono italic">---</div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 gap-8">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between px-1">
+                                    <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Source Content</h4>
+                                    <div class="flex items-center gap-4">
+                                         <label class="flex items-center gap-2 cursor-pointer group">
+                                             <input type="checkbox" id="urlSafe" onchange="runBase64()" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4">
+                                             <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest group-hover:text-primary transition-colors">URL Safe</span>
+                                         </label>
+                                         <button onclick="clearAll()" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Clear</button>
+                                    </div>
+                                </div>
+                                <textarea id="input" oninput="runBase64()" rows="6" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-2xl p-6 font-mono text-sm text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none resize-none shadow-inner" placeholder="Paste your text or Base64 string here..."></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="bg-primary/5 border border-primary/20 rounded-2xl p-6 space-y-4">
+                                    <h4 class="text-[10px] font-black text-primary uppercase tracking-widest">Base64 Result</h4>
+                                    <div class="relative group">
+                                         <textarea id="output" readonly rows="4" class="w-full bg-transparent font-mono text-xs text-on-surface outline-none resize-none leading-relaxed" placeholder="Encoding will appear here..."></textarea>
+                                         <button onclick="copyToClipboard('output')" class="absolute top-0 right-0 p-2 bg-primary text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 active:scale-95">
+                                             <span class="material-symbols-outlined text-sm">content_copy</span>
+                                         </button>
+                                    </div>
+                                </div>
+                                <div class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-6 space-y-4">
+                                    <h4 class="text-[10px] font-black text-indigo-700 uppercase tracking-widest">Decoded Result</h4>
+                                    <div class="relative group">
+                                         <textarea id="decoded" readonly rows="4" class="w-full bg-transparent font-mono text-xs text-on-surface outline-none resize-none leading-relaxed" placeholder="Decoding will appear here..."></textarea>
+                                         <button onclick="copyToClipboard('decoded')" class="absolute top-0 right-0 p-2 bg-indigo-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 active:scale-95">
+                                             <span class="material-symbols-outlined text-sm">content_copy</span>
+                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                STANDARD: RFC 4648 | UTF-8 CHARSET
+                            </p>
+                            <div class="flex gap-4">
+                                <button onclick="saveB64Log()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Logic</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Dev Tip: Base64 isn't encryption! It's just an encoding format. Never use it to secure passwords or sensitive data without actual encryption like AES."
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
+    <script>
+        function runBase64() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
+            const decoded = document.getElementById('decoded');
+            const statusText = document.getElementById('calc-status');
+            const byteTag = document.getElementById('byte-tag');
+            const urlSafe = document.getElementById('urlSafe').checked;
+
+            if (!input.trim()) {
+                output.value = "";
+                decoded.value = "";
+                statusText.innerText = "Awaiting payload...";
+                byteTag.innerText = "0 BYTES";
+                document.getElementById('calc-display').innerText = "---";
+                return;
+            }
+
+            const bytes = new TextEncoder().encode(input).length;
+            byteTag.innerText = bytes + " BYTES";
+
+            // Encode Logic
+            try {
+                let enc = btoa(unescape(encodeURIComponent(input)));
+                if (urlSafe) {
+                    enc = enc.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                }
+                output.value = enc;
+                document.getElementById('calc-display').innerText = enc.substring(0, 50) + (enc.length > 50 ? '...' : '');
+            } catch (e) {
+                output.value = "Encoding Error";
+            }
+
+            // Decode Logic
+            try {
+                let decInput = input;
+                if (urlSafe) {
+                    decInput = decInput.replace(/-/g, '+').replace(/_/g, '/');
+                    while (decInput.length % 4) decInput += '=';
+                }
+                decoded.value = decodeURIComponent(escape(atob(decInput)));
+                statusText.innerText = "Valid Base64 Detected & Decoded";
+            } catch (e) {
+                decoded.value = "Invalid Base64 Input (Cannot Decode)";
+                statusText.innerText = "Processing Plain Text Encoding";
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = "";
+            runBase64();
+        }
+
+        function copyToClipboard(id) {
+            const el = document.getElementById(id);
+            if (!el.value) return;
+            el.select();
+            document.execCommand('copy');
+            
+            const btn = event.currentTarget;
+            const origIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">done</span>';
+            setTimeout(() => btn.innerHTML = origIcon, 2000);
+        }
+
+        async function saveB64Log() {
+            const val = document.getElementById('input').value.trim();
+            if (!val) return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Source length', val: val.length + ' chars' }
+            ];
+            const results = [
+                { label: 'Base64 Result', val: document.getElementById('output').value.substring(0, 20) + '...', highlight: true }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Base64 Studio', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Base64 Studio', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Base64 Studio', 'sidebar-history-container');
+                }
+            } catch(e){}
+        });
+    </script>
+    <script type="module" src="/js/script.js"></script>
+</body>
+</html>

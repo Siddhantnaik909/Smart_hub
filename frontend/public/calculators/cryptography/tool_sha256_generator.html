@@ -1,509 +1,301 @@
 <!DOCTYPE html>
-<html lang="en" style="--primary-color: #101293; --primary-gradient: linear-gradient(135deg, #101293 0%, #101293dd 100%); font-size: 16px; --accent-purple: #c4c0ce; --btn-radius: 24px; --font-main: 'Playfair Display', serif; --sidebar-bg: linear-gradient(180deg, #c3c1c1, #e5cdcd); --sidebar-text: #000000; --sidebar-active: #ebebeb; --sidebar-width: 280px; --sidebar-font-size: 15px;"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | SMART HUB</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
-<style id="_calc-utils-css">
-        @keyframes calcFadeUp {
-            from { opacity:0; transform:translateY(24px); }
-            to   { opacity:1; transform:translateY(0); }
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | SHA-256 Hash Generator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
         }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            opacity: 0;
-            transform: translateY(16px);
-            transition: all 0.38s ease;
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .result-row.visible { opacity: 1; transform: translateY(0); }
-        .result-label { font-size: 0.95rem; color: var(--text-muted); }
-        .result-val-group { display: flex; align-items: center; gap: 12px; text-align: right; }
-        .result-val { font-weight: 700; }
-        .btn-copy-mini {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-muted);
-            cursor: pointer;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-        .btn-copy-mini:hover {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            background: var(--bg-main);
-        }
-        @media (max-width: 400px) {
-            .result-row { flex-direction: column; align-items: flex-start; gap: 6px; }
-            .result-val-group { width: 100%; justify-content: space-between; }
-        }
-        .calc-info-box {
-            background: rgba(99,102,241,0.07);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin-bottom: 18px;
-        }
-        .calc-info-box h4 {
-            margin: 0 0 10px;
-            color: var(--primary-color);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .calc-info-box li, .calc-info-box p { margin: 5px 0; font-size: 0.95rem; opacity:0.9; }
-        .calc-formula-box {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 13px 18px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin: 10px 0;
-            line-height: 1.8;
-        }
-        .calc-tip-box {
-            background: rgba(16,185,129,0.08);
-            border-left: 4px solid #10b981;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-top: 18px;
-        }
-        .calc-tip-box h4 { color: #10b981; margin: 0 0 8px; display:flex; align-items:center; gap:8px; }
-        .calc-tip-box li { margin: 5px 0; font-size: 0.93rem; opacity: 0.9; }
-    </style></head>
-<body class="sidebar-top" style="backdrop-filter: none;">
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <aside class="sidebar">
-    <div class="sidebar-toggle" onclick="toggleSidebarCollapse()">
-        <i class="fas fa-chevron-left"></i>
-    </div>
-    <div class="brand-block">
-        <i class="fa-solid fa-microchip" style="color: var(--primary-color); margin-right: 12px; font-size: 1.5rem;"></i>
-        <span id="site-logo-text">SMART HUB</span>
-    </div>
-
-    <div class="user-profile">
-                <div class="user-avatar" style="background: var(--primary-color); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold;">SI</div>
-                <div class="user-info">
-                    <h4>SIDDHANT SATISH NAIK</h4>
-                    <p>Admin</p>
+        textarea::placeholder { opacity: 0.3; font-weight: 500; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
                 </div>
             </div>
-
-
-
-    <nav class="side-menu">
-        <a href="/index.html" data-title="Dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a>
-        <a href="/calculators.html" data-title="Calculators List"><i class="fas fa-calculator"></i> <span>Calculators
-                list</span></a>
-
-        <div class="dropdown" id="calculators-dropdown">
-            <a onclick="toggleDropdown('calculators-dropdown-content', this)" data-title="All Calculators">
-                <i class="fas fa-th-large"></i>
-                <span>All Calculators</span>
-                <i class="fas fa-chevron-down dropdown-icon"></i>
-            </a>
-
-            <div class="dropdown-content" id="calculators-dropdown-content">
-
-                <div class="dropdown" id="construction-dropdown">
-                    <a onclick="toggleDropdown('construction-dropdown-content', this)" data-title="Construction">
-                        <i class="fas fa-hard-hat"></i>
-                        <span>Construction</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="construction-dropdown-content">
-                        <a href="/calculators/construction/calc_concrete.html">Concrete Calculator</a>
-                        <a href="/calculators/construction/calc_flooring.html">Flooring Calculator</a>
-                        <a href="/calculators/construction/calc_fuel.html">Fuel Cost Calculator</a>
-                        <a href="/calculators/construction/calc_ohm.html">Ohm's Law (Construction)</a>
-                        <a href="/calculators/construction/calc_paint.html">Paint Calculator</a>
-                        <a href="/calculators/construction/calc_wall_stud.html">Wall Stud Calculator</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="crypto-dropdown">
-                    <a onclick="toggleDropdown('crypto-dropdown-content', this)" data-title="Cryptography">
-                        <i class="fas fa-vault"></i>
-                        <span>Cryptography</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="crypto-dropdown-content">
-                        <a href="/calculators/cryptography/tool_md5_generator.html">MD5 Generator</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="datetime-dropdown">
-                    <a onclick="toggleDropdown('datetime-dropdown-content', this)" data-title="Date &amp; Time">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Date &amp; Time</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="datetime-dropdown-content">
-                        <a href="/calculators/date-time/calc_age.html">Age Calculator</a>
-                        <a href="/calculators/date-time/calc_countdown.html">Countdown Timer</a>
-                        <a href="/calculators/date-time/calc_date_diff.html">Date Difference</a>
-                        <a href="/calculators/date-time/calc_hours_worked.html">Hours Worked</a>
-                        <a href="/calculators/date-time/calc_leap_year.html">Leap Year Checker</a>
-                        <a href="/calculators/date-time/calc_time_add.html">Time Addition</a>
-                        <a href="/calculators/date-time/calc_time_zone.html">Time Zone Converter</a>
-                        <a href="/calculators/date-time/calc_working_days.html">Working Days</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="electronics-dropdown">
-                    <a onclick="toggleDropdown('electronics-dropdown-content', this)" data-title="Electronics">
-                        <i class="fas fa-microchip"></i>
-                        <span>Electronics</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="electronics-dropdown-content">
-                        <a href="/calculators/electronics/calc_555_timer.html">555 Timer</a>
-                        <a href="/calculators/electronics/calc_battery_life.html">Battery Life</a>
-                        <a href="/calculators/electronics/calc_capacitor_code.html">Capacitor Code</a>
-                        <a href="/calculators/electronics/calc_led_resistor_calculator.html">LED Resistor</a>
-                        <a href="/calculators/electronics/calc_ohm.html">Ohm's Law</a>
-                        <a href="/calculators/electronics/calc_resistor_color_code.html">Resistor Color Code</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="finance-dropdown">
-                    <a onclick="toggleDropdown('finance-dropdown-content', this)" data-title="Finance">
-                        <i class="fas fa-dollar-sign"></i>
-                        <span>Finance</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="finance-dropdown-content">
-                        <a href="/calculators/finance/calc_car_loan.html">Car Loan</a>
-                        <a href="/calculators/finance/calc_compound.html">Compound Interest (Simple)</a>
-                        <a href="/calculators/finance/calc_compound_interest.html">Compound Interest (Advanced)</a>
-                        <a href="/calculators/finance/calc_currency.html">Currency Converter</a>
-                        <a href="/calculators/finance/calc_discount.html">Discount Calculator</a>
-                        <a href="/calculators/finance/calc_loan.html">General Loan</a>
-                        <a href="/calculators/finance/calc_loan_emi.html">Loan EMI</a>
-                        <a href="/calculators/finance/calc_mortgage.html">Mortgage Calculator</a>
-                        <a href="/calculators/finance/calc_roi.html">ROI Calculator</a>
-                        <a href="/calculators/finance/calc_salary.html">Salary Calculator</a>
-                        <a href="/calculators/finance/calc_savings_goal.html">Savings Goal</a>
-                        <a href="/calculators/finance/calc_tax_gst.html">Tax / GST</a>
-                        <a href="/calculators/finance/calc_tip_calculator.html">Tip Calculator</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="math-dropdown">
-                    <a onclick="toggleDropdown('math-dropdown-content', this)" data-title="General &amp; Math">
-                        <i class="fas fa-calculator"></i>
-                        <span>General Math</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="math-dropdown-content">
-                        <a href="/calculators/general-math/calc_average.html">Average Calculator</a>
-                        <a href="/calculators/general-math/calc_fractions.html">Fractions Calculator</a>
-                        <a href="/calculators/general-math/calc_math_toolkit.html">Math Toolkit</a>
-                        <a href="/calculators/general-math/calc_percentage.html">Percentage Calculator</a>
-                        <a href="/calculators/general-math/calc_programmer.html">Programmer Calculator</a>
-                        <a href="/calculators/general-math/calc_scientific.html">Scientific Calculator</a>
-                        <a href="/calculators/general-math/calc_standard.html">Standard Calculator</a>
-                        <a href="/calculators/general-math/tool_password.html">Password Generator</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="health-dropdown">
-                    <a onclick="toggleDropdown('health-dropdown-content', this)" data-title="Health &amp; Fitness">
-                        <i class="fas fa-heartbeat"></i>
-                        <span>Health &amp; Fitness</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="health-dropdown-content">
-                        <a href="/calculators/health-fitness/calc_bmi.html">BMI Calculator</a>
-                        <a href="/calculators/health-fitness/calc_bmr.html">BMR Calculator</a>
-                        <a href="/calculators/health-fitness/calc_body_fat.html">Body Fat Percentage</a>
-                        <a href="/calculators/health-fitness/calc_calorie.html">Calorie Calculator</a>
-                        <a href="/calculators/health-fitness/calc_calorie-calculator.html">Calorie Tracker Pro</a>
-                        <a href="/calculators/health-fitness/calc_ovulation.html">Ovulation Calculator</a>
-                        <a href="/calculators/health-fitness/calc_pregnancy.html">Pregnancy Due Date</a>
-                        <a href="/calculators/health-fitness/calc_water.html">Water Intake</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="network-dropdown">
-                    <a onclick="toggleDropdown('network-dropdown-content', this)" data-title="Network">
-                        <i class="fas fa-network-wired"></i>
-                        <span>Network</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="network-dropdown-content">
-                        <a href="/calculators/network/tool_dns_lookup.html">DNS Lookup</a>
-                        <a href="/calculators/network/tool_ip_geo.html">IP Geolocation</a>
-                        <a href="/calculators/network/tool_ping.html">Ping Test</a>
-                        <a href="/calculators/network/tool_port_scanner.html">Port Scanner</a>
-                        <a href="/calculators/network/calc_subnet.html">Subnet Calculator</a>
-                        <a href="/calculators/network/tool_traceroute.html">Traceroute Tool</a>
-                        <a href="/calculators/network/tool_whois.html">Whois Lookup</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="students-dropdown">
-                    <a onclick="toggleDropdown('students-dropdown-content', this)" data-title="Students">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Students</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="students-dropdown-content">
-                        <a href="/calculators/students/calc_geometry.html">Geometry Calculator</a>
-                        <a href="/calculators/students/calc_gpa.html">GPA Calculator</a>
-                        <a href="/calculators/students/calc_grade_weighted.html">Grade Weighted</a>
-                        <a href="/calculators/students/calc_mensuration.html">Mensuration</a>
-                        <a href="/calculators/students/calc_pomodoro.html">Pomodoro Timer</a>
-                        <a href="/calculators/students/calc_quadratic.html">Quadratic Equation</a>
-                        <a href="/calculators/students/calc_statistics.html">Statistics</a>
-                        <a href="/calculators/students/calc_unit_conv.html">Unit Conv</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="text-dropdown">
-                    <a onclick="toggleDropdown('text-dropdown-content', this)" data-title="Text &amp; Web Utilities">
-                        <i class="fas fa-keyboard"></i>
-                        <span>Text &amp; Web</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="text-dropdown-content">
-                        <a href="/calculators/text-web/tool_case_converter.html">Case Converter</a>
-                        <a href="/calculators/text-web/tool_lorem_ipsum.html">Lorem Ipsum Generator</a>
-                        <a href="/calculators/text-web/tool_password.html">Password Strength</a>
-                        <a href="/calculators/text-web/tool_word_counter.html">Word Counter</a>
-                    </div>
-                </div>
-
-                <div class="dropdown" id="fun-dropdown">
-                    <a onclick="toggleDropdown('fun-dropdown-content', this)" data-title="Fun">
-                        <i class="fas fa-gamepad"></i>
-                        <span>Fun</span>
-                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="dropdown-content" id="fun-dropdown-content">
-                        <a href="/calculators/fun/calc_coin_flipper.html">Coin Flipper</a>
-                        <a href="/calculators/fun/calc_compatibility.html">Compatibility Test</a>
-                        <a href="/calculators/fun/calc_dice_roller.html">Dice Roller</a>
-                        <a href="/calculators/fun/calc_flames.html">FLAMES Game</a>
-                        <a href="/calculators/fun/calc_fortune_cookie.html">Fortune Cookie</a>
-                        <a href="/calculators/fun/calc_love.html">Love Calculator</a>
-                        <a href="/calculators/fun/calc_magic_8_ball.html">Magic 8 Ball</a>
-                        <a href="/calculators/fun/calc_number_guesser.html">Number Guesser</a>
-                        <a href="/calculators/fun/calc_random_number.html">Random Number</a>
-                        <a href="/calculators/fun/calc_rock_paper_scissors.html">Rock Paper Scissors</a>
-                        <a href="/calculators/fun/calc_zodiac.html">Zodiac Sign</a>
-                        <a href="/calculators/fun/game_chess.html">Multiplayer Chess <span class="badge-new">NEW</span></a>
-                    </div>
-                </div>
-
-            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
         </div>
-        <a href="/history.html" data-title="History"><i class="fas fa-history"></i> <span>History</span></a>
-        <a href="/settings.html" data-title="Settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
-        <a href="/about.html" data-title="About"><i class="fas fa-info-circle"></i> <span>About</span></a>
     </nav>
 
-    <div class="sidebar-footer">
-        <div class="theme-switch-wrapper">
-            <label class="toggle-switch" for="theme-checkbox">
-                <input type="checkbox" id="theme-checkbox" onchange="toggleDarkMode(this)">
-                <div class="slider"></div>
-            </label>
-            <span style="margin-left: 10px; font-size: 0.9rem;">Dark Mode</span>
-        </div>
-        © <span id="current-year">2026</span> Smart Hub
-    </div>
-</aside>
-        
-        <main class="main-content">
-            <header class="top-header">
-    <div class="header-container">
-        <div class="header-group">
-            <button class="menu-toggle mobile-toggle" onclick="toggleSidebar()" title="Toggle Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <div class="navbar-branding">
-                <i class="fa-solid fa-microchip" style="color: var(--primary-color);"></i>
-                <span style="font-weight: 700;">SMART HUB</span>
-            </div>
-            
-            <h2 class="nav-title" id="page-title-display">Dashboard</h2>
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CRYPTOGRAPHY</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">SHA-256 Hashing</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">SHA-256 Engine.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Generate secure SHA-256 hashes from any text! SHA-256 is a standard cryptographic hash function used in blockchain, passwords, and file verification.</p>
         </div>
 
-        <div class="nav-actions" id="auth-actions">
-                <div class="header-group">
-                    <div class="notification-wrapper" style="position: relative;">
-                        <button class="btn-icon" style="margin-right: 5px; position: relative; border:none;" title="Notifications" onclick="document.getElementById('notif-dropdown').classList.toggle('active'); event.stopPropagation();">
-                            <i class="far fa-bell"></i>
-                            <span style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 1px solid var(--bg-card);"></span>
-                        </button>
-                        <div class="profile-dropdown" id="notif-dropdown" style="right: -10px; width: 300px;">
-                            <div class="profile-dropdown-header">
-                                <span style="font-weight: 700; color: var(--text-header);">Notifications</span>
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent hashes.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/cryptography/tool_md5_generator.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">MD5 Generator</div>
                             </div>
-                            <div class="profile-dropdown-body">
-                                <div class="dropdown-item" style="cursor: default; justify-content: center; opacity: 0.6; padding: 20px; flex-direction: column;">
-                                    <i class="far fa-bell-slash" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
-                                    <span>No new notifications</span>
+                        </a>
+                        <a href="/calculators/cryptography/tool_base64.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Base64 Tool</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[160px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">SHA-256 DIGEST</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="len-tag">0 CHR</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting input...</div>
+                        <div id="calc-display" class="text-xl md:text-2xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono break-all uppercase">
+                            <span class="w-1 h-10 bg-primary animate-pulse rounded-full mr-2"></span>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 gap-8">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between px-1">
+                                    <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Plaintext String</h4>
+                                    <button onclick="clearInput()" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Reset</button>
+                                </div>
+                                <textarea id="input" oninput="generateSHA256()" rows="4" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-2xl p-6 font-mono text-sm text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none resize-none shadow-inner" placeholder="Type or paste text to hash..."></textarea>
+                            </div>
+
+                            <div class="bg-primary/5 border border-primary/20 rounded-2xl p-8 space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-[10px] font-black text-primary uppercase tracking-widest">Hash Comparison</h4>
+                                    <span id="matchStatus" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Not Comparing</span>
+                                </div>
+                                <div class="relative">
+                                    <input type="text" id="comparator" oninput="compareHashes()" class="w-full bg-surface-container-lowest border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-mono text-xs text-on-surface outline-none" placeholder="Paste a SHA-256 hash here to compare...">
+                                    <span id="matchIcon" class="absolute right-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 pointer-events-none">checklist</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="profile-menu-container">
-                        <div class="profile-trigger" onclick="window.toggleProfileDropdown(event)">
-                            <div class="avatar-wrapper">
-                                <div class="avatar-placeholder">S</div>
-                            </div>
-                            <span>SIDDHANT SATISH NAIK</span>
-                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; opacity: 0.5;"></i>
-                        </div>
-                        
-                        <div class="profile-dropdown" id="userProfileDropdown">
-                            <div class="profile-dropdown-header">
-                                <div class="profile-name">SIDDHANT SATISH NAIK</div>
-                                <div class="profile-email">admin@smarthub.com</div>
-                                <div style="font-family: monospace; font-size: 0.7rem; opacity: 0.6; margin-top: 4px; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; word-break: break-all;">ID: 69a5ed8764f95029b4643212</div>
-                                <div style="margin-top:8px"><span class="admin-badge" style="background:var(--primary-color);color:white;font-size:0.65rem;padding:3px 8px;border-radius:12px;display:inline-block;letter-spacing:1px"><i class="fas fa-crown" style="margin-right:4px"></i>ADMIN</span></div>
-                            </div>
-                            <div class="profile-dropdown-body">
-                                <a href="/settings.html" class="dropdown-item">
-                                    <i class="fas fa-cog"></i> Account Settings
-                                </a>
-                                <a href="/history.html" class="dropdown-item">
-                                    <i class="fas fa-history"></i> My Calculations
-                                </a>
-                                <a href="/admin.html" class="dropdown-item"><i class="fas fa-shield-alt"></i> Admin Panel</a>
-                                <div class="dropdown-divider" style="height:1px; background:var(--border-color); margin:8px 0; opacity:0.5;"></div>
-                                <a href="javascript:void(0)" class="dropdown-item logout-item" onclick="confirmLogout()">
-                                    <i class="fas fa-sign-out-alt"></i> Sign Out
-                                </a>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                SHA-2: 256-BIT (32-BYTE) SECURE HASH
+                            </p>
+                            <div class="flex gap-4">
+                                <button onclick="saveSHALog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Hash</button>
+                                <button onclick="copyHash()" class="p-5 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-all active:scale-90">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-    </div>
-</header>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-shield-alt" style="color: var(--primary-color);"></i> SHA-256 Generator</h2>
-                            <p>Generate secure SHA-256 hashes for your text data.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
-                                <span>Input Text</span>
-                                <textarea id="input-text" class="form-control" rows="4" placeholder="Enter text to hash..." style="width: 100%; margin-top: 10px;"></textarea>
-                            </div>
-                            <button id="calc-btn" class="btn-calc" style="transform: scale(1);">Generate Hash</button>
-                        </div>
-                    </div>
 
-                    <div id="results" class="cat-card stagger-2" style="display: block; margin-top: 20px;">
-                        <h3><i class="fas fa-fingerprint"></i> SHA-256 Hash</h3>
-                        <div class="sub-cat-list">
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
-                                <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:5px;">
-                                    <span>Output</span>
-                                    <button id="copy-btn" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size: 0.9rem;"><i class="far fa-copy"></i> Copy</button>
-                                </div>
-                                <code id="hash-output" style="display:block; width:100%; padding:15px; background:rgba(0,0,0,0.2); border-radius:8px; word-break:break-all; font-family:monospace; color: var(--accent-color);" class="">8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4</code>
-                            </div>
-                        </div>
-                        <div class="button-group delay-2 fade-in" style="margin-top: 15px;">
-                            <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Save to History</button>
-                        </div>
-                    </div>
-                </section>
-                <footer class="main-footer" style="padding: 20px; text-align: center; border-top: 1px solid var(--border-color, #333); margin-top: 40px; color: var(--text-muted, #888);">
-    <div class="container">
-        <p class="">© 2026 SMART HUB. All rights reserved.</p>
-        <div class="footer-links" style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
-            <a href="/about.html" style="color: var(--primary-color, #6366f1); text-decoration: none;">About</a>
-            <a href="/contact.html" style="color: var(--primary-color, #6366f1); text-decoration: none;">Contact</a>
-            <a href="/privacy.html" style="color: var(--primary-color, #6366f1); text-decoration: none;">Privacy
-                Policy</a>
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Security Tip: SHA-256 is the core of Bitcoin's proof-of-work algorithm. It is extremely difficult to reverse-engineer! A single character change in the input completely alters the resulting hash (Avalanche Effect)."
+                </div>
+            </div>
         </div>
-    </div>
-</footer>
-            </div>
-        </main>
-    </div>
+    </main>
 
-    <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-    </script>
-    <script src="/js/component-loader.js"></script>
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="/js/calc-utils.js"></script>
-    <script type="module" src="/js/script.js"></script>
     <script>
-        async function generateSHA256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+        let currentHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+        function generateSHA256() {
+            const input = document.getElementById('input').value;
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const lenTag = document.getElementById('len-tag');
+
+            lenTag.innerText = input.length + " CHR";
+
+            if (!input) {
+                currentHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+                display.innerHTML = `<span class="w-1 h-10 bg-primary animate-pulse rounded-full mr-2"></span>${currentHash}`;
+                statusText.innerText = "Empty string hash";
+                compareHashes();
+                return;
+            }
+
+            try {
+                currentHash = CryptoJS.SHA256(input).toString();
+                display.innerHTML = `<span class="w-1 h-10 bg-primary animate-pulse rounded-full mr-2"></span>${currentHash}`;
+                statusText.innerText = "Secure hash generated";
+            } catch (e) {
+                statusText.innerText = "Error generating hash";
+            }
+            
+            compareHashes();
         }
 
-        document.getElementById('calc-btn').addEventListener('click', async () => {
-            const input = document.getElementById('input-text').value;
-            if(!input) return alert("Please enter some text.");
-            
-            const hash = await generateSHA256(input);
-            
-            const resCard = document.getElementById('results');
-            const output = document.getElementById('hash-output');
-            
-            output.innerText = hash;
-            resCard.style.display = 'block';
-            
-            // Setup save button
-            const saveBtn = document.getElementById('save-btn');
-            const newBtn = saveBtn.cloneNode(true);
-            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
-            
-            newBtn.addEventListener('click', () => {
-                const rows = [{ label: "Hash", val: hash, highlight: true }];
-                const inputs = [{ label: "Input", val: input.substring(0, 50) + (input.length>50?"...":"") }];
-                const ok = window.saveCalcToHistory("SHA-256 Generator", inputs, rows);
-                if(ok) {
-                    const orig = newBtn.innerHTML;
-                    newBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    newBtn.style.background = '#10b981';
-                    setTimeout(() => { newBtn.innerHTML = orig; newBtn.style.background = ''; }, 2000);
-                }
-            });
-        });
+        function compareHashes() {
+            const comparator = document.getElementById('comparator').value.trim().toLowerCase();
+            const matchStatus = document.getElementById('matchStatus');
+            const matchIcon = document.getElementById('matchIcon');
 
-        document.getElementById('copy-btn').addEventListener('click', () => {
-            const text = document.getElementById('hash-output').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById('copy-btn');
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-                setTimeout(() => btn.innerHTML = orig, 2000);
-            });
+            if (!comparator) {
+                matchStatus.innerText = "Not Comparing";
+                matchStatus.className = "text-[10px] font-black uppercase tracking-widest text-slate-400";
+                matchIcon.innerText = "checklist";
+                matchIcon.className = "absolute right-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 pointer-events-none";
+                return;
+            }
+
+            if (comparator === currentHash.toLowerCase()) {
+                matchStatus.innerText = "Match Confirmed";
+                matchStatus.className = "text-[10px] font-black uppercase tracking-widest text-emerald-600";
+                matchIcon.innerText = "verified";
+                matchIcon.className = "absolute right-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-emerald-500 pointer-events-none";
+            } else {
+                matchStatus.innerText = "No Match";
+                matchStatus.className = "text-[10px] font-black uppercase tracking-widest text-rose-600";
+                matchIcon.innerText = "error";
+                matchIcon.className = "absolute right-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-rose-500 pointer-events-none";
+            }
+        }
+
+        function clearInput() {
+            document.getElementById('input').value = "";
+            document.getElementById('comparator').value = "";
+            generateSHA256();
+        }
+
+        function copyHash() {
+            navigator.clipboard.writeText(currentHash);
+            const btn = event.currentTarget;
+            const origIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined">done</span>';
+            setTimeout(() => btn.innerHTML = origIcon, 2000);
+        }
+
+        async function saveSHALog() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'String', val: input.substring(0, 20) + (input.length > 20 ? '...' : '') }
+            ];
+            const results = [
+                { label: 'SHA-256 Hash', val: currentHash, highlight: true }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('SHA-256 Generator', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('SHA-256 Generator', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('SHA-256 Generator', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
-
-<div id="toast-container" class="" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div></body></html>
+    <script type="module" src="/js/script.js"></script>
+</body>
+</html>

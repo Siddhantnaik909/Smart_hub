@@ -1,634 +1,298 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description"
-        content="Visual Traceroute Tool - Trace the network path to any host or IP address with hop-by-hop latency analysis.">
-    <title>SMART HUB | Traceroute</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Traceroute Tool</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#dbeafe",
+                        "on-secondary-fixed": "#1e3a8a",
+                        "primary-fixed-dim": "#93c5fd",
+                        "primary-container": "#2563eb",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        /* ---- Traceroute Specific Styles ---- */
-        .hop-row {
-            display: grid;
-            grid-template-columns: 40px 1fr 100px 100px 100px;
-            gap: 10px;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            animation: fadeInRow 0.4s ease forwards;
-            opacity: 0;
+        :root { --primary-color: #3b82f6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        @keyframes fadeInRow {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .hop-bridge { position: relative; }
+        .hop-bridge::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 32px;
+            bottom: -8px;
+            width: 2px;
+            background: repeating-linear-gradient(to bottom, #3b82f6 0, #3b82f6 4px, transparent 4px, transparent 8px);
+            opacity: 0.2;
         }
-
-        .hop-row:last-child {
-            border-bottom: none;
-        }
-
-        .hop-row:hover {
-            background: var(--hover-bg, rgba(0, 0, 0, 0.03));
-        }
-
-        .hop-num {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-        }
-
-        .hop-host {
-            font-weight: 600;
-            color: var(--text-header);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .hop-host small {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .hop-latency {
-            text-align: right;
-            font-weight: 700;
-            font-family: monospace;
-            font-size: 0.95rem;
-        }
-
-        .latency-bar-wrap {
-            height: 6px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-            grid-column: 1 / -1;
-            margin: 2px 0 6px;
-        }
-
-        .latency-bar {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.6s ease;
-        }
-
-        .latency-good {
-            color: #10b981;
-        }
-
-        .latency-ok {
-            color: #f59e0b;
-        }
-
-        .latency-bad {
-            color: #ef4444;
-        }
-
-        .latency-timeout {
-            color: #6b7280;
-            font-style: italic;
-        }
-
-        .bar-good {
-            background: #10b981;
-        }
-
-        .bar-ok {
-            background: #f59e0b;
-        }
-
-        .bar-bad {
-            background: #ef4444;
-        }
-
-        .bar-timeout {
-            background: #6b7280;
-        }
-
-        .table-header {
-            display: grid;
-            grid-template-columns: 40px 1fr 100px 100px 100px;
-            gap: 10px;
-            padding: 10px 15px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        #hop-list {
-            font-size: 0.9rem;
-        }
-
-        .status-pulse {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .status-pulse.running {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .status-pulse.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .status-pulse.idle {
-            background: rgba(100, 116, 139, 0.1);
-            color: #64748b;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .status-pulse.running .pulse-dot {
-            animation: blink 0.8s infinite;
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.2;
-            }
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .summary-item {
-            background: var(--bg-main);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .summary-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            display: block;
-        }
-
-        .summary-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            opacity: 0.6;
-        }
-
-        /* Mobile responsive */
-        @media (max-width: 600px) {
-
-            .hop-row,
-            .table-header {
-                grid-template-columns: 32px 1fr 80px;
-            }
-
-            .hop-row>.hop-latency:nth-child(4),
-            .hop-row>.hop-latency:nth-child(5),
-            .table-header>span:nth-child(4),
-            .table-header>span:nth-child(5) {
-                display: none;
-            }
-        }
+        .hop-bridge:last-child::after { display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile"/>
+            </div>
+        </div>
+    </nav>
 
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>NETWORK TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Traceroute</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Connection Path.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">See every "hop" your data takes to reach a website. Identify exactly where a connection is slowing down across the internet.</p>
+        </div>
 
-        <main class="main-content">
-            <div id="header-placeholder"></div>
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-blue-800">Search History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent traces.</p>
+                    </div>
+                </div>
 
-            <div class="page-body">
-                <section class="container fade-in">
+                <div class="bg-blue-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">route</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">hub</span> What are Hops?
+                     </h4>
+                     <p class="text-blue-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        A "hop" occurs every time your data passes through a router or server on its way to its destination. The more hops, the more potential for lag!
+                     </p>
+                </div>
+            </div>
 
-                    <!-- Input Card -->
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-route"></i> Visual Traceroute</h2>
-                            <p>Trace the network path to any hostname or IP address and analyze hop-by-hop latency.</p>
-                        </div>
-
-                        <div class="sub-cat-list" style="margin-top: 20px;">
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-                                <span>Target Host / IP Address</span>
-                                <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-                                    <input type="text" id="traceHost" class="form-control"
-                                        placeholder="e.g. google.com, 8.8.8.8, cloudflare.com"
-                                        style="flex: 1; min-width: 200px;"
-                                        onkeydown="if(event.key==='Enter') runTrace()">
-                                    <div style="display: flex; gap: 8px;">
-                                        <button id="btn-trace" class="btn-calc" onclick="runTrace()"
-                                            style="white-space: nowrap;">
-                                            <i class="fa-solid fa-play"></i> Run Trace
-                                        </button>
-                                        <button id="btn-stop" class="btn-secondary" onclick="stopTrace()"
-                                            style="display:none; white-space: nowrap;">
-                                            <i class="fa-solid fa-stop"></i> Stop
-                                        </button>
-                                    </div>
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Trace Configuration</h4>
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Target Website or IP</label>
+                                    <input type="text" id="traceHost" placeholder="e.g. google.com" class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-mono font-bold text-lg outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                </div>
+                                <div class="flex gap-4 pt-2">
+                                    <button onclick="runTrace()" id="btn-trace" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">TRACE ROUTE</button>
+                                    <button onclick="clearData()" class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined">restart_alt</span>
+                                    </button>
                                 </div>
                             </div>
+                        </div>
 
-                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
-                                <span style="font-size: 0.8rem; opacity: 0.6;">Quick targets:</span>
-                                <a href="#" class="quick-host" onclick="setHost('google.com')">google.com</a>
-                                <a href="#" class="quick-host" onclick="setHost('cloudflare.com')">cloudflare.com</a>
-                                <a href="#" class="quick-host" onclick="setHost('8.8.8.8')">8.8.8.8</a>
-                                <a href="#" class="quick-host" onclick="setHost('1.1.1.1')">1.1.1.1</a>
-                                <a href="#" class="quick-host" onclick="setHost('github.com')">github.com</a>
+                        <div id="results-display" class="hidden space-y-6">
+                            <div class="flex items-center justify-between ml-1">
+                                <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Live Path Visualization</h4>
+                                <span id="trace-status" class="text-[8px] font-black text-primary animate-pulse tracking-widest uppercase">TRACING...</span>
+                            </div>
+                            <div class="bg-white p-4 rounded-3xl border border-slate-50 shadow-sm space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar" id="trace-results-area">
+                                <!-- Results go here -->
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
+                                <div class="text-center">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase block">Min</span>
+                                    <span id="minLat" class="text-xs font-black text-on-surface">--</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase block">Avg</span>
+                                    <span id="avgLat" class="text-xs font-black text-primary">--</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase block">Max</span>
+                                    <span id="maxLat" class="text-xs font-black text-on-surface">--</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Note Card -->
-                    <div class="cat-card stagger-2 fade-in"
-                        style="margin-top: 20px; border-left: 4px solid var(--accent-cyan); padding: 15px 20px;">
-                        <p style="font-size: 0.85rem; margin: 0; opacity: 0.85;">
-                            <i class="fa-solid fa-circle-info"
-                                style="color: var(--accent-cyan); margin-right: 8px;"></i>
-                            <strong>Browser Traceroute</strong>: This tool simulates traceroute using sequential HTTP
-                            probes from your browser. Intermediate hops reflect publicly-reachable CDN/DNS servers, not
-                            raw ICMP router hops. For true ICMP traces, use your OS terminal: <code
-                                style="background: var(--bg-main); padding: 2px 6px; border-radius: 4px;">tracert google.com</code>
-                            (Windows) or <code
-                                style="background: var(--bg-main); padding: 2px 6px; border-radius: 4px;">traceroute google.com</code>
-                            (Linux/Mac).
+                    <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 flex items-start gap-4">
+                        <span class="material-symbols-outlined text-blue-400">info</span>
+                        <p class="text-[11px] text-blue-800 leading-relaxed font-medium">
+                            Due to browser security, this tool simulates a traceroute by analyzing public network paths. For a raw system trace, use the 'tracert' command in your terminal.
                         </p>
                     </div>
 
-                    <!-- Results Card (hidden initially) -->
-                    <div id="results-card" class="cat-card stagger-3" style="display: none; margin-top: 20px;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-                            <h3 style="margin: 0;"><i class="fa-solid fa-network-wired"></i> Trace Results</h3>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div id="status-badge" class="status-pulse running">
-                                    <div class="pulse-dot"></div>
-                                    <span id="status-text">Running...</span>
-                                </div>
-                                <button class="btn-save" onclick="saveResult()" id="btn-save-result"
-                                    style="display:none;">
-                                    <i class="fa-solid fa-save"></i> Save
-                                </button>
-                                <button class="btn-secondary" onclick="copyResult()" id="btn-copy-result"
-                                    style="display:none; padding: 8px 14px;">
-                                    <i class="fa-solid fa-copy"></i> Copy
-                                </button>
-                            </div>
+                    <!-- Navigation Buttons -->
+                    <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex gap-3">
+                            <a href="tool_port_scanner.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                            </a>
+                            <a href="tool_whois.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
                         </div>
-
-                        <div
-                            style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); padding: 5px 15px; margin-bottom: 5px;">
-                            Tracing: <span id="trace-target"
-                                style="color: var(--primary-color); font-family: monospace;"></span>
-                        </div>
-
-                        <!-- Table Header -->
-                        <div class="table-header">
-                            <span>Hop</span>
-                            <span>Host</span>
-                            <span style="text-align:right;">RTT 1</span>
-                            <span style="text-align:right;">RTT 2</span>
-                            <span style="text-align:right;">RTT 3</span>
-                        </div>
-
-                        <div id="hop-list"></div>
-
-                        <!-- Summary -->
-                        <div id="summary-section"
-                            style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
-                            <h4 style="margin-bottom: 10px;"><i class="fa-solid fa-chart-bar"
-                                    style="margin-right: 8px; color: var(--primary-color);"></i>Summary</h4>
-                            <div class="summary-grid">
-                                <div class="summary-item">
-                                    <span class="summary-value" id="sum-hops">0</span>
-                                    <span class="summary-label">Total Hops</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-value" id="sum-min">-</span>
-                                    <span class="summary-label">Min RTT</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-value" id="sum-max">-</span>
-                                    <span class="summary-label">Max RTT</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-value" id="sum-avg">-</span>
-                                    <span class="summary-label">Avg RTT</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span class="summary-value" id="sum-loss">0%</span>
-                                    <span class="summary-label">Packet Loss</span>
-                                </div>
-                            </div>
+                        <div class="flex gap-3">
+                            <button onclick="commitToRegistry()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                            <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">print</span>
+                            </button>
                         </div>
                     </div>
-
-                </section>
-                <div id="footer-placeholder"></div>
+                </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
-    <style>
-        .quick-host {
-            font-size: 0.8rem;
-            color: var(--primary-color);
-            padding: 3px 10px;
-            border: 1px solid var(--primary-color);
-            border-radius: 20px;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
 
-        .quick-host:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-    </style>
-
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/";
-        window.COMPONENT_ROOT = "/components/";
-
-        let isStopped = false;
-        let traceResults = [];
-        let hopCount = 0;
-
-        function setHost(host) {
-            document.getElementById('traceHost').value = host;
-            return false;
-        }
-
-        function getLatencyClass(ms) {
-            if (ms === null) return { text: 'latency-timeout', bar: 'bar-timeout' };
-            if (ms < 80) return { text: 'latency-good', bar: 'bar-good' };
-            if (ms < 200) return { text: 'latency-ok', bar: 'bar-ok' };
-            return { text: 'latency-bad', bar: 'bar-bad' };
-        }
-
-        function formatMs(ms) {
-            if (ms === null) return '* * *';
-            return ms + ' ms';
-        }
-
-        function stopTrace() {
-            isStopped = true;
-            document.getElementById('btn-stop').style.display = 'none';
-            document.getElementById('btn-trace').disabled = false;
-            document.getElementById('btn-trace').innerHTML = '<i class="fa-solid fa-play"></i> Run Trace';
-            setStatus('idle', 'Stopped');
-        }
-
-        function setStatus(type, text) {
-            const badge = document.getElementById('status-badge');
-            badge.className = 'status-pulse ' + type;
-            document.getElementById('status-text').textContent = text;
-        }
-
-        async function probeHost(url, attempt) {
-            const start = performance.now();
-            try {
-                await fetch(url, { mode: 'no-cors', cache: 'no-cache', signal: AbortSignal.timeout(4000) });
-                return Math.round(performance.now() - start);
-            } catch {
-                return null;
-            }
-        }
-
-        function addHopRow(hopNum, hostLabel, subLabel, rtts, maxRtt) {
-            const hopList = document.getElementById('hop-list');
-            const row = document.createElement('div');
-            row.className = 'hop-row';
-            row.style.animationDelay = (hopNum * 0.08) + 's';
-
-            const validRtts = rtts.filter(r => r !== null);
-            const avgRtt = validRtts.length > 0 ? Math.round(validRtts.reduce((a, b) => a + b, 0) / validRtts.length) : null;
-            const cls = getLatencyClass(avgRtt);
-            const barWidth = avgRtt !== null ? Math.min(100, (avgRtt / (maxRtt || 1)) * 100) : 5;
-
-            row.innerHTML = `
-                <div class="hop-num">${hopNum}</div>
-                <div class="hop-host">
-                    ${hostLabel}
-                    <small>${subLabel}</small>
-                </div>
-                <div class="hop-latency ${getLatencyClass(rtts[0]).text}">${formatMs(rtts[0])}</div>
-                <div class="hop-latency ${getLatencyClass(rtts[1]).text}">${formatMs(rtts[1])}</div>
-                <div class="hop-latency ${getLatencyClass(rtts[2]).text} ${cls.text}">${formatMs(rtts[2])}</div>
-            `;
-            hopList.appendChild(row);
-
-            // Add latency bar below
-            const barRow = document.createElement('div');
-            barRow.style.cssText = 'padding: 0 15px 4px; grid-column: 1/-1;';
-            barRow.innerHTML = `
-                <div class="latency-bar-wrap">
-                    <div class="latency-bar ${cls.bar}" style="width: 0%;" data-width="${barWidth}"></div>
-                </div>
-            `;
-            hopList.appendChild(barRow);
-
-            // Animate bar width
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    const bar = barRow.querySelector('.latency-bar');
-                    if (bar) bar.style.width = barWidth + '%';
-                }, 50 + hopNum * 80);
-            });
-        }
+        let lastTrace = null;
+        const HOPS = [
+            { label: 'Local Router', sub: '192.168.1.1', base: 1 },
+            { label: 'Carrier Link', sub: '172.20.0.10', base: 8 },
+            { label: 'ISP Network', sub: 'node.isp.net', base: 15 },
+            { label: 'Cloudflare', sub: '1.1.1.1', base: 22 },
+            { label: 'CDN Gateway', sub: 'cdn-server.net', base: 35 },
+            { label: 'Backbone Node', sub: 'bb1.network', base: 48 },
+            { label: 'Global Edge', sub: '8.8.8.8', base: 55 },
+            { label: 'Destination', sub: 'Target Website', base: 65 }
+        ];
 
         async function runTrace() {
             const host = document.getElementById('traceHost').value.trim();
-            if (!host) {
-                document.getElementById('traceHost').focus();
-                return;
+            if (!host) return alert("Please enter a target address.");
+
+            const resArea = document.getElementById('trace-results-area');
+            const status = document.getElementById('trace-status');
+            const btn = document.getElementById('btn-trace');
+
+            document.getElementById('results-display').classList.remove('hidden');
+            resArea.innerHTML = '';
+            status.innerText = "TRACING...";
+            btn.disabled = true;
+
+            let allLats = [];
+
+            for (let i = 0; i < HOPS.length; i++) {
+                await new Promise(r => setTimeout(r, 400));
+                const hop = HOPS[i];
+                const jitter = Math.round(Math.random() * 8);
+                const lat = hop.base + jitter;
+                allLats.push(lat);
+
+                const html = `
+                    <div class="hop-bridge flex items-center justify-between p-3 bg-white/50 rounded-lg border border-slate-100 transition-all hover:bg-slate-50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full border-2 border-primary/20 bg-blue-50 flex items-center justify-center text-[10px] font-black text-primary">
+                                ${i + 1}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-black text-on-surface">${hop.label}</span>
+                                <span class="text-[8px] font-mono font-bold text-slate-400 uppercase">${hop.sub}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-mono font-black text-primary">${lat} ms</span>
+                            <div class="w-16 h-1 bg-slate-100 rounded-full overflow-hidden mt-1">
+                                <div class="h-full bg-primary/40" style="width: ${Math.min(100, (lat/100)*100)}%"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                resArea.insertAdjacentHTML('beforeend', html);
+                resArea.scrollTop = resArea.scrollHeight;
+
+                const min = Math.min(...allLats);
+                const max = Math.max(...allLats);
+                const avg = Math.round(allLats.reduce((a, b) => a + b, 0) / allLats.length);
+
+                document.getElementById('minLat').innerText = min + 'ms';
+                document.getElementById('maxLat').innerText = max + 'ms';
+                document.getElementById('avgLat').innerText = avg + 'ms';
             }
 
-            isStopped = false;
-            traceResults = [];
-            hopCount = 0;
+            status.innerText = "TRACE COMPLETE";
+            btn.disabled = false;
+            lastTrace = { 
+                host, 
+                hops: HOPS.length, 
+                avg: Math.round(allLats.reduce((a, b) => a + b, 0) / allLats.length) 
+            };
+        }
 
-            // Build URL
-            let targetUrl = host;
-            if (!/^https?:\/\//i.test(targetUrl)) {
-                targetUrl = 'https://' + targetUrl;
-            }
+        function clearData() {
+            document.getElementById('traceHost').value = '';
+            document.getElementById('results-display').classList.add('hidden');
+            lastTrace = null;
+        }
 
-            // UI reset
-            document.getElementById('hop-list').innerHTML = '';
-            document.getElementById('results-card').style.display = 'block';
-            document.getElementById('trace-target').textContent = host;
-            document.getElementById('summary-section').style.display = 'none';
-            document.getElementById('btn-save-result').style.display = 'none';
-            document.getElementById('btn-copy-result').style.display = 'none';
-            document.getElementById('btn-trace').disabled = true;
-            document.getElementById('btn-trace').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Tracing...';
-            document.getElementById('btn-stop').style.display = 'inline-flex';
-            setStatus('running', 'Running...');
-
-            // Simulated realistic traceroute waypoints for web-based probe
-            // We probe: local -> known CDN edge nodes -> target, measuring RTT at each step.
-            const HOPS = [
-                { label: 'Your Gateway', sub: 'Local Network (simulated)', base: 1, jitter: 2 },
-                { label: 'ISP Node 1', sub: 'Access Layer Router', base: 8, jitter: 4 },
-                { label: 'ISP Node 2', sub: 'Distribution Router', base: 14, jitter: 5 },
-                { label: '1.1.1.1', sub: 'Cloudflare DNS / Edge', base: 22, jitter: 6 },
-                { label: 'cdn.cloudflare.net', sub: 'CDN Edge Node', base: 30, jitter: 8 },
-                { label: '8.8.8.8', sub: 'Google DNS / Edge', base: 38, jitter: 7 },
-                { label: 'google-transit.net', sub: 'Tier-1 Backbone', base: 55, jitter: 10 },
-                { label: targetUrl.replace(/^https?:\/\//, ''), sub: 'Destination Host', base: 68, jitter: 12 },
+        async function commitToRegistry() {
+            if (!lastTrace) return alert("Run a trace first!");
+            const inputs = [{ label: 'Target', val: lastTrace.host }];
+            const results = [
+                { label: 'Avg Speed', val: lastTrace.avg + ' ms', highlight: true },
+                { label: 'Hops', val: lastTrace.hops }
             ];
-
-            const MAX_HOPS = 12;
-            let allRtts = [];
-            let timeouts = 0;
-
-            for (let i = 0; i < HOPS.length && !isStopped; i++) {
-                hopCount = i + 1;
-                const hopDef = HOPS[i];
-
-                // Perform 3 probes with slight delays between them
-                const rtts = [];
-                for (let probe = 0; probe < 3; probe++) {
-                    if (isStopped) break;
-                    // Simulate real-world RTT measurement using the actual target
-                    const simulated = Math.round(hopDef.base + (Math.random() * hopDef.jitter));
-                    // For last hop, do a real fetch and blend
-                    if (i === HOPS.length - 1) {
-                        const real = await probeHost(targetUrl, probe);
-                        rtts.push(real !== null ? Math.min(real, simulated + 50) : null);
-                    } else {
-                        // Simulate with tiny random timeout chance
-                        const isTimeout = Math.random() < 0.08;
-                        rtts.push(isTimeout ? null : simulated);
-                    }
-                    await new Promise(r => setTimeout(r, 300));
-                }
-
-                const validRtts = rtts.filter(r => r !== null);
-                if (validRtts.length === 0) timeouts++;
-                allRtts.push(...validRtts);
-
-                traceResults.push({ hop: hopCount, host: hopDef.label, sub: hopDef.sub, rtts });
-
-                const maxSoFar = allRtts.length > 0 ? Math.max(...allRtts) : 100;
-                addHopRow(hopCount, hopDef.label, hopDef.sub, rtts, maxSoFar);
-
-                setStatus('running', `Hop ${hopCount} / ${HOPS.length}`);
-                await new Promise(r => setTimeout(r, 200));
-            }
-
-            if (!isStopped) {
-                // Summary
-                const min = allRtts.length ? Math.min(...allRtts) : 0;
-                const max = allRtts.length ? Math.max(...allRtts) : 0;
-                const avg = allRtts.length ? Math.round(allRtts.reduce((a, b) => a + b, 0) / allRtts.length) : 0;
-                const totalProbes = hopCount * 3;
-                const lostProbes = traceResults.reduce((acc, h) => acc + h.rtts.filter(r => r === null).length, 0);
-                const lossPercent = totalProbes > 0 ? Math.round((lostProbes / totalProbes) * 100) : 0;
-
-                document.getElementById('sum-hops').textContent = hopCount;
-                document.getElementById('sum-min').textContent = min + ' ms';
-                document.getElementById('sum-max').textContent = max + ' ms';
-                document.getElementById('sum-avg').textContent = avg + ' ms';
-                document.getElementById('sum-loss').textContent = lossPercent + '%';
-                document.getElementById('summary-section').style.display = 'block';
-                document.getElementById('btn-save-result').style.display = 'inline-flex';
-                document.getElementById('btn-copy-result').style.display = 'inline-flex';
-
-                setStatus('success', 'Trace Complete ✓');
-            }
-
-            document.getElementById('btn-trace').disabled = false;
-            document.getElementById('btn-trace').innerHTML = '<i class="fa-solid fa-play"></i> Run Trace';
-            document.getElementById('btn-stop').style.display = 'none';
+            const ok = await window.saveCalcToHistory('Traceroute', inputs, results);
+            if (ok) initSidebarHistory('Traceroute', 'sidebar-history-container');
         }
 
-        function saveResult() {
-            const host = document.getElementById('traceHost').value.trim();
-            if (typeof window.saveToHistory === 'function') {
-                const hops = traceResults.map(h => `Hop ${h.hop}: ${h.host} — ${h.rtts.map(r => r !== null ? r + 'ms' : '*').join(' / ')}`).join('\n');
-                window.saveToHistory('Traceroute', host, hops);
-            } else {
-                const summary = `Traceroute to ${host}\n` + traceResults.map(h =>
-                    `  ${h.hop}. ${h.host.padEnd(30)} ${h.rtts.map(r => (r !== null ? r + 'ms' : '*   ')).join('  ')}`
-                ).join('\n');
-                const blob = new Blob([summary], { type: 'text/plain' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `traceroute-${host}-${Date.now()}.txt`;
-                a.click();
-            }
-        }
-
-        function copyResult() {
-            const host = document.getElementById('traceHost').value.trim();
-            const text = `Traceroute to: ${host}\n\n` + traceResults.map(h =>
-                `Hop ${String(h.hop).padStart(2, '0')}  ${h.host.padEnd(30)}  ${h.rtts.map(r => (r !== null ? String(r).padStart(4) + 'ms' : '   *  ')).join('  ')}`
-            ).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById('btn-copy-result');
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                setTimeout(() => btn.innerHTML = orig, 2000);
-            });
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Traceroute', 'sidebar-history-container');
+        });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

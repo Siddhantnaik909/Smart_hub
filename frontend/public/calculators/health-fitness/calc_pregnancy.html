@@ -1,147 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Pregnancy Due Date Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Pregnancy Due Date Tracker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="overlay" id="mobile-overlay"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-baby"></i> Pregnancy Due Date Calculator</h2>
-                            <p>Estimate your due date and see key pregnancy milestones based on your last menstrual period (LMP).</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>First Day of Last Period (LMP)</span>
-                                <input type="date" id="lmpDate" class="form-control">
-                            </div>
-                            
-                            <button id="calculateBtn" class="btn-calc" style="background-color: #8b5cf6;">Calculate</button>
-                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Pregnancy Summary</h3>
-                        
-                        <div style="text-align: center; padding: 20px 0; background: rgba(139, 92, 246, 0.05); border-radius: 12px; margin-bottom: 20px;">
-                            <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Delivery Date</span>
-                            <div id="dueDateDisplay" style="font-size: 2rem; font-weight: 800; color: #8b5cf6;">---</div>
-                            <strong id="trimesterDisplay" style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">-</strong>
-                        </div>
-
-
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-
-
-                        <div class="sub-link" style="background: rgba(139, 92, 246, 0.05); border-left: 4px solid #8b5cf6; margin-top: 15px; padding: 15px;">
-                            <span style="color: #8b5cf6; font-weight: bold;"><i class="fa-solid fa-wand-magic-sparkles"></i> Milestone Tip</span>
-                            <p id="pro-tip" style="font-size: 0.9rem; margin-top: 8px; line-height: 1.5;"></p>
-                        </div>
-
-                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="btn-save" style="flex: 1;">
-                                <i class="fa-solid fa-save"></i> Save to Timeline
-                            </button>
-                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
-                                <i class="fa-solid fa-print"></i> Print Report
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>HEALTH TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Baby Tracker</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Baby Journey.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Track your pregnancy milestones and find out when your baby is expected to arrive. See how big your little one is today!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Pregnancy History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">child_care</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> Baby Tip
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Take your vitamins, stay hydrated, and get plenty of rest. Your body is doing incredible work right now!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">EXPECTED ARRIVAL</span>
+                            <span class="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-black tracking-widest uppercase" id="status-tag">READY TO TRACK</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Estimated Due Date</div>
+                        <div id="calc-display" class="text-4xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden uppercase">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>-- --, ----
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 pb-4 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">First Day of Last Period</label>
+                                    <input type="date" id="lmpDate" oninput="calculatePregnancy()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm cursor-pointer">
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-slate-100 rounded-xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:text-primary hover:bg-white transition-all shadow-sm">Reset Date</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-8 bg-primary/5 border border-primary/10 rounded-2xl space-y-4 h-full flex flex-col justify-center">
+                                    <div>
+                                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Current Progress</p>
+                                        <p id="metProgress" class="text-2xl font-black text-on-surface tracking-tighter">-- Weeks, -- Days</p>
+                                    </div>
+                                    <div class="pt-4 border-t border-primary/10">
+                                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Growth Milestone</p>
+                                        <p id="pro-tip" class="text-[11px] text-on-surface-variant leading-relaxed font-medium italic">
+                                            Select your last period date to see your baby's growth and trimester info.
+                                        </p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
+                                        <div>
+                                            <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Baby Size</h5>
+                                            <p id="fruitName" class="text-xl font-black text-on-surface">--</p>
+                                        </div>
+                                        <div id="trimesterDisplay" class="px-3 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase">---</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_ovulation.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_water.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="savePregnancyLog()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Est. Conception</h5>
+                        <p id="conceptionDate" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">First Heartbeat</h5>
+                        <p id="heartbeatDate" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Baby Viability</h5>
+                        <p id="viabilityDate" class="text-sm font-black text-primary uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Days Remaining</h5>
+                        <p id="metRemaining" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
-        document.getElementById('calculateBtn').addEventListener('click', () => {
-            const lmpInput = document.getElementById('lmpDate');
-            const lmpDate = new Date(lmpInput.value);
-            
-            if (isNaN(lmpDate.getTime())) {
-                alert("Please select a valid date.");
-                return;
-            }
-
-            const resCard = document.getElementById('results');
-            const resArea = document.getElementById('result-display-area');
-            const dueDisplay = document.getElementById('dueDateDisplay');
-            const trimDisplay = document.getElementById('trimesterDisplay');
-            const tipArea = document.getElementById('pro-tip');
-
-            // Due Date Calculation (LMP + 280 Days)
-            const dueDate = new Date(lmpDate);
-            dueDate.setDate(dueDate.getDate() + 280);
-
-            // Gestational Age
-            const today = new Date();
-            const diffDays = Math.floor((today - lmpDate) / (1000 * 60 * 60 * 24));
-            const weeks = Math.floor(diffDays / 7);
-            const days = diffDays % 7;
-
-            // Milestones
-            const conception = new Date(lmpDate); conception.setDate(conception.getDate() + 14);
-            const heartbeat = new Date(lmpDate); heartbeat.setDate(heartbeat.getDate() + 42); // 6 weeks
-            const viability = new Date(lmpDate); viability.setDate(viability.getDate() + 168); // 24 weeks
-
-            // Trimester Logic
-            let trimester = "";
-            if (weeks < 13) trimester = "1st Trimester";
-            else if (weeks < 27) trimester = "2nd Trimester";
-            else trimester = "3rd Trimester";
-
-            // Formatting
-            const options = { month: 'long', day: 'numeric', year: 'numeric' };
-            dueDisplay.innerText = dueDate.toLocaleDateString('en-US', options);
-            trimDisplay.innerText = trimester;
-
-            resArea.innerHTML = `
-                <div class="sub-link"><span>Current Progress</span><strong>${weeks} Weeks, ${days} Days</strong></div>
-                <div class="sub-link"><span>Est. Conception Date</span><strong>${conception.toLocaleDateString('en-US', options)}</strong></div>
-                <div class="sub-link"><span>First Heartbeat (approx.)</span><strong>${heartbeat.toLocaleDateString('en-US', options)}</strong></div>
-                <div class="sub-link"><span>Viability Milestone (approx.)</span><strong>${viability.toLocaleDateString('en-US', options)}</strong></div>
-            `;
-
-            tipArea.innerHTML = weeks < 12 
-                ? "During the <strong>1st Trimester</strong>, the foundation for all major organs is being built. Ensure you are taking folic acid as recommended by your doctor."
-                : "Your baby is now about the size of a <strong>" + getFruit(weeks) + "</strong>! It's a great time to start documenting your journey with photos or a journal.";
-
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
-
-            // Prepare data for the 'Save to Timeline' feature
-            if (window.setLastCalc) {
-                const inputsForHistory = [
-                    { label: 'Last Period Date', val: lmpDate.toLocaleDateString('en-US', options) }
-                ];
-                const resultsForHistory = [
-                    { label: 'Estimated Due Date', val: dueDate.toLocaleDateString('en-US', options), highlight: true },
-                    { label: 'Current Progress', val: `${weeks} Weeks, ${days} Days` },
-                    { label: 'Current Trimester', val: trimester },
-                    { label: 'Est. Conception', val: conception.toLocaleDateString('en-US', options) },
-                ];
-                window.setLastCalc('Pregnancy Calculator', inputsForHistory, resultsForHistory);
-            }
-        });
+        const formatDateLong = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const formatDateShort = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
         function getFruit(w) {
             if (w < 8) return "Raspberry";
@@ -154,10 +212,109 @@
             if (w < 36) return "Honeydew";
             return "Watermelon";
         }
-    </script>
 
-    <script src="/js/component-loader.js"></script>
+        function calculatePregnancy() {
+            const lmpInput = document.getElementById('lmpDate');
+            const display = document.getElementById('calc-display');
+            const status = document.getElementById('calc-status');
+            const tag = document.getElementById('status-tag');
+            const progressEl = document.getElementById('metProgress');
+            const tipEl = document.getElementById('pro-tip');
+            const trimesterEl = document.getElementById('trimesterDisplay');
+            const fruitEl = document.getElementById('fruitName');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (!lmpInput.value) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>-- --, ----`;
+                tag.innerText = "READY TO TRACK";
+                tag.className = "px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase";
+                progressEl.innerText = "-- Weeks, -- Days";
+                fruitEl.innerText = "--";
+                trimesterEl.innerText = "---";
+                tipEl.innerText = "Select your last period date to see your baby's growth and trimester info.";
+                saveBtn.classList.add('hidden');
+                resetMetrics();
+                return;
+            }
+
+            const lmpDate = new Date(lmpInput.value + 'T00:00:00');
+            const today = new Date();
+            const dueDate = new Date(lmpDate);
+            dueDate.setDate(dueDate.getDate() + 280);
+
+            const diffDays = Math.floor((today - lmpDate) / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${formatDateLong(dueDate)}`;
+            status.innerText = "Due Date Estimated";
+            saveBtn.classList.remove('hidden');
+
+            tag.innerText = "TRACKING JOURNEY";
+            tag.className = "px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-[10px] font-black tracking-widest uppercase";
+            
+            progressEl.innerText = `${weeks} Weeks, ${days} Days`;
+            fruitEl.innerText = getFruit(weeks);
+
+            let tri = "1st Trimester";
+            let tip = "Baby's key organs are starting to form!";
+            if (weeks >= 13 && weeks < 27) {
+                tri = "2nd Trimester";
+                tip = "Baby is growing fast and starting to move!";
+            } else if (weeks >= 27) {
+                tri = "3rd Trimester";
+                tip = "Almost there! Baby is getting ready for the world.";
+            }
+            trimesterEl.innerText = tri;
+            tipEl.innerText = tip;
+
+            updateMetrics(lmpDate, dueDate);
+        }
+
+        function updateMetrics(lmp, due) {
+            const today = new Date();
+            const rm = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+
+            const conception = new Date(lmp);
+            conception.setDate(conception.getDate() + 14);
+
+            const heartbeat = new Date(lmp);
+            heartbeat.setDate(heartbeat.getDate() + 42);
+
+            const viability = new Date(lmp);
+            viability.setDate(viability.getDate() + 168);
+
+            document.getElementById('conceptionDate').innerText = formatDateShort(conception);
+            document.getElementById('heartbeatDate').innerText = formatDateShort(heartbeat);
+            document.getElementById('viabilityDate').innerText = formatDateShort(viability);
+            document.getElementById('metRemaining').innerText = Math.max(0, rm) + " Days";
+        }
+
+        function resetMetrics() {
+            ['conceptionDate', 'heartbeatDate', 'viabilityDate', 'metRemaining'].forEach(id => document.getElementById(id).innerText = '---');
+        }
+
+        function resetInputs() {
+            document.getElementById('lmpDate').value = '';
+            calculatePregnancy();
+        }
+
+        async function savePregnancyLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val.includes('--')) return;
+            const inputs = [{ label: 'Period Date', val: document.getElementById('lmpDate').value }];
+            const results = [
+                { label: 'Due Date', val: val, highlight: true },
+                { label: 'Status', val: document.getElementById('metProgress').innerText }
+            ];
+            const ok = await window.saveCalcToHistory('Pregnancy Tracker', inputs, results);
+            if (ok) initSidebarHistory('Pregnancy Tracker', 'sidebar-history-container');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Pregnancy Tracker', 'sidebar-history-container');
+        });
+    </script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
 </body>
 </html>

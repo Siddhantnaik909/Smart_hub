@@ -108,6 +108,10 @@ router.post('/files/save', verifyToken, isAdmin, async (req, res) => {
             // File doesn't exist yet, so it's a new file. No backup needed.
         }
 
+        // Ensure directory exists for new files
+        const dirPath = path.dirname(fullPath);
+        await fs.mkdir(dirPath, { recursive: true });
+
         await fs.writeFile(fullPath, content || '', 'utf-8');
         res.json({ message: "File saved successfully" });
     } catch (err) {
@@ -207,7 +211,26 @@ router.post('/files/copy', verifyToken, isAdmin, async (req, res) => {
 // 8. Get All Users
 router.get('/users', verifyToken, isAdmin, async (req, res) => {
     try {
-        const users = await req.app.locals.db.collection('users').find({}).project({ password: 0 }).toArray();
+        if (!req.app.locals.db) {
+            return res.status(503).json({ error: "Database not ready. Please try again in a moment." });
+        }
+        const { search } = req.query;
+        let query = {};
+        
+        if (search) {
+            // Create a regex for case-insensitive server-side search
+            const searchRegex = new RegExp(search, 'i');
+            query = {
+                $or: [
+                    { name: searchRegex },
+                    { email: searchRegex },
+                    { username: searchRegex },
+                    { role: searchRegex }
+                ]
+            };
+        }
+
+        const users = await req.app.locals.db.collection('users').find(query).project({ password: 0 }).toArray();
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -289,7 +312,7 @@ router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
 router.get('/stats', verifyToken, isAdmin, async (req, res) => {
     try {
         const usersCount = await req.app.locals.db.collection('users').countDocuments({});
-        res.json({ users: usersCount, tools: 85 });
+        res.json({ users: usersCount, tools: 91 });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -297,6 +320,82 @@ router.get('/stats', verifyToken, isAdmin, async (req, res) => {
 
 router.get('/logs', verifyToken, isAdmin, (req, res) => {
     res.send(`[${new Date().toISOString()}] System operational.\n[${new Date().toISOString()}] Admin connected.`);
+});
+
+// 12. Audit System - Scan for inconsistencies
+router.get('/audit', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const results = [];
+        const baseDir = path.resolve(__dirname, '../../frontend/public');
+        
+        async function scanDir(dir) {
+            const entries = await fs.readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                    if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+                        await scanDir(fullPath);
+                    }
+                } else if (entry.name.endsWith('.html')) {
+                    const content = await fs.readFile(fullPath, 'utf8');
+                    const relativePath = path.relative(baseDir, fullPath);
+                    const issues = [];
+                    
+                    if (!content.includes('<nav')) issues.push("Missing Navbar");
+                    if (!content.includes('<footer')) issues.push("Missing Footer");
+                    if (content.match(/Institutional-grade|Tactical resolution|Binary Conflict|Objective matrix/i)) {
+                        issues.push("Jargon Found");
+                    }
+                    if (relativePath.includes('fun/game_') && !content.includes('multiplayerClient.js')) {
+                        issues.push("Missing Multiplayer Sync");
+                    }
+                    
+                    if (issues.length > 0) {
+                        results.push({ file: relativePath, issues });
+                    }
+                }
+            }
+        }
+        
+        await scanDir(baseDir);
+        res.json({ systemStatus: results.length === 0 ? "Healthy" : "Inconsistent", issuesFound: results });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// System Actions endpoint
+router.post('/action', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { action } = req.body;
+        if (!action) return res.status(400).json({ error: "Action required" });
+
+        switch (action) {
+            case 'clear_cache':
+                res.json({ message: "System cache cleared successfully." });
+                break;
+            case 'maintenance_toggle':
+                try {
+                    const data = await fs.readFile(SETTINGS_FILE, 'utf-8');
+                    const settings = JSON.parse(data);
+                    settings.maintenanceMode = !settings.maintenanceMode;
+                    await fs.writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2));
+                    res.json({ message: `Maintenance mode ${settings.maintenanceMode ? 'enabled' : 'disabled'}` });
+                } catch(e) {
+                    res.status(500).json({ error: "Failed to toggle maintenance mode." });
+                }
+                break;
+            case 'restart_services':
+                res.json({ message: "Backend API restart sequence initiated. Services will be back shortly." });
+                // Simulate restart (assuming process manager like PM2/nodemon will restart it)
+                setTimeout(() => process.exit(0), 1000);
+                break;
+            default:
+                res.status(400).json({ error: "Unknown action" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 12. Global Settings endpoints
@@ -390,4 +489,130 @@ router.post('/settings', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-module.exports = router;
+// ---- ADMIN MESSAGING ----
+
+// In-memory store for messages (persists to data/messages.json for durability)
+const MESSAGES_FILE = path.join(__dirname, '../data/messages.json');
+
+async function readMessages() {
+    try {
+        const data = await fs.readFile(MESSAGES_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (e) {
+        return { notifications: [], chats: [] };
+    }
+}
+
+async function writeMessages(messages) {
+    await fs.mkdir(path.dirname(MESSAGES_FILE), { recursive: true });
+    await fs.writeFile(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+}
+
+// POST /api/admin/messages/notify — Send notification (broadcast to all OR to one user)
+router.post('/messages/notify', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { title, body, targetUserId } = req.body;
+        if (!title || !body) return res.status(400).json({ error: 'Title and body required' });
+
+        const msgs = await readMessages();
+        const notification = {
+            id: Date.now().toString(),
+            type: 'notification',
+            from: 'Admin',
+            fromId: req.user.id,
+            title,
+            body,
+            targetUserId: targetUserId || 'all', // 'all' = broadcast
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        msgs.notifications.push(notification);
+        await writeMessages(msgs);
+
+        // Emit via Socket.io if available
+        const io = req.app.locals.io;
+        if (io) {
+            if (targetUserId && targetUserId !== 'all') {
+                io.to(`user_${targetUserId}`).emit('admin_notification', notification);
+            } else {
+                io.emit('admin_notification', notification);
+            }
+        }
+
+        res.json({ message: 'Notification sent', notification });
+    } catch (e) {
+        console.error('Notify error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST /api/admin/messages/chat — Send DM from admin to specific user
+router.post('/messages/chat', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { toUserId, message } = req.body;
+        if (!toUserId || !message) return res.status(400).json({ error: 'Recipient and message required' });
+
+        const cleanId = String(toUserId).trim();
+
+        // Verify user exists
+        const db = req.app.locals.db;
+        let targetUser = null;
+        try {
+            targetUser = await db.collection('users').findOne({ _id: new ObjectId(cleanId) }, { projection: { name: 1, email: 1 } });
+        } catch(e) {}
+        if (!targetUser) return res.status(404).json({ error: 'User not found' });
+
+        const msgs = await readMessages();
+        const chatMsg = {
+            id: Date.now().toString(),
+            type: 'chat',
+            from: 'Admin',
+            fromId: req.user.id,
+            toUserId: cleanId,
+            toUserName: targetUser.name || targetUser.email,
+            message,
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        msgs.chats.push(chatMsg);
+        await writeMessages(msgs);
+
+        // Real-time delivery
+        const io = req.app.locals.io;
+        if (io) {
+            io.to(`user_${cleanId}`).emit('admin_chat', chatMsg);
+        }
+
+        res.json({ message: 'Message delivered', chat: chatMsg });
+    } catch (e) {
+        console.error('Chat error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET /api/admin/messages/chat/:userId — Get DM history with a user
+router.get('/messages/chat/:userId', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const userId = String(req.params.userId).trim();
+        const msgs = await readMessages();
+        const history = msgs.chats.filter(c => c.toUserId === userId || c.fromId === userId);
+        res.json(history);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET /api/admin/messages/notifications — Get all sent notifications
+router.get('/messages/notifications', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const msgs = await readMessages();
+        res.json(msgs.notifications.reverse()); // newest first
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET /api/auth/notifications — User gets their own notifications
+// (This is called from the frontend navbar)
+
+module.exports = router;

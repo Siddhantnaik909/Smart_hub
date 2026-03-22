@@ -1,187 +1,293 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Flooring Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Smart Hub | Professional Flooring Architect</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "on-surface-variant": "#464555",
+                        "surface-container-low": "#f6f3f3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "surface-container": "#f0eded",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .calc-wrapper {
-            max-width: 740px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        #results {
-            display: none;
-        }
-
-        #results.visible {
-            display: block;
-            animation: calcFadeUp 0.45s ease;
-        }
-
-        @keyframes calcFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     </style>
 </head>
-
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="calc-wrapper">
-
-                        <div class="cat-card">
-                            <div class="calculator-header">
-                                <h2><i class="fas fa-border-all" style="color:var(--primary-color)"></i> Tile & Flooring
-                                    Calculator</h2>
-                                <p>Calculate tiles or planks needed for any room with customizable waste percentage.</p>
-                            </div>
-                        </div>
-
-                        <div class="calc-info-box">
-                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
-                            <ol style="padding-left:18px">
-                                <li>Enter the <strong>room length and width</strong> in feet.</li>
-                                <li>Enter the <strong>tile dimensions</strong> in inches (e.g., 12"×12" or 24"×24").
-                                </li>
-                                <li>Set a <strong>waste percentage</strong> (10% for straight layouts, 15% for diagonal
-                                    cuts).</li>
-                                <li>Tiles are counted from total room area divided by single tile area, rounded up.</li>
-                            </ol>
-                            <div class="calc-formula-box">
-                                Tile Area (ft²) = (Tile L × Tile W) ÷ 144<br>
-                                Tiles Required = ⌈ Room Area ÷ Tile Area ⌉ × (1 + Waste %)
-                            </div>
-                        </div>
-
-                        <div class="cat-card">
-                            <div class="sub-cat-list">
-                                <div class="sub-link">
-                                    <span>Room Length (ft)</span>
-                                    <input type="number" id="roomLen" class="form-control" placeholder="e.g. 15">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Room Width (ft)</span>
-                                    <input type="number" id="roomWid" class="form-control" placeholder="e.g. 12">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Tile Length (inches)</span>
-                                    <input type="number" id="tileLen" class="form-control" value="12">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Tile Width (inches)</span>
-                                    <input type="number" id="tileWid" class="form-control" value="12">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Waste / Cutoffs (%)</span>
-                                    <input type="number" id="waste" class="form-control" value="10">
-                                </div>
-                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
-                                    Tiles</button>
-                            </div>
-                        </div>
-
-                        <div class="cat-card" id="results">
-                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
-                                Results</h3>
-                            <div id="resultArea"></div>
-                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
-                                Save to History</button>
-                        </div>
-
-                        <div class="calc-tip-box">
-                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                            <ul style="padding-left:18px">
-                                <li>Add <strong>10% waste</strong> for straight patterns; <strong>15–20%</strong> for
-                                    diagonal or herringbone.</li>
-                                <li>Measure the room twice and subtract any fixed obstacles (cabinets, islands).</li>
-                                <li>Larger tiles (24"×24") make small rooms look bigger but waste more on edges.</li>
-                                <li>Buy from the <strong>same production lot</strong> to avoid color/shade variations
-                                    between batches.</li>
-                                <li>For laminate/vinyl planks, also account for the <strong>direction of planks</strong>
-                                    vs the longest wall.</li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" />
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CONSTRUCTION</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Surface Estimator</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Flooring Estimator.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Calculate how many boxes of flooring you need for your room. Just enter the area and box size, and we'll factor in a waste margin for cuts and mistakes!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-white p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent estimates.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/construction/calc_concrete.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Concrete Architect</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/construction/calc_paint.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Paint Estimator</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
+                    <!-- Display -->
+                    <div class="bg-white m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[220px] shadow-inner relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-2 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">Box Count</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 opacity-60">Total Area: 0.00 sq.ft</div>
+                        <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 <span class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">Boxes</span>
+                        </div>
+                    </div>
+                    <!-- Controls -->
+                    <div class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Room Dimensions</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Length (ft)</label>
+                                        <input type="number" id="length" oninput="calculateFlooring()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="12" value="12">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Width (ft)</label>
+                                        <input type="number" id="width" oninput="calculateFlooring()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="10" value="10">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Material Details</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Sq.Ft Per Box</label>
+                                        <input type="number" id="boxSize" oninput="calculateFlooring()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="20" value="20">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Waste Factor</label>
+                                        <select id="wasteFactor" onchange="calculateFlooring()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold">
+                                            <option value="1.1">10% Waste</option>
+                                            <option value="1.05">5% Waste</option>
+                                            <option value="1.15">15% Max</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-8 items-center justify-between pt-8 border-t border-surface-container-high">
+                            <div class="flex gap-4">
+                                <button onclick="saveFlooringProject()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Save Estimate</button>
+                                <button onclick="window.print()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pro Tips -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm shadow-sm">
+                         <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-primary">square_foot</span>
+                            <h5 class="font-bold uppercase tracking-widest text-[10px]">Supply Breakdown</h5>
+                        </div>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Net Area</span><span id="resNetArea" class="font-bold">0.00 sq.ft</span></div>
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Gross Area (+Waste)</span><span id="resGrossArea" class="font-bold">0.00 sq.ft</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm flex flex-col justify-center text-[11px] text-on-surface-variant leading-loose opacity-80 italic">
+                        "Pro Tip: If you are using a complex pattern like Herringbone, use 15-20% waste. For standard planks, 10% is usually enough to cover cuts and damaged pieces."
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
-        let _lastInputs = null, _lastResults = null;
+        function calculateFlooring() {
+            const lengthInput = document.getElementById('length');
+            const widthInput = document.getElementById('width');
+            const boxSizeInput = document.getElementById('boxSize');
+            const wasteSelect = document.getElementById('wasteFactor');
 
-        document.getElementById('calcBtn').addEventListener('click', function () {
-            const roomLen = parseFloat(document.getElementById('roomLen').value);
-            const roomWid = parseFloat(document.getElementById('roomWid').value);
-            const tileLen = parseFloat(document.getElementById('tileLen').value);
-            const tileWid = parseFloat(document.getElementById('tileWid').value);
-            const waste = parseFloat(document.getElementById('waste').value) || 0;
-            if (!roomLen || !roomWid || !tileLen || !tileWid) { alert("Please enter all dimensions."); return; }
-            const roomArea = roomLen * roomWid;
-            const tileAreaFt = (tileLen * tileWid) / 144;
-            const rawTiles = roomArea / tileAreaFt;
-            const totalWithWaste = Math.ceil(rawTiles * (1 + waste / 100));
-            const totalAreaWithWaste = roomArea * (1 + waste / 100);
+            if (!lengthInput || !widthInput || !boxSizeInput || !wasteSelect) return;
 
-            _lastInputs = [
-                { label: 'Room', val: `${roomLen} × ${roomWid} ft` },
-                { label: 'Tile', val: `${tileLen}" × ${tileWid}"` },
-                { label: 'Waste', val: `${waste}%` },
-            ];
-            _lastResults = [
-                { label: 'Room Area', val: `${roomArea.toFixed(2)} ft²` },
-                { label: 'Area to Cover (with waste)', val: `${totalAreaWithWaste.toFixed(2)} ft²` },
-                { label: 'Tiles Required', val: `${totalWithWaste} pcs`, highlight: true },
-                { label: 'Tiles (exact, no waste)', val: `${rawTiles.toFixed(1)} pcs` },
-                { label: 'Single Tile Area', val: `${tileAreaFt.toFixed(4)} ft²` },
-            ];
-            window.renderResults('resultArea', _lastResults);
-            window.showResultCard('results');
-        });
+            const length = parseFloat(lengthInput.value) || 0;
+            const width = parseFloat(widthInput.value) || 0;
+            const boxSize = parseFloat(boxSizeInput.value) || 20;
+            const waste = parseFloat(wasteSelect.value) || 1.1;
 
-        document.getElementById('saveBtn').addEventListener('click', function () {
-            if (!_lastResults) { alert('Calculate first!'); return; }
-            const ok = window.saveCalcToHistory('Flooring Calculator', _lastInputs, _lastResults);
-            if (ok) {
-                const orig = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.background = '#10b981';
-                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+            if (length <= 0 || width <= 0 || boxSize <= 0) return;
+
+            const netArea = length * width;
+            const grossArea = netArea * waste;
+            const totalBoxes = Math.ceil(grossArea / boxSize);
+
+            // Update UI
+            const status = document.getElementById('calc-status');
+            if (status) status.innerText = `Total Area: ${netArea.toFixed(2)} sq.ft`;
+            
+            const display = document.getElementById('calc-display');
+            if (display) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${totalBoxes} <span class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">Boxes</span>`;
             }
-        });
 
-        document.addEventListener('componentsLoaded', () => {
-            const t = document.getElementById('page-title-display');
-            if (t) t.textContent = 'Flooring Calculator';
+            const resNetArea = document.getElementById('resNetArea');
+            if (resNetArea) resNetArea.innerText = `${netArea.toFixed(2)} sq.ft`;
+            
+            const resGrossArea = document.getElementById('resGrossArea');
+            if (resGrossArea) resGrossArea.innerText = `${grossArea.toFixed(2)} sq.ft`;
+        }
+
+        async function saveFlooringProject() {
+            const displayEl = document.getElementById('calc-display');
+            if (!displayEl) return;
+            const boxes = displayEl.innerText.replace('Boxes', '').trim();
+            if (boxes === '0' || !boxes) return;
+
+            const btn = event.currentTarget;
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Room', val: `${document.getElementById('length').value} x ${document.getElementById('width').value} ft` },
+                { label: 'Box Coverage', val: `${document.getElementById('boxSize').value} sq.ft` }
+            ];
+            const results = [
+                { label: 'Total Boxes', val: boxes + ' boxes', highlight: true },
+                { label: 'Total Area', val: document.getElementById('calc-status').innerText.replace('Total Area: ', '') }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Flooring Estimator', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED TO REGISTRY';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Flooring Estimator', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Flooring Estimator', 'sidebar-history-container');
+                }
+            } catch (e) {}
+            calculateFlooring();
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calc-utils.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

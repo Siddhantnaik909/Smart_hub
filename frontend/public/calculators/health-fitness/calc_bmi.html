@@ -1,269 +1,375 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Clinical BMI Analyzer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Body Health Tracker (BMI)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .bmi-visual-container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-        .body-diagram-container {
-            flex: 1;
-            text-align: center;
-        }
-        .gauge-details-container {
-            flex: 2;
-        }
-        #body-silhouette path {
-            transition: fill 0.5s ease-in-out;
-        }
-        .health-gauge {
-            width: 100%;
-            height: 20px;
-            background: transparent;
-            border-radius: 10px;
-            margin: 10px 0 5px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            border: 1px solid var(--border-color);
-        }
-        .gauge-segment { height: 100%; }
-        .underweight { background: #3b82f6; width: 46.25%; }
-        .normal { background: #10b981; width: 16.25%; }
-        .overweight { background: #f59e0b; width: 12.25%; }
-        .obese { background: #ef4444; width: 25.25%; }
-        
-        .gauge-pointer {
-            position: absolute;
-            top: -5px;
-            width: 4px;
-            height: 30px;
-            background: var(--text-header);
-            border: 2px solid var(--bg-card);
-            border-radius: 2px;
-            transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 10;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .gauge-labels {
-            display: flex;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .gauge-labels span:nth-child(1) { width: 46.25%; text-align: left; }
-        .gauge-labels span:nth-child(2) { width: 16.25%; text-align: center; }
-        .gauge-labels span:nth-child(3) { width: 12.25%; text-align: center; }
-        .gauge-labels span:nth-child(4) { width: 25.25%; text-align: right; }
-
-        @media (max-width: 600px) {
-            .bmi-visual-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+        #body-silhouette path { transition: fill 0.5s ease-in-out; } 
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-weight-scale"></i> Clinical BMI Analyzer</h2>
-                            <p>Assess body mass index and receive personalized weight range recommendations.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Weight (kg)</span>
-                                <input type="number" id="bmiWeight" class="form-control" placeholder="e.g. 70" step="0.1">
-                            </div>
-                            <div class="sub-link">
-                                <span>Height (cm)</span>
-                                <input type="number" id="bmiHeight" class="form-control" placeholder="e.g. 175">
-                            </div>
-                            
-                            <button id="calculateBtn" class="btn-calc">Calculate Analysis</button>
-                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear Data</button>
-                        </div>
-                    </div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Health Profile Summary</h3>
-                        
-                        <div class="bmi-visual-container">
-                            <div class="body-diagram-container">
-                                <svg id="body-silhouette" width="80" height="180" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M49.9,25.9c-6.7,0-12.1,5.4-12.1,12.1s5.4,12.1,12.1,12.1s12.1-5.4,12.1-12.1S56.6,25.9,49.9,25.9z M62.4,52.4 c-1.6,0-3.1,0.3-4.6,0.8c-2.9-4.5-7.8-7.5-13.3-7.5s-10.4,3-13.3,7.5c-1.5-0.5-3-0.8-4.6-0.8c-5.8,0-10.5,4.7-10.5,10.5v1.5 c0,2.1,0.6,4.1,1.7,5.8l-5.2,43.1c-0.4,3.5,2.2,6.5,5.7,6.5h4.8v53.5c0,3.4,2.8,6.2,6.2,6.2h19.2c3.4,0,6.2-2.8,6.2-6.2v-53.5h4.8 c3.5,0,6.1-3,5.7-6.5l-5.2-43.1c1.1-1.7,1.7-3.7,1.7-5.8v-1.5C72.9,57.1,68.2,52.4,62.4,52.4z" fill="#bdc3c7"/>
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>HEALTH TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">BMI Calculator</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Body Wellness.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Find out if you're at a healthy weight for your height. A simple way to track your fitness progress over time!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Health History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">monitor_heart</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> Health Tip
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        BMI is a good general guide, but remember that muscle weighs more than fat! Stay active and eat well.
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[260px] shadow-sm relative border border-slate-100">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">BMI SCORE</span>
+                            <span id="bmi-status-tag" class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase">Awaiting Data</span>
+                        </div>
+                        <div class="flex items-center justify-between w-full mt-auto">
+                            <div class="body-diagram opacity-30">
+                                <svg id="body-silhouette" width="80" height="120" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M49.9,25.9c-6.7,0-12.1,5.4-12.1,12.1s5.4,12.1,12.1,12.1s12.1-5.4,12.1-12.1S56.6,25.9,49.9,25.9z M62.4,52.4 c-1.6,0-3.1,0.3-4.6,0.8c-2.9-4.5-7.8-7.5-13.3-7.5s-10.4,3-13.3,7.5c-1.5-0.5-3-0.8-4.6-0.8c-5.8,0-10.5,4.7-10.5,10.5v1.5 c0,2.1,0.6,4.1,1.7,5.8l-5.2,43.1c-0.4,3.5,2.2,6.5,5.7,6.5h4.8v53.5c0,3.4,2.8,6.2,6.2,6.2h19.2c3.4,0,6.2-2.8,6.2-6.2v-53.5h4.8 c3.5,0,6.1-3,5.7-6.5l-5.2-43.1c1.1-1.7,1.7-3.7,1.7-5.8v-1.5C72.9,57.1,68.2,52.4,62.4,52.4z" fill="#cbd5e1"/>
                                 </svg>
                             </div>
-                            <div class="gauge-details-container">
-                                <div style="text-align: center; padding-bottom: 10px;">
-                                    <span style="font-size: 0.9rem; color: var(--text-muted);">Current BMI Score</span>
-                                    <div id="bmiResult" style="font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan);">0.0</div>
-                                    <strong id="bmiCategory" style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">-</strong>
-                                </div>
-                                <div class="health-gauge">
-                                    <div class="gauge-segment underweight"></div>
-                                    <div class="gauge-segment normal"></div>
-                                    <div class="gauge-segment overweight"></div>
-                                    <div class="gauge-segment obese"></div>
-                                    <div id="gauge-pointer" class="gauge-pointer" style="left: 0%;"></div>
-                                </div>
-                                <div class="gauge-labels">
-                                    <span>Under</span>
-                                    <span>Normal</span>
-                                    <span>Over</span>
-                                    <span>Obese</span>
+                            <div class="text-right">
+                                <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Calculated BMI</div>
+                                <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden uppercase">
+                                    <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.0
                                 </div>
                             </div>
                         </div>
 
-                        <div class="sub-cat-list" id="result-display-area">
+                        <!-- Gauge -->
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden relative mt-8 border border-slate-50">
+                            <div id="gauge-pointer" class="absolute top-0 w-2 h-full bg-on-surface z-10 transition-all duration-700 ease-out shadow-lg" style="left: 0%"></div>
+                            <div class="flex h-full">
+                                <div class="bg-blue-400/40 h-full flex-1"></div>
+                                <div class="bg-emerald-400/40 h-full flex-1"></div>
+                                <div class="bg-amber-400/40 h-full flex-1"></div>
+                                <div class="bg-rose-400/40 h-full flex-1"></div>
                             </div>
-
-                        <div class="sub-link" style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; margin-top: 15px; padding: 15px;">
-                            <span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-heart-pulse"></i> Medical Insight</span>
-                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
                         </div>
-
-                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="btn-save" style="flex: 1;">
-                                <i class="fa-solid fa-save"></i> Save Record
-                            </button>
-                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
-                                <i class="fa-solid fa-print"></i> Print Report
-                            </button>
+                        <div class="flex justify-between w-full mt-2 text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">
+                            <span>UNDER</span>
+                            <span>IDEAL</span>
+                            <span>OVER</span>
+                            <span>OBESE</span>
                         </div>
                     </div>
-                </section>
-                <div id="footer-placeholder"></div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 pb-4 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="flex gap-4">
+                                    <div class="flex-1 space-y-2">
+                                        <label id="weightLabel" class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Weight (kg)</label>
+                                        <input type="number" id="bmiWeight" oninput="calculateBMI()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="e.g. 70" step="0.1">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Unit</label>
+                                        <select id="unitToggle" onchange="toggleUnits()" class="bg-indigo-50 border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-xs text-primary shadow-sm h-[60px]">
+                                            <option value="metric">Metric</option>
+                                            <option value="imperial">Imperial</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label id="heightLabel" class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Height (cm)</label>
+                                    <input type="number" id="bmiHeight" oninput="calculateBMI()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="e.g. 175">
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-slate-100 rounded-xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:text-primary hover:bg-white transition-all shadow-sm">Reset Inputs</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-8 bg-primary/5 border border-primary/10 rounded-2xl space-y-4 h-full flex flex-col justify-center">
+                                    <div>
+                                        <p id="targetGoal" class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Status</p>
+                                        <p id="idealRange" class="text-2xl font-black text-on-surface tracking-tighter">-- / -- kg</p>
+                                        <p class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase mt-1">Ideal Range</p>
+                                    </div>
+                                    <div class="pt-4 border-t border-primary/10">
+                                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Doctor's Tip</p>
+                                        <p id="healthInsight" class="text-[11px] text-on-surface-variant leading-relaxed font-medium italic">"Input your numbers to see your personalized health tips."</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_water.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_bmr.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="saveBMILog()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Weight Status</h5>
+                        <p id="metCat" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Health Risk</h5>
+                        <p id="metRisk" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Ideal Base</h5>
+                        <p id="metIdeal" class="text-sm font-black text-primary uppercase tracking-tight">0.0 kg</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Health Grade</h5>
+                        <p id="metGrade" class="text-sm font-black text-on-surface uppercase tracking-tight">A+</p>
+                    </div>
+                </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const calculateBtn = document.getElementById('calculateBtn');
+        function toggleUnits() {
+            const unit = document.getElementById('unitToggle').value;
+            const weightLabel = document.getElementById('weightLabel');
+            const heightLabel = document.getElementById('heightLabel');
             const weightInput = document.getElementById('bmiWeight');
             const heightInput = document.getElementById('bmiHeight');
 
-            calculateBtn.addEventListener('click', () => {
-                const inputs = [weightInput, heightInput];
-                if (!validateInputs(inputs, { checkPositive: true })) {
-                    return;
-                }
+            if (unit === 'imperial') {
+                weightLabel.innerText = "Weight (lbs)";
+                heightLabel.innerText = "Height (inches)";
+                weightInput.placeholder = "e.g. 154";
+                heightInput.placeholder = "e.g. 69";
+            } else {
+                weightLabel.innerText = "Weight (kg)";
+                heightLabel.innerText = "Height (cm)";
+                weightInput.placeholder = "e.g. 70";
+                heightInput.placeholder = "e.g. 175";
+            }
+            calculateBMI();
+        }
 
-                const weight = parseFloat(weightInput.value);
-                const heightCm = parseFloat(heightInput.value);
-                const resCard = document.getElementById('results');
-                const heightM = heightCm / 100;
-                const bmi = parseFloat((weight / (heightM * heightM)).toFixed(1));
-                
-                // UI Elements
-                const bmiText = document.getElementById('bmiResult');
-                const catText = document.getElementById('bmiCategory');
-                const pointer = document.getElementById('gauge-pointer');
-                const resArea = document.getElementById('result-display-area');
-                const tipArea = document.getElementById('pro-tip');
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+            const unit = document.getElementById('unitToggle').value;
+            const display = document.getElementById('calc-display');
+            // ... rest ...
+            
+            if (isNaN(weight) || isNaN(height) || height <= 0 || weight <= 0) {
+                // ... reset logic ...
+                return;
+            }
 
-                // Category Logic
-                let category = "";
-                let color = "";
-                let tip = "";
-                let pointerPos = (bmi / 40) * 100; // Simplified scale up to 40
-                if (pointerPos > 100) pointerPos = 98;
+            let bmi;
+            if (unit === 'imperial') {
+                bmi = (weight / (height * height)) * 703;
+            } else {
+                const heightM = height / 100;
+                bmi = weight / (heightM * heightM);
+            }
+            const bmiFixed = bmi.toFixed(1);
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${bmiFixed}`;
+            saveBtn.classList.remove('hidden');
 
-                if (bmi < 18.5) {
-                    category = "Underweight";
-                    color = "#3b82f6";
-                    tip = "Consider consulting a nutritionist to establish a healthy weight-gain plan focusing on nutrient-dense foods.";
-                } else if (bmi < 25) {
-                    category = "Normal Weight";
-                    color = "#10b981";
-                    tip = "Excellent! You are within the healthy range. Maintain this with a balanced diet and at least 150 minutes of weekly activity.";
-                } else if (bmi < 30) {
-                    category = "Overweight";
-                    color = "#f59e0b";
-                    tip = "You are slightly above the ideal range. Small lifestyle adjustments in portion control and daily steps can make a big difference.";
-                } else {
-                    category = "Obese";
-                    color = "#ef4444";
-                    tip = "Your BMI suggests health risks. We recommend a check-up with a healthcare provider to discuss a safe cardiovascular plan.";
-                }
+            let category = "Normal";
+            let risk = "Minimal";
+            let colorClass = "bg-emerald-100 text-emerald-700";
+            let hexColor = "#10b981";
+            let insight = "";
 
-                // Calculations for Ideal Weight (Robinson Formula approx)
-                const minIdealWeight = (18.5 * (heightM * heightM));
-                const maxIdealWeight = (24.9 * (heightM * heightM));
+            if (bmi < 18.5) {
+                category = "Underweight";
+                risk = "Low Weight";
+                colorClass = "bg-blue-100 text-blue-700";
+                hexColor = "#3b82f6";
+                insight = "Try eating more nutrient-rich foods and smaller, frequent meals to gain healthy weight.";
+            } else if (bmi < 25) {
+                category = "Healthy";
+                risk = "Minimal";
+                colorClass = "bg-emerald-100 text-emerald-700";
+                hexColor = "#10b981";
+                insight = "Great job! Keep staying active and eating a balanced diet to maintain this weight.";
+            } else if (bmi < 30) {
+                category = "Overweight";
+                risk = "Moderate";
+                colorClass = "bg-amber-100 text-amber-700";
+                hexColor = "#f59e0b";
+                insight = "Consider adding more cardio and reducing sugar to help get back to your ideal range.";
+            } else {
+                category = "Obese";
+                risk = "Elevated";
+                colorClass = "bg-rose-100 text-rose-700";
+                hexColor = "#f43f5e";
+                insight = "Focus on small, daily changes to your diet and activity level. Consulting a doctor is a great next step.";
+            }
 
-                let weightGoalHtml = '';
-                if (bmi < 18.5) {
-                    const toGain = (minIdealWeight - weight).toFixed(1);
-                    weightGoalHtml = `<div class="sub-link" style="background: rgba(59, 130, 246, 0.1);"><span>To Reach Normal Range</span><strong>Gain ${toGain} kg</strong></div>`;
-                } else if (bmi >= 25) {
-                    const toLose = (weight - maxIdealWeight).toFixed(1);
-                    weightGoalHtml = `<div class="sub-link" style="background: rgba(245, 158, 11, 0.1);"><span>To Reach Normal Range</span><strong>Lose ${toLose} kg</strong></div>`;
-                } else {
-                    weightGoalHtml = `<div class="sub-link" style="background: rgba(16, 185, 129, 0.1);"><span>Weight Goal</span><strong>You're in a healthy range!</strong></div>`;
-                }
+            tag.innerText = category.toUpperCase();
+            tag.className = `px-3 py-1 rounded-lg ${colorClass} text-[10px] font-black tracking-widest uppercase`;
+            
+            const minIdeal = (18.5 * (heightM * heightM)).toFixed(1);
+            const maxIdeal = (24.9 * (heightM * heightM)).toFixed(1);
+            rangeEl.innerText = `${minIdeal} - ${maxIdeal} kg`;
+            
+            if (bmi < 18.5) {
+                targetEl.innerText = `GAIN ${ (minIdeal - weight).toFixed(1)} KG`;
+            } else if (bmi >= 25) {
+                targetEl.innerText = `LOSE ${ (weight - maxIdeal).toFixed(1)} KG`;
+            } else {
+                targetEl.innerText = "PERFECT WEIGHT";
+            }
+            
+            insightEl.innerText = insight;
+            document.getElementById('gauge-pointer').style.left = Math.min(((bmi / 40) * 100), 98) + "%";
+            document.querySelector('#body-silhouette path').setAttribute('fill', hexColor);
+            updateMetrics(category, risk, minIdeal);
+        }
 
-                // Update UI
-                resCard.style.display = 'block';
-                resCard.classList.remove('hidden');
-                bmiText.innerText = bmi;
-                bmiText.style.color = color;
-                catText.innerText = category;
-                catText.style.color = color;
-                pointer.style.left = pointerPos + "%";
-                
-                const bodySVG = document.querySelector('#body-silhouette path');
-                if (bodySVG) {
-                    bodySVG.setAttribute('fill', color);
-                }
+        function updateMetrics(cat, risk, ideal) {
+            document.getElementById('metCat').innerText = cat;
+            document.getElementById('metRisk').innerText = risk;
+            document.getElementById('metIdeal').innerText = ideal + " kg";
+            document.getElementById('metGrade').innerText = risk === 'Minimal' ? 'A+' : (risk === 'Moderate' ? 'B' : 'C');
+        }
 
-                resArea.innerHTML = `
-                    <div class="sub-link"><span>Ideal Weight Range</span><strong>${minIdealWeight.toFixed(1)}kg - ${maxIdealWeight.toFixed(1)}kg</strong></div>
-                    ${weightGoalHtml}
-                    <div class="sub-link"><span>Height in Meters</span><strong>${heightM} m</strong></div>
-                    <div class="sub-link"><span>Health Risk Level</span><strong>${bmi >= 30 ? 'Elevated' : 'Standard'}</strong></div>
-                `;
-                
-                tipArea.innerHTML = tip;
+        function resetMetrics() {
+            ['metCat', 'metRisk', 'metIdeal', 'metGrade'].forEach(id => document.getElementById(id).innerText = '---');
+            document.querySelector('#body-silhouette path').setAttribute('fill', '#cbd5e1');
+            document.getElementById('gauge-pointer').style.left = "0%";
+        }
 
-                // Save to history
-                window.setLastCalc(
-                    'BMI Analyzer',
-                    [{ label: 'Weight', val: `${weight} kg` }, { label: 'Height', val: `${heightCm} cm` }],
-                    [
-                        { label: 'BMI Score', val: bmi, highlight: true },
-                        { label: 'Category', val: category },
-                        { label: 'Ideal Weight', val: `${minIdealWeight.toFixed(1)} - ${maxIdealWeight.toFixed(1)} kg` }
-                    ]
-                );
-            });
+        function resetInputs() {
+            ['bmiWeight', 'bmiHeight'].forEach(id => document.getElementById(id).value = '');
+            calculateBMI();
+        }
+
+        async function saveBMILog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            const unit = document.getElementById('unitToggle').value;
+            if (val === '0.0') return;
+            const wUnit = unit === 'imperial' ? ' lbs' : ' kg';
+            const hUnit = unit === 'imperial' ? ' in' : ' cm';
+            const inputs = [
+                { label: 'Weight', val: document.getElementById('bmiWeight').value + wUnit },
+                { label: 'Height', val: document.getElementById('bmiHeight').value + hUnit }
+            ];
+            const results = [
+                { label: 'BMI Value', val: val, highlight: true },
+                { label: 'Status', val: document.getElementById('bmi-status-tag').innerText }
+            ];
+            const ok = await window.saveCalcToHistory('BMI Calculator', inputs, results);
+            if (ok) initSidebarHistory('BMI Calculator', 'sidebar-history-container');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pref = getUserPreference('unitWeight', 'kg');
+            document.getElementById('unitToggle').value = pref === 'lbs' ? 'imperial' : 'metric';
+            toggleUnits();
+            initSidebarHistory('BMI Calculator', 'sidebar-history-container');
         });
     </script>
-
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
 </body>
 </html>

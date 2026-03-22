@@ -1,133 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Entropy Generator Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Random Number Generator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .number-capsule-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .num-capsule {
-            background: var(--bg-main);
-            border: 2px solid var(--accent-green);
-            color: var(--accent-green);
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            min-width: 60px;
-            text-align: center;
-            animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        @keyframes pop-in {
-            0% { transform: scale(0); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+        .capsule-pop { 
+            animation: capsule-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        } 
+        @keyframes capsule-in { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-shuffle"></i> Entropy Generator Pro</h2>
-                            <p>Generate high-entropy random sequences with advanced range and uniqueness controls.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Range: Minimum Value</span>
-                                <input type="number" id="min-num" class="form-control" value="1">
-                            </div>
-                            <div class="sub-link">
-                                <span>Range: Maximum Value</span>
-                                <input type="number" id="max-num" class="form-control" value="100">
-                            </div>
-                            <div class="sub-link">
-                                <span>Quantity to Generate</span>
-                                <input type="number" id="qty" class="form-control" value="1" min="1" max="50">
-                            </div>
-                            <div class="sub-link">
-                                <span>Unique Numbers Only</span>
-                                <select id="unique-toggle" class="form-control">
-                                    <option value="true">Enabled (No Duplicates)</option>
-                                    <option value="false">Disabled (Allow Repeats)</option>
-                                </select>
-                            </div>
-                            
-                            <button id="calc-btn" class="btn-calc" onclick="generateEntropy()">Generate Sequence</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Generated Sequence</h3>
-                        
-                        <div id="number-output" class="number-capsule-grid">
-                            </div>
-
-                        
-
-                        <div class="sub-cat-list" id="result-display-area">
-                            <div class="sub-link">
-                                <span>Sum of Sequence</span>
-                                <strong id="seq-sum">0</strong>
-                            </div>
-                            <div class="sub-link">
-                                <span>Theoretical Probability</span>
-                                <strong id="seq-prob">0%</strong>
-                            </div>
-                        </div>
-
-                        <div class="sub-link" style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; margin-top: 15px; padding: 15px;">
-                            <span style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-microchip"></i> Entropy Insight</span>
-                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
-                        </div>
-
-                        <button id="save-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Sequence
-                        </button>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>FUN ZONE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Random Generator</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Generate.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Quickly generate one or many random numbers within any range. Great for raffles, board games, or making choices.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Past Results</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent numbers.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-950 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">grain</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">stars</span> Fun Idea
+                     </h4>
+                     <p class="text-indigo-400 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Need to pick a winner? Use this tool to generate a unique random number for your next contest or giveaway!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">EXTRACTION READY</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="sync-tag">CHOOSE RANGE</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-4 min-h-[28px]">Primary Output</div>
+                        <div id="number-output" class="flex flex-wrap items-center justify-end gap-3 max-h-[140px] overflow-y-auto pr-2">
+                            <span class="text-on-surface-variant/30 text-sm font-bold uppercase tracking-widest italic">Waiting for numbers...</span>
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-4 ml-1">Range Settings</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">Min Value</label>
+                                        <input type="number" id="min-num" value="1" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">Max Value</label>
+                                        <input type="number" id="max-num" value="100" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-4 ml-1">Sample Settings</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">How Many?</label>
+                                        <input type="number" id="qty" value="1" min="1" max="50" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">Unique?</label>
+                                        <select id="unique-toggle" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm cursor-pointer">
+                                            <option value="true">Only Once</option>
+                                            <option value="false">Allow Repeats</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_number_guesser.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_rock_paper_scissors.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="generateRandomness()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl transition-all">Generate Now</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-primary text-sm">analytics</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Total Sum</h5>
+                        </div>
+                        <p id="resSum" class="text-lg font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-emerald-500 text-sm">offline_bolt</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">In-Range Luck</h5>
+                        </div>
+                        <p id="resProb" class="text-lg font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-surface-container-low p-6 rounded-2xl border border-slate-100 flex flex-col justify-center gap-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Complexity Level</span>
+                        <span id="entropy-tag" class="px-2 py-1 rounded bg-slate-100 text-primary text-[8px] font-black tracking-widest uppercase">DONE</span>
+                    </div>
+                    <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div id="entropy-bar" class="h-full bg-primary w-0 transition-all duration-1000"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        let lastSequence = [];
 
-        function generateEntropy() {
+        function generateRandomness() {
             const min = parseInt(document.getElementById('min-num').value);
             const max = parseInt(document.getElementById('max-num').value);
             const qty = parseInt(document.getElementById('qty').value);
             const unique = document.getElementById('unique-toggle').value === 'true';
-            
-            const output = document.getElementById('number-output');
-            const resCard = document.getElementById('results');
 
-            if (min >= max) {
-                alert("Maximum must be greater than Minimum.");
+            if (isNaN(min) || isNaN(max) || isNaN(qty)) {
+                alert("Please fill in all settings!");
                 return;
             }
-
+            if (min >= max) {
+                alert("Minimum value must be smaller than Maximum!");
+                return;
+            }
             if (unique && (max - min + 1) < qty) {
-                alert("Range is too small to generate " + qty + " unique numbers.");
+                alert("Not enough unique numbers in this range!");
                 return;
             }
 
@@ -137,26 +238,46 @@
                 if(unique && numbers.includes(r)) continue;
                 numbers.push(r);
             }
+            lastSequence = numbers;
 
-            // UI Injection
-            output.innerHTML = numbers.map(n => `<div class="num-capsule">${n}</div>`).join('');
-            
+            const output = document.getElementById('number-output');
+            output.innerHTML = numbers.map((n, i) => `
+                <div class="capsule-pop bg-primary text-white font-black px-4 py-2 rounded-xl text-lg shadow-lg shadow-primary/20" style="animation-delay: ${i * 0.05}s">
+                    ${n}
+                </div>
+            `).join('');
+
             const sum = numbers.reduce((a, b) => a + b, 0);
             const prob = ((1 / (max - min + 1)) * 100).toFixed(4);
 
-            document.getElementById('seq-sum').innerText = sum;
-            document.getElementById('seq-prob').innerText = `${prob}% per digit`;
+            const tag = document.getElementById('sync-tag');
+            tag.innerText = "NUMBERS READY";
+            tag.className = "px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-black tracking-widest uppercase";
             
-            document.getElementById('pro-tip').innerHTML = `This sequence uses the <strong>PRNG</strong> (Pseudo-Random Number Generator) algorithm. For a range of <strong>${max - min + 1}</strong>, there are over <strong>${Math.pow(max - min + 1, qty).toExponential(2)}</strong> possible unique combinations of this length.`;
-
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
+            document.getElementById('resSum').innerText = sum;
+            document.getElementById('resProb').innerText = prob + "%";
+            document.getElementById('entropy-bar').style.width = Math.min(qty * 10, 100) + "%";
+            
+            saveSequenceToRegistry(qty, min, max, numbers, sum);
         }
-    </script>
 
-    <script src="/js/component-loader.js"></script>
+        async function saveSequenceToRegistry(qty, min, max, numbers, sum) {
+            const inputs = [
+                { label: 'Range', val: `${min} to ${max}` },
+                { label: 'Amount', val: qty }
+            ];
+            const results = [
+                { label: 'Final Set', val: numbers.join(', '), highlight: true },
+                { label: 'Total Sum', val: sum }
+            ];
+            const ok = await window.saveCalcToHistory('Random Number', inputs, results);
+            if (ok) initSidebarHistory('Random Number', 'sidebar-history-container');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Random Number', 'sidebar-history-container');
+        });
+    </script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

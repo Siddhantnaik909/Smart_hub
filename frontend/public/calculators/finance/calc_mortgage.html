@@ -1,140 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Mortgage Pro Architect</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Home Loan Calculator (India)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-house-chimney-window"></i> Mortgage Pro Architect</h2>
-                            <p>Advanced amortization modeling with down payment and equity analysis.</p>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>PROPERTY TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">House Planning</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Home Loan.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Thinking of buying a home? Calculate your monthly EMI, down payment, and total interest to plan your dream house in India perfectly.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Saved Plans</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent plans.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">villa</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">home</span> Indian Tax Benefits
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Home loans are great for tax savings in India! You can save up to ₹2 Lakhs on interest (Sec 24b) and ₹1.5 Lakhs on principal (Sec 80C) every year.
+                     </p>
+                     <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> Save ₹2L on Interest annually
                         </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Currency</span>
-                                <select id="currency" class="form-control">
-                                    <option value="$">USD ($)</option>
-                                    <option value="₹">INR (₹)</option>
-                                    <option value="€">EUR (€)</option>
-                                    <option value="£">GBP (£)</option>
-                                </select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Property Value</span>
-                                <input type="number" id="amount" class="form-control" placeholder="e.g. 400000">
-                            </div>
-                            <div class="sub-link">
-                                <span>Down Payment (%)</span>
-                                <input type="number" id="down-payment" class="form-control" placeholder="20" value="20">
-                            </div>
-                            <div class="sub-link">
-                                <span>Annual Interest Rate (%)</span>
-                                <input type="number" id="rate" class="form-control" placeholder="6.5" step="0.01">
-                            </div>
-                            <div class="sub-link">
-                                <span>Loan Term (Years)</span>
-                                <input type="number" id="term" class="form-control" placeholder="30">
-                            </div>
-                            
-                            <button id="calc-btn" class="btn-calc" onclick="calculateAdvancedMortgage()">Analyze Investment</button>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> Save ₹1.5L on Principal
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> Banks usually fund 80% price
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <div class="bg-white p-10 rounded-2xl border border-slate-100 shadow-sm text-center relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4">
+                             <span class="px-3 py-1 rounded bg-indigo-50 text-primary text-[9px] font-black tracking-widest uppercase" id="ltv-tag">LTV: 80%</span>
+                        </div>
+                        <div class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2" id="calc-status">Ready to calculate</div>
+                        <div id="calc-display" class="text-7xl font-black text-on-surface font-mono">₹0</div>
+                        <div id="total-interest" class="mt-4 text-[11px] font-bold text-rose-500/60 uppercase tracking-widest leading-loose">
+                            ₹0 Lifetime interest cost
                         </div>
                     </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Mortgage Summary Report</h3>
-                        <div class="sub-cat-list" id="result-display-area">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Property Price (₹)</label>
+                                <input type="number" id="price" value="5000000" oninput="solveMortgage()" class="w-full bg-white border-2 border-slate-100 focus:border-primary/30 rounded-2xl px-6 py-4 font-bold text-xl outline-none transition-all shadow-sm">
                             </div>
-
-                        <div class="sub-link" style="background: rgba(13, 110, 253, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
-                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-key"></i> Equity Insight</span>
-                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Down Payment (%)</label>
+                                <input type="number" id="downPct" value="20" oninput="solveMortgage()" class="w-full bg-white border-2 border-slate-100 focus:border-primary/30 rounded-2xl px-6 py-4 font-bold text-xl outline-none transition-all shadow-sm">
+                            </div>
                         </div>
 
-                        <button id="save-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Amortization
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Rate (%)</label>
+                                    <input type="number" id="rate" value="8.5" step="0.1" oninput="solveMortgage()" class="w-full bg-white border border-slate-100 rounded-2xl px-4 py-3 font-bold text-lg outline-none focus:ring-2 focus:ring-primary/20 shadow-sm">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Term (Yrs)</label>
+                                    <input type="number" id="years" value="20" oninput="solveMortgage()" class="w-full bg-white border border-slate-100 rounded-2xl px-4 py-3 font-bold text-lg outline-none focus:ring-2 focus:ring-primary/20 shadow-sm">
+                                </div>
+                            </div>
+                            <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                <div class="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 mb-2">
+                                    <span>Loan Amount:</span>
+                                    <span id="loanAmtVal" class="text-on-surface">₹0</span>
+                                </div>
+                                <p id="pmiLabel" class="text-[10px] font-bold text-emerald-600 opacity-70 leading-relaxed italic text-center">
+                                    "Safe LTB (Loan to Value) ratio detected."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button onclick="saveMortgageLog()" id="saveBtn" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Save Home Plan</button>
+                        <button onclick="resetForms()" class="p-5 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">restart_alt</span>
                         </button>
                     </div>
-                </section>
-                <div id="footer-placeholder"></div>
+                </div>
+
+                <div class="bg-amber-50 rounded-2xl border border-amber-100 p-8 flex items-start gap-4 mt-8">
+                    <span class="material-symbols-outlined text-amber-600">lightbulb</span>
+                    <p class="text-[11px] text-amber-900/60 leading-relaxed font-medium">
+                        <strong>Planning Tip:</strong> In India, most banks (like SBI or HDFC) charge interest on a "reducing balance" basis. Paying even a small extra amount towards your principal every month can save you lakhs in interest!
+                    </p>
+                </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        function solveMortgage() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const downPct = parseFloat(document.getElementById('downPct').value) || 0;
+            const annualRate = parseFloat(document.getElementById('rate').value) || 0;
+            const years = parseFloat(document.getElementById('years').value) || 1;
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const ltvTag = document.getElementById('ltv-tag');
+            const totalIntEl = document.getElementById('total-interest');
+            const loanAmtVal = document.getElementById('loanAmtVal');
+            const pmiLabel = document.getElementById('pmiLabel');
 
-        function calculateAdvancedMortgage() {
-            const symbol = document.getElementById('currency').value;
-            const propertyValue = parseFloat(document.getElementById('amount').value);
-            const downPercent = parseFloat(document.getElementById('down-payment').value) || 0;
-            const annualRate = parseFloat(document.getElementById('rate').value);
-            const termYears = parseFloat(document.getElementById('term').value);
-            
-            const resArea = document.getElementById('result-display-area');
-            const resCard = document.getElementById('results');
-            const tipArea = document.getElementById('pro-tip');
-
-            if (!propertyValue || !annualRate || !termYears) {
-                alert("Please enter property value, rate, and term.");
+            if (price <= 0) {
+                display.innerText = "₹0";
+                statusText.innerText = "Ready to calculate";
                 return;
             }
 
-            // Math Engine
-            const downPaymentAmount = propertyValue * (downPercent / 100);
-            const principal = propertyValue - downPaymentAmount;
-            const monthlyRate = annualRate / 12 / 100;
-            const totalMonths = termYears * 12;
+            const principal = price * (1 - (downPct / 100));
+            const r = (annualRate / 100) / 12;
+            const n = years * 12;
+            const emi = (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            const totalPay = emi * n;
+            const totalInterest = totalPay - principal;
 
-            const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
-            const totalPayment = emi * totalMonths;
-            const totalInterest = totalPayment - principal;
+            const f = (val) => '₹' + Math.round(val).toLocaleString('en-IN');
 
-            const format = (num) => symbol + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            display.innerText = f(emi);
+            statusText.innerText = "Monthly Home EMI Calculated";
+            ltvTag.innerText = `LTV: ${(100 - downPct).toFixed(0)}%`;
+            totalIntEl.innerText = `${f(totalInterest)} Lifetime interest cost`;
+            loanAmtVal.innerText = f(principal);
 
-            resArea.innerHTML = `
-                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 15px 0;">
-                    <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Monthly (P&I)</span>
-                    <strong style="font-size: 2.2rem; color: var(--accent-cyan);">${format(emi)}</strong>
-                </div>
-                <div class="sub-link"><span>Actual Loan Amount</span><strong>${format(principal)}</strong></div>
-                <div class="sub-link"><span>Cash Down Payment</span><strong style="color: #10b981;">${format(downPaymentAmount)}</strong></div>
-                <div class="sub-link"><span>Total Interest Paid</span><strong style="color: #ef4444;">${format(totalInterest)}</strong></div>
-                <div class="sub-link"><span>Loan-to-Value (LTV)</span><strong>${(100 - downPercent).toFixed(1)}%</strong></div>
-            `;
-
-            // Pro Tip: PMI Logic
-            let tipMsg = "";
-            if (downPercent < 20) {
-                tipMsg = `Since your down payment is less than 20%, you may be required to pay <strong>Private Mortgage Insurance (PMI)</strong>. Increasing your down payment by <strong>${format(propertyValue * 0.2 - downPaymentAmount)}</strong> could remove this extra monthly cost.`;
+            if (downPct < 20) {
+                pmiLabel.innerText = "⚠️ Consider a higher down payment to reduce interest.";
+                pmiLabel.className = "text-[10px] font-bold text-rose-500 leading-relaxed italic text-center";
             } else {
-                tipMsg = `Excellent! With a <strong>${downPercent}%</strong> down payment, you avoid PMI and start with significant equity. This puts you in a strong position for future refinancing.`;
+                pmiLabel.innerText = "✅ Healthy Down Payment ( >= 20%)";
+                pmiLabel.className = "text-[10px] font-bold text-emerald-600 opacity-70 leading-relaxed italic text-center";
             }
-            tipArea.innerHTML = tipMsg;
-
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
         }
-    </script>
 
-    <script src="/js/component-loader.js"></script>
+        async function saveMortgageLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '₹0') return;
+            const ok = await window.saveCalcToHistory('Home Plan', 
+                [{ label: 'Home Price', val: '₹' + document.getElementById('price').value }, { label: 'Down %', val: document.getElementById('downPct').value + '%' }], 
+                [{ label: 'Monthly EMI', val: val, highlight: true }]
+            );
+            if (ok) renderSidebarHistory();
+        }
+
+        function renderSidebarHistory() {
+            if (typeof initSidebarHistory === 'function') {
+                initSidebarHistory('Home Plan', 'sidebar-history-container');
+            }
+        }
+
+        function resetForms() {
+            document.getElementById('price').value = 5000000;
+            document.getElementById('downPct').value = 20;
+            document.getElementById('rate').value = 8.5;
+            document.getElementById('years').value = 20;
+            solveMortgage();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            solveMortgage();
+            renderSidebarHistory();
+        });
+    </script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

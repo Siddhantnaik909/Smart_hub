@@ -1,166 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Magic 8-Ball</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Magic 8-Ball & Decision Maker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .magic-8-ball-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+        .sphere-3d { 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transform-style: preserve-3d; 
+            background: radial-gradient(circle at 30% 30%, #4c1d95, #1e1b4b); 
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5), inset 0 -20px 40px rgba(0,0,0,0.4); 
         }
-        .magic-ball {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle at 30% 30%, #475569, #0f172a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.2s;
-        }
-        .magic-ball:active { transform: scale(0.95); }
-        .ball-inner {
-            width: 90px;
-            height: 90px;
-            background: #1e293b;
-            border: 4px solid #334155;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        #ball-display {
-            color: #67e8f9;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 0 0 8px rgba(103, 232, 249, 0.5);
-        }
-        .shake-anim {
-            animation: shake 0.5s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px) rotate(-5deg); }
-            75% { transform: translateX(10px) rotate(5deg); }
+        .shake-active { animation: sphere-shake 0.5s infinite; }
+        @keyframes sphere-shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-crystal-ball"></i> Magic 8-Ball</h2>
-                            <p>Focus on your question and shake the ball for guidance.</p>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>FUN ZONE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Magic 8-Ball</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Ask the Ball.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Can't decide? Type your yes-or-no question and shake the magic 8-ball to get an answer instantly. It's fun and easy!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Past Questions</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent questions.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-950 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">cyclone</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">stars</span> Fun Fact
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        The magic 8-ball has 20 answers inside: 10 positive, 5 neutral, and 5 negative. Ask away!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-primary-fixed-dim text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">ANSWER STATUS</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="oracle-tag">WAITING...</span>
                         </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Your Question</span>
-                                <input type="text" id="8ball-question" class="form-control" placeholder="Will I strike it rich?">
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">The Answer</div>
+                        <div id="calc-display" class="text-4xl md:text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>Ask a Question
+                        </div>
+                    </div>
+
+                    <!-- Input Section -->
+                    <div class="p-8 space-y-8">
+                        <div class="space-y-4">
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Your Inquiry</h4>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">Type your question here</label>
+                                <input type="text" id="8ball-question" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="e.g. Will I have a great day?">
                             </div>
-                            
-                            <div class="magic-8-ball-wrapper">
-                                <div class="magic-ball" id="main-ball">
-                                    <div class="ball-inner">
-                                        <span id="ball-display">8</span>
+                        </div>
+
+                        <!-- Interaction Ball -->
+                        <div class="flex justify-center p-4">
+                            <div class="ball-wrapper" id="ball-trigger">
+                                <div id="main-sphere" class="sphere-3d w-48 h-48 rounded-full flex items-center justify-center relative cursor-pointer ring-8 ring-white/10 hover:scale-105 transition-transform group">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full pointer-events-none"></div>
+                                    <div class="w-24 h-24 bg-indigo-950 rounded-full border-4 border-white/20 flex items-center justify-center shadow-inner overflow-hidden">
+                                        <span id="ball-center" class="text-indigo-300 font-black text-4xl group-hover:scale-110 transition-transform">8</span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <button id="shake-btn" class="btn-calc">Ask the Oracle</button>
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_love.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_number_guesser.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="triggerInquiry()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl transition-all">Check Answer</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>The Oracle Speaks</h3>
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-prediction" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Prediction
-                        </button>
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-primary text-sm">analytics</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Confidence</h5>
+                        </div>
+                        <p id="resConfidence" class="text-lg font-black text-on-surface uppercase tracking-tight">--</p>
                     </div>
-                </section>
-                <div id="footer-placeholder"></div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-emerald-500 text-sm">offline_bolt</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Signal</h5>
+                        </div>
+                        <p id="resSignal" class="text-lg font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
         const answers = [
-            "It is certain.", "It is decidedly so.", "Without a doubt.", "Yes definitely.",
-            "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.",
-            "Yes.", "Signs point to yes.", "Reply hazy, try again.", "Ask again later.",
-            "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.",
-            "Don't count on it.", "My reply is no.", "My sources say no.",
-            "Outlook not so good.", "Very doubtful."
+            "Certain.", "Decidedly so.", "Without doubt.", "Definitely.", "Rely on it.", 
+            "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", 
+            "Hazy, try again.", "Ask again later.", "Better not tell now.", "Cannot predict.", 
+            "Concentrate & ask.", "Don't count on it.", "Reply is no.", "Sources say no.", 
+            "Outlook not good.", "Very doubtful."
         ];
 
-        const shakeBtn = document.getElementById('shake-btn');
-        const ball = document.getElementById('main-ball');
-        const display = document.getElementById('ball-display');
-        const results = document.getElementById('results');
-        const resArea = document.getElementById('result-display-area');
+        let lastQuestion = "";
+        let lastAnswer = "";
 
-        shakeBtn.addEventListener('click', () => {
-            const question = document.getElementById('8ball-question').value.trim();
-            
-            if (!question) {
+        function triggerInquiry() {
+            const q = document.getElementById('8ball-question').value.trim();
+            if(!q) {
                 alert("Please ask a question first!");
                 return;
             }
 
-            // Animation
-            ball.classList.add('shake-anim');
-            display.style.opacity = '0';
+            const sphere = document.getElementById('main-sphere');
+            const center = document.getElementById('ball-center');
+            const display = document.getElementById('calc-display');
+            const tag = document.getElementById('oracle-tag');
+            
+            sphere.classList.add('shake-active');
+            center.textContent = "?";
+            center.style.opacity = '0.3';
             
             setTimeout(() => {
-                const randomIdx = Math.floor(Math.random() * answers.length);
-                const answer = answers[randomIdx];
-                
-                display.textContent = "●";
-                display.style.opacity = '1';
-                ball.classList.remove('shake-anim');
+                const choice = answers[Math.floor(Math.random() * answers.length)];
+                lastQuestion = q;
+                lastAnswer = choice;
 
-                // Reveal Result Card
-                resArea.innerHTML = `
-                    <div class="sub-link">
-                        <span>Question</span>
-                        <span style="font-style: italic;">"${question}"</span>
-                    </div>
-                    <div class="sub-link">
-                        <span>Answer</span>
-                        <strong style="color: var(--primary-color);">${answer}</strong>
-                    </div>
-                `;
+                tag.innerText = "ANSWER READY";
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${choice.toUpperCase()}`;
                 
-                results.style.display = 'block';
-                results.classList.remove('hidden');
-            }, 600);
+                document.getElementById('resConfidence').innerText = (Math.random() * 20 + 80).toFixed(1) + "%";
+                document.getElementById('resSignal').innerText = "STABLE";
+                
+                center.textContent = "●";
+                center.style.opacity = '1';
+                sphere.classList.remove('shake-active');
+                saveInquiry();
+            }, 800);
+        }
+
+        document.getElementById('ball-trigger').onclick = triggerInquiry;
+
+        async function saveInquiry() {
+            if (!lastAnswer) return;
+            const inputs = [{ label: 'Question', val: lastQuestion }];
+            const results = [
+                { label: 'Answer', val: lastAnswer, highlight: true }
+            ];
+            const ok = await window.saveCalcToHistory('Magic 8-Ball', inputs, results);
+            if (ok) initSidebarHistory('Magic 8-Ball', 'sidebar-history-container');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Magic 8-Ball', 'sidebar-history-container');
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

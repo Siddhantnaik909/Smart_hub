@@ -1,252 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Focus Pro Ultimate</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Study Focus Timer</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .timer-container {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 0 auto 20px;
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        .progress-ring {
+        .timer-progress {
+            transition: stroke-dashoffset 0.1s linear;
             transform: rotate(-90deg);
+            transform-origin: center;
         }
-
-        .progress-ring__circle {
-            stroke: var(--primary-color);
-            stroke-dasharray: 628.3;
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear;
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.1; }
         }
-
-        .timer-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.85rem;
-        }
+        .animate-pulse-slow { animation: pulse 3s infinite ease-in-out; }
     </style>
 </head>
-
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container grid-section fade-in">
-
-                    <div class="cat-card stagger-1" style="text-align: center;">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-stopwatch"></i> Focus Pro</h2>
-                            <p>Sessions: <span id="session-count">0</span> | Total: <span id="total-minutes">0</span>m
-                            </p>
-                        </div>
-
-                        <div class="timer-container">
-                            <svg class="progress-ring" width="220" height="220">
-                                <circle class="progress-ring__circle" stroke-width="10" fill="transparent" r="100"
-                                    cx="110" cy="110" />
-                            </svg>
-                            <div class="timer-text" id="timerDisplay">25:00</div>
-                        </div>
-
-                        <div class="sub-cat-list" style="flex-direction: row; justify-content: center; gap: 10px;">
-                            <button class="btn-calc" id="pomodoro-start-btn" style="margin-top:0; width: 140px;"><i
-                                    class="fa fa-play"></i> Start</button>
-                            <button class="btn-save" id="pomodoro-reset-btn"
-                                style="margin-top:0; width: 140px; background-color: #ef4444;"><i
-                                    class="fa fa-rotate-left"></i> Reset</button>
-                        </div>
-                    </div>
-
-                    <div class="cat-card stagger-2">
-                        <h3><i class="fa-solid fa-volume-high"></i> Audio Settings</h3>
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Built-in Alarm</span>
-                                <select id="built-in-sound" class="form-control">
-                                    <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Simple
-                                        Beep</option>
-                                    <option
-                                        value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">
-                                        Digital Alarm</option>
-                                    <option
-                                        value="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg">
-                                        School Bell</option>
-                                </select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Upload Custom Sound</span>
-                                <input type="file" id="file-upload" accept="audio/*" style="display:none;">
-                                <button class="btn-save" onclick="document.getElementById('file-upload').click()"
-                                    style="margin-top:0; width:100%;">
-                                    <i class="fa fa-upload"></i> Choose File
-                                </button>
-                            </div>
-                            <span id="file-status" style="font-size: 0.75rem; color: var(--primary-color);"></span>
-                        </div>
-                    </div>
-
-                    <div class="cat-card stagger-3">
-                        <h3><i class="fa-solid fa-history"></i> Study History</h3>
-
-                        <div id="history-log" style="max-height: 200px; overflow-y: auto; margin-top: 15px;">
-                            <p style="color: var(--text-muted); text-align: center;">No sessions logged today.</p>
-                        </div>
-                        <button class="btn-save" id="clear-history"
-                            style="width:100%; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted);">Clear
-                            Logs</button>
-                    </div>
-
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
-    <audio id="timer-audio" preload="auto"></audio>
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>STUDENT TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Focus Timer</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Concentrate.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Use the 25-minute focus rule to get more done in less time. Work hard, rest easy, repeat!</p>
+        </div>
 
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Session History</h3>
+                        <span onclick="clearHistoryRegistry()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="history-log">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No sessions yet.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">timer</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">rocket_launch</span> Study Tip
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Work for 25 minutes without looking at your phone. When the timer pings, take a 5 minute break to stretch!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-8 shadow-2xl flex flex-col items-center">
+                    <div class="relative w-80 h-80 flex items-center justify-center mb-12">
+                        <div class="absolute inset-0 bg-primary/5 rounded-full animate-pulse-slow"></div>
+                        <svg class="w-full h-full" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" fill="none" stroke="#e2e8f0" stroke-width="6"/>
+                            <circle id="timer-bar" cx="100" cy="100" r="90" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-dasharray="565.48" stroke-dashoffset="0" class="timer-progress" stroke-linecap="round"/>
+                        </svg>
+                        <div class="absolute flex flex-col items-center">
+                            <span id="timer-display" class="text-6xl font-black tabular-nums tracking-tighter text-on-surface">25:00</span>
+                            <span id="timer-label" class="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">FOCUSING</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-lg mb-8">
+                        <button onclick="setTimer(25, 'focus')" class="timer-type-btn p-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-primary transition-all active-mode shadow-sm">Focus (25m)</button>
+                        <button onclick="setTimer(5, 'short')" class="timer-type-btn p-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-primary transition-all shadow-sm">Quick Break</button>
+                        <button onclick="setTimer(15, 'long')" class="timer-type-btn p-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-primary transition-all shadow-sm">Long Break</button>
+                        <button onclick="resetTimer()" class="p-4 bg-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all shadow-sm">Reset</button>
+                    </div>
+
+                    <div class="flex gap-4 w-full max-w-lg mb-8">
+                        <button id="main-action" onclick="toggleTimer()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">START SESSION</button>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4 w-full">
+                        <div class="flex gap-3">
+                            <a href="calc_mensuration.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                            </a>
+                            <a href="calc_quadratic.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="save-btn" onclick="logSession()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                            <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">print</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/";
-        window.COMPONENT_ROOT = "/components/";
+        let timeLeft = 25 * 60;
+        let totalTime = 25 * 60;
+        let timerId = null;
+        let currentMode = 'focus';
+        let completedSessions = 0;
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            const displayStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = displayStr;
+            document.title = `${displayStr} - ${currentMode === 'focus' ? 'Focus' : 'Break'}`;
+
+            const circle = document.getElementById('timer-bar');
+            const circumference = 2 * Math.PI * 90;
+            const offset = circumference - (timeLeft / totalTime) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function setTimer(mins, mode) {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = mins * 60;
+            totalTime = mins * 60;
+            currentMode = mode;
+            
+            document.getElementById('timer-label').innerText = mode.toUpperCase() + (mode === 'focus' ? 'ING' : ' TIME');
+            document.getElementById('main-action').innerText = "START SESSION";
+            
+            document.querySelectorAll('.timer-type-btn').forEach(b => b.classList.remove('border-primary', 'text-primary', 'bg-primary/5'));
+            event.target.classList.add('border-primary', 'text-primary', 'bg-primary/5');
+            
+            updateDisplay();
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('main-action');
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                btn.innerText = "RESUME";
+            } else {
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        timerId = null;
+                        sessionFinished();
+                    }
+                }, 1000);
+                btn.innerText = "PAUSE";
+            }
+        }
+
+        function resetTimer() {
+            setTimer(currentMode === 'focus' ? 25 : (currentMode === 'short' ? 5 : 15), currentMode);
+        }
+
+        function sessionFinished() {
+            alert("Session complete!");
+            if (currentMode === 'focus') {
+                completedSessions++;
+                document.getElementById('save-btn').classList.remove('hidden');
+            }
+            resetTimer();
+        }
+
+        async function logSession() {
+            const ok = await window.saveCalcToHistory('Focus Timer', 
+                [{ label: 'Type', val: 'FOCUS SESSION' }], 
+                [{ label: 'Completed', val: '25 Minutes', highlight: true }]
+            );
+            if (ok) {
+                initSidebarHistory('Focus Timer', 'history-log');
+                document.getElementById('save-btn').classList.add('hidden');
+            }
+        }
+
+        function clearHistoryRegistry() {
+            if(!confirm("Clear history?")) return;
+            localStorage.setItem('calc_history', '[]');
+            initSidebarHistory('Focus Timer', 'history-log');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            let timer;
-            let totalTime = 25 * 60;
-            let timeLeft = totalTime;
-            let isRunning = false;
-            let sessionCount = 0;
-            let totalMins = 0;
-
-            const display = document.getElementById('timerDisplay');
-            const startBtn = document.getElementById('pomodoro-start-btn');
-            const audio = document.getElementById('timer-audio');
-            const circle = document.querySelector('.progress-ring__circle');
-            const circumference = 2 * Math.PI * 100;
-            const historyLog = document.getElementById('history-log');
-
-            // --- Timer Core ---
-            function setProgress(percent) {
-                circle.style.strokeDashoffset = circumference - (percent / 100 * circumference);
-            }
-
-            function updateDisplay() {
-                const mins = Math.floor(timeLeft / 60);
-                const secs = timeLeft % 60;
-                display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                setProgress((timeLeft / totalTime) * 100);
-            }
-
-            function toggleTimer() {
-                if (isRunning) {
-                    clearInterval(timer);
-                    startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
-                } else {
-                    startBtn.innerHTML = '<i class="fa fa-pause"></i> Pause';
-                    timer = setInterval(() => {
-                        if (timeLeft > 0) {
-                            timeLeft--;
-                            updateDisplay();
-                        } else {
-                            completeSession();
-                        }
-                    }, 1000);
-                }
-                isRunning = !isRunning;
-            }
-
-            function completeSession() {
-                clearInterval(timer);
-                isRunning = false;
-
-                // Play Sound
-                const builtIn = document.getElementById('built-in-sound').value;
-                if (!audio.src || audio.src === "") audio.src = builtIn;
-                audio.play();
-
-                // Log Session
-                const sessionMins = Math.floor(totalTime / 60);
-                totalMins += sessionMins;
-                sessionCount++;
-
-                document.getElementById('session-count').textContent = sessionCount;
-                document.getElementById('total-minutes').textContent = totalMins;
-
-                addHistoryEntry(sessionMins);
-
-                // Global History Logging
-                if (window.setLastCalc && window.saveCalculation) {
-                    window.setLastCalc("Focus Session", `${sessionMins}m Interval`, "Session Completed");
-                    window.saveCalculation("Focus Session", `${sessionMins}m Interval`, "Session Completed");
-                }
-
-                startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
-                alert("Session Complete!");
-            }
-
-            // --- History Logic ---
-            function addHistoryEntry(mins) {
-                if (sessionCount === 1) historyLog.innerHTML = '';
-                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.innerHTML = `<span><i class="fa fa-check-circle" style="color:var(--success-color);"></i> Focus Session</span> <span>${mins}m @ ${now}</span>`;
-                historyLog.prepend(item);
-            }
-
-            // --- File Upload Logic ---
-            document.getElementById('file-upload').addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    audio.src = url;
-                    document.getElementById('file-status').textContent = "Loaded: " + file.name;
-                }
-            });
-
-            startBtn.addEventListener('click', toggleTimer);
-            document.getElementById('pomodoro-reset-btn').addEventListener('click', () => {
-                clearInterval(timer);
-                isRunning = false;
-                timeLeft = totalTime;
-                updateDisplay();
-                startBtn.innerHTML = '<i class="fa fa-play"></i> Start';
-            });
-
-            document.getElementById('clear-history').addEventListener('click', () => {
-                historyLog.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No sessions logged today.</p>';
-                sessionCount = 0; totalMins = 0;
-                document.getElementById('session-count').textContent = '0';
-                document.getElementById('total-minutes').textContent = '0';
-            });
-
+            initSidebarHistory('Focus Timer', 'history-log');
             updateDisplay();
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

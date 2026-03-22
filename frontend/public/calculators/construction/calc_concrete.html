@@ -1,175 +1,313 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Concrete Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Smart Hub | Professional Concrete Architect</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "on-surface-variant": "#464555",
+                        "surface-container-low": "#f6f3f3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "surface-container": "#f0eded",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .calc-wrapper {
-            max-width: 740px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        #results {
-            display: none;
-        }
-
-        #results.visible {
-            display: block;
-            animation: calcFadeUp 0.45s ease;
-        }
-
-        @keyframes calcFadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     </style>
 </head>
-
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="calc-wrapper">
-
-                        <div class="cat-card">
-                            <div class="calculator-header">
-                                <h2><i class="fas fa-hard-hat" style="color:var(--primary-color)"></i> Concrete
-                                    Calculator</h2>
-                                <p>Calculate the volume of concrete and bags needed for slabs, footings, or columns.</p>
-                            </div>
-                        </div>
-
-                        <div class="calc-info-box">
-                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
-                            <ol style="padding-left:18px">
-                                <li>Enter the <strong>length</strong> and <strong>width</strong> of your slab in feet.
-                                </li>
-                                <li>Enter the <strong>thickness</strong> in inches (typical slabs: 4–6 inches).</li>
-                                <li>The calculator converts thickness to feet and computes cubic volume.</li>
-                                <li>One <strong>80 lb bag</strong> of ready-mix concrete yields ≈ 0.6 cubic feet.</li>
-                            </ol>
-                            <div class="calc-formula-box">Volume (ft³) = Length × Width × (Thickness ÷ 12)<br>Volume
-                                (yd³) = Volume (ft³) ÷ 27<br>Bags = ⌈ ft³ ÷ 0.6 ⌉</div>
-                        </div>
-
-                        <div class="cat-card">
-                            <div class="sub-cat-list">
-                                <div class="sub-link">
-                                    <span>Length (feet)</span>
-                                    <input type="number" id="length" class="form-control" placeholder="e.g. 10" min="0">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Width (feet)</span>
-                                    <input type="number" id="width" class="form-control" placeholder="e.g. 12" min="0">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Thickness (inches)</span>
-                                    <input type="number" id="thickness" class="form-control" placeholder="e.g. 4"
-                                        min="0">
-                                </div>
-                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i> Calculate
-                                    Volume</button>
-                            </div>
-                        </div>
-
-                        <div class="cat-card" id="results">
-                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
-                                Results</h3>
-                            <div id="resultArea"></div>
-                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
-                                Save to History</button>
-                        </div>
-
-                        <div class="calc-tip-box">
-                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                            <ul style="padding-left:18px">
-                                <li>Always add <strong>10% extra</strong> to account for spillage and uneven ground.
-                                </li>
-                                <li>Standard residential driveways: <strong>4 inches thick</strong>. Heavy vehicle
-                                    areas: 6 inches.</li>
-                                <li>Order <strong>ready-mix concrete</strong> (truck delivery) for pours over 1 cubic
-                                    yard — it's more economical.</li>
-                                <li>Mix ratios (by volume): 1 cement : 2 sand : 3 aggregate for strong structural
-                                    concrete.</li>
-                                <li>Allow a minimum <strong>28 days</strong> for concrete to reach full strength.</li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" />
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CONSTRUCTION</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Structural Pour</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Concrete Calculator.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Easily find out how much concrete you need for your slab, patio, or driveway. Just enter the dimensions and depth, and we'll calculate the total volume in cubic yards!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-white p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Recent Pours</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent pours.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/construction/calc_brick.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Brick Calculator</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/construction/calc_flooring.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Flooring Estimator</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
+                    <!-- Display -->
+                    <div class="bg-white m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[220px] shadow-inner relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-2 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">Volume</span>
+                            <span id="buffer-indicator" class="px-2 py-1 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-bold tracking-widest uppercase text-xs">YARDS</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 opacity-60">Net Volume: 0.00 ft³</div>
+                        <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 <span class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">YD³</span>
+                        </div>
+                    </div>
+                    <!-- Controls -->
+                    <div class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Slab Layout</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Length (ft)</label>
+                                        <input type="number" id="length" oninput="calculateConcrete()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="10" value="10">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Width (ft)</label>
+                                        <input type="number" id="width" oninput="calculateConcrete()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="10" value="10">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]" id="thicknessLabel">Pour Depth: 4"</h4>
+                                <input type="range" id="thickness" min="1" max="12" step="0.5" value="4" oninput="calculateConcrete()" class="w-full h-2 bg-purple-100 rounded-lg appearance-none cursor-pointer accent-primary">
+                                <div class="flex justify-between text-[10px] text-on-surface-variant font-bold opacity-60">
+                                    <span>1"</span><span>6"</span><span>12"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-8 items-center justify-between pt-8 border-t border-surface-container-high">
+                            <div class="flex gap-4 items-center">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Spillage Buffer</label>
+                                    <select id="wasteFactor" onchange="calculateConcrete()" class="bg-surface-container rounded-lg border-none px-4 py-2 text-xs font-bold text-on-surface">
+                                        <option value="1.1">10% Buffer</option>
+                                        <option value="1.05">5% Buffer</option>
+                                        <option value="1.15">15% Max</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Bag Type</label>
+                                    <select id="bagSize" onchange="calculateConcrete()" class="bg-surface-container rounded-lg border-none px-4 py-2 text-xs font-bold text-on-surface">
+                                        <option value="0.6">80lb (0.6 ft³)</option>
+                                        <option value="0.45">60lb (0.45 ft³)</option>
+                                        <option value="0.3">40lb (0.3 ft³)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <button onclick="saveConcreteProject()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Commit Pour</button>
+                                <button onclick="window.print()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-primary">inventory_2</span>
+                            <h5 class="font-bold uppercase tracking-widest text-[10px]">Supply Breakdown</h5>
+                        </div>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Bag Req.</span><span id="resBags" class="font-bold">0 Bags</span></div>
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Cubic Feet (Gross)</span><span id="resTotalFeet" class="font-bold">0.00 ft³</span></div>
+                            <div class="flex justify-between items-center text-primary font-bold"><span>Truck Load Ests.</span><span id="resTruck">0.0 Loads</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm flex flex-col justify-center text-[11px] text-on-surface-variant leading-loose opacity-80 italic">
+                        "Civil Note: Standard residential patios are typically 4" deep. Driveways and structural garage floors should be 5-6" deep with rebar reinforcement. 1 mixing truck holds ~9-10 yards."
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
-        let _lastInputs = null, _lastResults = null;
+        function calculateConcrete() {
+            const lengthInput = document.getElementById('length');
+            const widthInput = document.getElementById('width');
+            const thicknessInput = document.getElementById('thickness');
+            const wasteSelect = document.getElementById('wasteFactor');
+            const bagSelect = document.getElementById('bagSize');
 
-        document.getElementById('calcBtn').addEventListener('click', function () {
-            const length = parseFloat(document.getElementById('length').value);
-            const width = parseFloat(document.getElementById('width').value);
-            const thicknessInch = parseFloat(document.getElementById('thickness').value);
-            if (!length || !width || !thicknessInch) { alert("Please fill in all fields."); return; }
-            const thicknessFeet = thicknessInch / 12;
-            const cubicFeet = length * width * thicknessFeet;
-            const cubicYards = cubicFeet / 27;
-            const bags = Math.ceil(cubicFeet / 0.6);
-            const bagsWithWaste = Math.ceil(bags * 1.1);
+            if (!lengthInput || !widthInput || !thicknessInput || !wasteSelect || !bagSelect) return;
 
-            _lastInputs = [
-                { label: 'Length', val: `${length} ft` },
-                { label: 'Width', val: `${width} ft` },
-                { label: 'Thickness', val: `${thicknessInch} in` },
-            ];
-            _lastResults = [
-                { label: 'Volume', val: `${cubicFeet.toFixed(2)} ft³` },
-                { label: 'Volume (Cubic Yards)', val: `${cubicYards.toFixed(2)} yd³`, highlight: true },
-                { label: '80 lb Bags Required', val: `${bags} bags` },
-                { label: 'With 10% Waste Buffer', val: `~${bagsWithWaste} bags`, highlight: false },
-            ];
-            window.renderResults('resultArea', _lastResults);
-            window.showResultCard('results');
-        });
+            const length = parseFloat(lengthInput.value) || 0;
+            const width = parseFloat(widthInput.value) || 0;
+            const thickness = parseFloat(thicknessInput.value) || 0;
+            const waste = parseFloat(wasteSelect.value) || 1.1;
+            const bagYield = parseFloat(bagSelect.value) || 0.6;
 
-        document.getElementById('saveBtn').addEventListener('click', function () {
-            if (!_lastResults) { alert('Calculate first!'); return; }
-            const ok = window.saveCalcToHistory('Concrete Calculator', _lastInputs, _lastResults);
-            if (ok) {
-                const orig = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.background = '#10b981';
-                setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 2000);
+            const thicknessLabel = document.getElementById('thicknessLabel');
+            if (thicknessLabel) thicknessLabel.innerText = `Pour Depth: ${thickness}"`;
+
+            if (length <= 0 || width <= 0 || thickness <= 0) return;
+
+            const cubicFeet = length * width * (thickness / 12);
+            const cubicFeetWithWaste = cubicFeet * waste;
+            const cubicYards = cubicFeetWithWaste / 27;
+            const bagsCount = Math.ceil(cubicFeetWithWaste / bagYield);
+            const truckLoads = (cubicYards / 9).toFixed(1);
+
+            // Update UI
+            const status = document.getElementById('calc-status');
+            if (status) status.innerText = `Net Volume: ${cubicFeet.toFixed(2)} ft³`;
+            
+            const display = document.getElementById('calc-display');
+            if (display) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${cubicYards.toFixed(2)} <span class="text-2xl font-bold text-on-surface-variant uppercase tracking-widest ml-4">YD³</span>`;
             }
-        });
 
-        document.addEventListener('componentsLoaded', () => {
-            const t = document.getElementById('page-title-display');
-            if (t) t.textContent = 'Concrete Calculator';
+            const resBags = document.getElementById('resBags');
+            if (resBags) resBags.innerText = `${bagsCount} Bags`;
+            
+            const resTotalFeet = document.getElementById('resTotalFeet');
+            if (resTotalFeet) resTotalFeet.innerText = `${cubicFeetWithWaste.toFixed(2)} ft³`;
+            
+            const resTruck = document.getElementById('resTruck');
+            if (resTruck) resTruck.innerText = `${truckLoads} Truck Loads`;
+        }
+
+        async function saveConcreteProject() {
+            const displayEl = document.getElementById('calc-display');
+            if (!displayEl) return;
+            const yards = displayEl.innerText.replace(/YD³/gi, '').trim();
+            if (yards === '0.00' || !yards) return;
+
+            const btn = event.currentTarget;
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING POUR...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Surface', val: `${document.getElementById('length').value} x ${document.getElementById('width').value} ft` },
+                { label: 'Depth', val: `${document.getElementById('thickness').value} in` }
+            ];
+            const results = [
+                { label: 'Pour Volume', val: yards + ' yd³', highlight: true },
+                { label: 'Truck Load', val: document.getElementById('resTruck').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Concrete Calculator', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED TO REGISTRY';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Concrete Calculator', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Concrete Calculator', 'sidebar-history-container');
+                }
+            } catch (e) {}
+            calculateConcrete();
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calc-utils.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

@@ -2,12 +2,18 @@ const CACHE_NAME = 'smarthub-v1';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    '/calculators.html',
+    '/history.html',
+    '/profile.html',
     '/css/style.css',
     '/css/custom.css',
     '/js/script.js',
+    '/js/calc-utils.js',
     '/js/component-loader.js',
     '/js/buttons.js',
-    '/icons/icon-192x192.png'
+    '/icons/icon-192x192.png',
+    'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
+    'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap'
 ];
 
 self.addEventListener('install', event => {

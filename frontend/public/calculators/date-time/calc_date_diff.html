@@ -1,113 +1,345 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>SMART HUB | Date Difference</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link rel="stylesheet" href="/css/style.css">
-<link rel="stylesheet" href="/css/custom.css">
-</head>
-<body>
-<div class="dashboard-layout" id="dashboard-wrapper">
-<div class="overlay" id="mobile-overlay"></div>
-<div id="sidebar-placeholder"></div>
-<main class="main-content">
-    <div id="header-placeholder"></div>
-<div class="page-body">
-<section class="container grid-section fade-in delay-1">
-<div class="cat-card stagger-1">
-<h3>Select Dates</h3>
-<div class="sub-cat-list">
-<div class="sub-link">
-<span>Start Date</span>
-<input class="form-control" id="startDate" type="date"/>
-</div>
-<div class="sub-link">
-<span>End Date</span>
-<input class="form-control" id="endDate" type="date"/>
-</div>
-<button class="sub-link" onclick="calculateDifference()" style="background-color: var(--primary-color); color: var(--text-white); justify-content: center;">
-                                Calculate Difference
-                            </button>
-</div>
-</div>
-<div class="cat-card stagger-2" id="resultBox" style="display: none;">
-<h3>Duration</h3>
-<div class="sub-cat-list">
-<div class="sub-link" style="background-color: var(--bg-main);">
-<span>Years</span><span id="resYears" style="font-weight: bold; color: var(--primary-color);">0</span>
-</div>
-<div class="sub-link" style="background-color: var(--bg-main);">
-<span>Months</span><span id="resMonths" style="font-weight: bold; color: var(--primary-color);">0</span>
-</div>
-<div class="sub-link" style="background-color: var(--bg-main);">
-<span>Days</span><span id="resDays" style="font-weight: bold; color: var(--primary-color);">0</span>
-</div>
-<div class="sub-link">
-<span>Total Days</span><span id="totalDaysSummary" style="font-weight: bold;">0</span>
-</div>
-</div>
-</div>
-</section>
-    <div id="footer-placeholder"></div>
-</div>
-</main>
-</div>
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            const lastMonth = new Date();
-            lastMonth.setMonth(today.getMonth() - 1);
-            document.getElementById('endDate').valueAsDate = today;
-            document.getElementById('startDate').valueAsDate = lastMonth;
-        });
-
-        function calculateDifference() {
-            const startVal = document.getElementById('startDate').value;
-            const endVal = document.getElementById('endDate').value;
-
-            if (!startVal || !endVal) { alert("Please select both dates"); return; }
-
-            const start = new Date(startVal);
-            const end = new Date(endVal);
-
-            let years = end.getFullYear() - start.getFullYear();
-            let months = end.getMonth() - start.getMonth();
-            let days = end.getDate() - start.getDate();
-
-            if (days < 0) {
-                months--;
-                days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
-            }
-            if (months < 0) { years--; months += 12; }
-
-            years = Math.abs(years);
-            months = Math.abs(months);
-            days = Math.abs(days);
-
-            const oneDay = 24 * 60 * 60 * 1000;
-            const totalDays = Math.round(Math.abs((end - start) / oneDay));
-
-            document.getElementById('resYears').innerText = years;
-            document.getElementById('resMonths').innerText = months;
-            document.getElementById('resDays').innerText = days;
-            document.getElementById('totalDaysSummary').innerHTML = `<b>${totalDays.toLocaleString()} days</b>`;
-            document.getElementById('resultBox').style.display = 'block';
-
-            saveCalculation('Date Diff', `Start: ${startVal}, End: ${endVal}`, `Result: ${totalDays} days`);
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Date Difference Tool</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
         }
     </script>
-    <script>window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";</script>
-    <script src="/js/app.js"></script>
-    <script src="/js/custom.js"></script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>DATE & TIME</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Span Calculator</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Duration Lab.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Quickly find the number of days between two dates! Whether you're planning a trip or calculating a deadline, our tool makes it easy to see exactly how much time lies in between.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/date-time/calc_countdown.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Countdown</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/date-time/calc_hours_worked.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Hours Worked</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-right flex flex-col justify-end min-h-[260px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="days-tag">TOTAL DAYS</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="weeks-tag">0 WEEKS</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting date interval...</div>
+                        <div id="calc-display" class="text-7xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 Days
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Time Interval</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Start Date</label>
+                                        <input type="date" id="date1" onchange="solveDiff()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">End Date</label>
+                                        <input type="date" id="date2" onchange="solveDiff()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-surface-container text-on-surface-variant rounded-xl font-bold text-[10px] tracking-widest uppercase hover:bg-slate-200 transition-all">Reset Dates</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Breakdown Analysis</h4>
+                                <div class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-8 space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg">
+                                            <span class="material-symbols-outlined">calendar_month</span>
+                                        </div>
+                                        <div>
+                                            <span id="workDays" class="text-3xl font-black text-on-surface">0</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">Business Days</span>
+                                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-indigo-200/50 space-y-3">
+                                        <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Weekends:</span>
+                                            <span id="weekendDays" class="text-indigo-700">0 Days</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Incl. End Date:</span>
+                                            <input type="checkbox" id="includeEnd" onchange="solveDiff()" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="totalMonths" class="text-xl font-black text-on-surface block">0.0</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Approx Months</span>
+                                    </div>
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="totalHours" class="text-xl font-black text-on-surface block truncate">0</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Total Hours</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                PRECISION: 24-HOUR ABSOLUTE PERIOD
+                            </p>
+                            <button onclick="saveDiffLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Span</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Project Tip: When calculating project timelines, always account for weekends and holidays to set realistic expectations for your team!"
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        document.addEventListener('componentsLoaded', () => {
-            const title = document.getElementById('page-title-display');
-            if(title) title.textContent = 'Date Difference';
+        function solveDiff() {
+            const d1Val = document.getElementById('date1').value;
+            const d2Val = document.getElementById('date2').value;
+            const includeEnd = document.getElementById('includeEnd').checked;
+
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const weeksTag = document.getElementById('weeks-tag');
+            const workDaysEl = document.getElementById('workDays');
+            const weekendDaysEl = document.getElementById('weekendDays');
+            const totalMonthsEl = document.getElementById('totalMonths');
+            const totalHoursEl = document.getElementById('totalHours');
+
+            if (!d1Val || !d2Val) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 Days`;
+                statusText.innerText = "Awaiting date interval...";
+                weeksTag.innerText = "0 WEEKS";
+                workDaysEl.innerText = "0";
+                weekendDaysEl.innerText = "0 Days";
+                totalMonthsEl.innerText = "0.0";
+                totalHoursEl.innerText = "0";
+                return;
+            }
+
+            const d1 = new Date(d1Val);
+            const d2 = new Date(d2Val);
+            
+            let diffMs = d2 - d1;
+            if (diffMs < 0) {
+                statusText.innerText = "Warning: Start date is after End date";
+                diffMs = Math.abs(diffMs);
+            } else {
+                statusText.innerText = "Interval duration resolved";
+            }
+
+            let diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            if (includeEnd) diffDays += 1;
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${diffDays} Days`;
+            weeksTag.innerText = (diffDays / 7).toFixed(1) + " WEEKS";
+            totalMonthsEl.innerText = (diffDays / 30.44).toFixed(1);
+            totalHoursEl.innerText = (diffDays * 24).toLocaleString();
+
+            // Business Days Calculation
+            let working = 0;
+            let weekends = 0;
+            let current = new Date(d1);
+            const end = new Date(d2);
+            
+            // Loop through days
+            let temp = new Date(d1 < d2 ? d1 : d2);
+            const limit = new Date(d1 < d2 ? d2 : d1);
+            
+            while (temp <= limit) {
+                const day = temp.getDay();
+                if (day === 0 || day === 6) weekends++;
+                else working++;
+                temp.setDate(temp.getDate() + 1);
+            }
+
+            if (!includeEnd) {
+                 const lastDay = limit.getDay();
+                 if (lastDay === 0 || lastDay === 6) weekends--;
+                 else working--;
+            }
+
+            workDaysEl.innerText = Math.max(0, working);
+            weekendDaysEl.innerText = Math.max(0, weekends) + " Days";
+        }
+
+        function resetInputs() {
+            document.getElementById('date1').value = "";
+            document.getElementById('date2').value = "";
+            solveDiff();
+        }
+
+        async function saveDiffLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '0 Days') return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Start', val: document.getElementById('date1').value },
+                { label: 'End', val: document.getElementById('date2').value }
+            ];
+            const results = [
+                { label: 'Duration', val: val, highlight: true },
+                { label: 'Business Days', val: document.getElementById('workDays').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Duration Lab', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Duration Lab', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set defaults
+            const d1 = new Date();
+            const d2 = new Date();
+            d2.setDate(d2.getDate() + 7);
+            document.getElementById('date1').valueAsDate = d1;
+            document.getElementById('date2').valueAsDate = d2;
+            solveDiff();
+
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Duration Lab', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
+    <script type="module" src="/js/script.js"></script>
 </body>
 </html>

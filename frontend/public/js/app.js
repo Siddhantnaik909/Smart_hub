@@ -246,27 +246,34 @@ window.addEventListener('storage', (e) => {
 function updateUserInterface() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const API_URL = window.API_URL || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+        ? (window.location.port === '3001' ? 'http://localhost:3001' : 'http://localhost:3000')
+        : 'https://smart-hub-f5gw.onrender.com');
+
+    const photoUrl = user.photo ? (user.photo.startsWith('http') ? user.photo : `${API_URL}${user.photo.startsWith('/') ? user.photo : '/' + user.photo}`) : null;
+
     const container = document.getElementById('auth-actions');
-    if (!container) return;
+    if (container) {
+        if (isLoggedIn) {
+            const avatarHTML = photoUrl
+                ? `<img src="${photoUrl}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="User Avatar" onerror="this.onerror=null;this.outerHTML='<div class=&quot;avatar-placeholder&quot;>${(user.name || 'U').charAt(0).toUpperCase()}</div>'">`
+                : `<div class="avatar-placeholder">${(user.name || 'U').charAt(0).toUpperCase()}</div>`;
 
-    if (isLoggedIn) {
-        const avatarHTML = user.photo
-            ? `<img src="${user.photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="User Avatar" onerror="this.onerror=null;this.outerHTML='<div class=&quot;avatar-placeholder&quot;>${(user.name || 'U').charAt(0).toUpperCase()}</div>'">`
-            : `<div class="avatar-placeholder">${(user.name || 'U').charAt(0).toUpperCase()}</div>`;
-
-        container.innerHTML = `
-            <div class="profile-menu-container">
-                <div class="profile-trigger" onclick="this.nextElementSibling.classList.toggle('active'); event.stopPropagation();">
-                    ${avatarHTML}
-                    <span>${user.name || 'User'}</span>
-                </div>
-                <div class="profile-dropdown">
-                    <a href="/settings.html" class="dropdown-item">Settings</a>
-                    <a href="/history.html" class="dropdown-item">History</a>
-                    <div class="dropdown-divider"></div>
-                    <div onclick="localStorage.clear(); window.location.href='/login.html'" style="color: #ef4444; cursor:pointer;" class="dropdown-item">Logout</div>
-                </div>
-            </div>`;
+            container.innerHTML = `
+                <div class="profile-menu-container">
+                    <div class="profile-trigger" onclick="this.nextElementSibling.classList.toggle('active'); event.stopPropagation();">
+                        ${avatarHTML}
+                        <span>${user.name || 'User'}</span>
+                    </div>
+                    <div class="profile-dropdown">
+                        <a href="/settings.html" class="dropdown-item">Settings</a>
+                        <a href="/history.html" class="dropdown-item">History</a>
+                        <div class="dropdown-divider"></div>
+                        <div onclick="localStorage.clear(); window.location.href='/login.html'" style="color: #ef4444; cursor:pointer;" class="dropdown-item">Logout</div>
+                    </div>
+                </div>`;
+        }
     }
 
     // 2. Sidebar Profile
@@ -279,8 +286,8 @@ function updateUserInterface() {
             const role = sidebarProfile.querySelector('.user-info p');
 
             if (avatar) {
-                if (user.photo) {
-                    avatar.innerHTML = `<img src="${user.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="User Photo" onerror="this.onerror=null;this.outerHTML='${(user.name || 'U').charAt(0).toUpperCase()}'">`;
+                if (photoUrl) {
+                    avatar.innerHTML = `<img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="User Photo" onerror="this.onerror=null;this.outerHTML='${(user.name || 'U').charAt(0).toUpperCase()}'">`;
                     avatar.style.padding = '0'; // remove text padding if needed
                 } else {
                     avatar.textContent = (user.name || 'U').charAt(0).toUpperCase();
@@ -293,3 +300,6 @@ function updateUserInterface() {
         }
     }
 }
+
+// Expose globally so components like settings.html can trigger a re-render
+window.updateAppUI = updateUserInterface;

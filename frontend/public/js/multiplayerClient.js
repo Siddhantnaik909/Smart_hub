@@ -17,7 +17,13 @@ class MultiplayerClient {
 
         this.gameName = gameName;
         this.roomCode = null;
-        this.username = localStorage.getItem('username') || `Guest${Math.floor(Math.random() * 1000)}`;
+        
+        // Safely extract username from the user object if logged in
+        const userDataStr = localStorage.getItem('user');
+        const userData = userDataStr ? JSON.parse(userDataStr) : null;
+        this.username = (userData && (userData.name || userData.username)) 
+            ? (userData.name || userData.username) 
+            : `Guest_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
         this.isHost = false;
 
         // Listeners for UI

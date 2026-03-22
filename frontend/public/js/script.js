@@ -6,9 +6,11 @@
 /* --- 1. CONFIGURATION & STATE --- */
 import { initButtons } from './buttons.js';
 
-const APP_VERSION = '2.7.5';
+const APP_VERSION = '2.7.6';
+// Auto-detect backend host
+const LOCAL_API_URL = (window.location.port === '3001') ? 'http://localhost:3001' : 'http://localhost:3000';
 const REMOTE_API_URL = 'https://smart-hub-f5gw.onrender.com';
-const LOCAL_API_URL = 'http://localhost:3000';
+
 const SETTINGS_CACHE_KEY = 'smartHub.settings.cache';
 const HISTORY_CACHE_KEY = 'smartHub.history.cache';
 
@@ -32,7 +34,7 @@ window.CALCULATORS_DATA = [
             { name: "Flooring Calculator", link: "/calculators/construction/calc_flooring.html" },
             { name: "Fuel Cost Calculator", link: "/calculators/construction/calc_fuel.html" },
             { name: "Lumber Board Feet", link: "/calculators/construction/calc_lumber.html" },
-            { name: "Ohm's Law (Construction)", link: "/calculators/construction/calc_ohm.html" },
+            { name: "Ohm's Law", link: "/calculators/construction/calc_ohm.html" },
             { name: "Paint Calculator", link: "/calculators/construction/calc_paint.html" },
             { name: "Roof Area Calculator", link: "/calculators/construction/calc_roof_area.html" },
             { name: "Wall Stud Calculator", link: "/calculators/construction/calc_wall_stud.html" }
@@ -123,23 +125,22 @@ window.CALCULATORS_DATA = [
     },
     {
         category: "Students", icon: "fas fa-user-graduate", items: [
-            { name: "Geometry Calculator", link: "/calculators/students/calc_geometry.html" },
             { name: "GPA Calculator", link: "/calculators/students/calc_gpa.html" },
             { name: "Weighted Grade", link: "/calculators/students/calc_grade_weighted.html" },
-            { name: "Mensuration", link: "/calculators/students/calc_mensuration.html" },
+            { name: "Area & Volume", link: "/calculators/students/calc_mensuration.html" },
             { name: "Pomodoro Timer", link: "/calculators/students/calc_pomodoro.html" },
-            { name: "Quadratic Equation", link: "/calculators/students/calc_quadratic.html" },
+            { name: "Math Equations", link: "/calculators/students/calc_quadratic.html" },
             { name: "Statistics", link: "/calculators/students/calc_statistics.html" },
-            { name: "Unit Conv", link: "/calculators/students/calc_unit_conv.html" }
+            { name: "Unit Converter", link: "/calculators/students/calc_unit_conv.html" }
         ]
     },
     {
         category: "Text & Web", icon: "fas fa-file-code", items: [
-            { name: "Case Converter", link: "/calculators/text-web/tool_case_converter.html" },
-            { name: "Lorem Ipsum Generator", link: "/calculators/text-web/tool_lorem_ipsum.html" },
-            { name: "Password Strength", link: "/calculators/text-web/tool_password.html" },
+            { name: "Text Case Change", link: "/calculators/text-web/tool_case_converter.html" },
+            { name: "Dummy Text Maker", link: "/calculators/text-web/tool_lorem_ipsum.html" },
+            { name: "Password Checker", link: "/calculators/text-web/tool_password.html" },
             { name: "Word Counter", link: "/calculators/text-web/tool_word_counter.html" },
-            { name: "URL Encoder/Decoder", link: "/calculators/text-web/tool_url_encoder.html" }
+            { name: "Link Encoder", link: "/calculators/text-web/tool_url_encoder.html" }
         ]
     },
     {
@@ -213,6 +214,18 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFavorites();
     }
 
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav.fixed');
+        if (nav) {
+            if (window.scrollY > 20) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        }
+    });
+
     // Register Service Worker for offline support
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -240,26 +253,48 @@ document.addEventListener('componentsLoaded', () => {
     }
 });
 
+// Auto-init for pages without component-loader (Standard HTML)
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('sidebar-placeholder')) {
+        updateUserInterface();
+        initButtons();
+    }
+});
+
 /* --- 3. UI & THEME ENGINE --- */
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
+    const isDark = savedTheme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark-mode', isDark);
+
+    // Apply Brand Presets (Colors, Fonts, Scaling)
+    const root = document.documentElement;
+    const themeColor = localStorage.getItem('themeColor') || '#8b5cf6';
+    const customFont = localStorage.getItem('fontFamily') || "'Plus Jakarta Sans', sans-serif";
+    const customScale = localStorage.getItem('customFontSize') || '1';
+    const glassEnabled = localStorage.getItem('glassmorphism') !== 'false';
+
+    root.style.setProperty('--primary-color', themeColor);
+    root.style.setProperty('--font-main', customFont);
+    root.style.setProperty('--ui-scale', customScale);
+    
+    if (glassEnabled) {
+        document.body.classList.add('glass-effect');
+    } else {
+        document.body.classList.remove('glass-effect');
     }
+
     applyLayoutMode();
 
-    // Initialize toggle state if it exists
+    // Sync UI controls if they exist on the page
     const themeToggle = document.getElementById('settings-theme-toggle') || document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.checked = savedTheme === 'dark';
-    }
+    if (themeToggle) themeToggle.checked = isDark;
 
     const compactToggle = document.getElementById('compact-toggle');
     const isCompact = localStorage.getItem('compact') === 'true';
     if (isCompact) document.body.classList.add('compact-mode');
-    if (compactToggle) {
-        compactToggle.checked = isCompact;
-    }
+    if (compactToggle) compactToggle.checked = isCompact;
 }
 
 // Subscribe to real-time Cross-Tab Settings sync natively
@@ -272,6 +307,7 @@ window.addEventListener('storage', (e) => {
 
 window.toggleDarkMode = function (checkbox) {
     const isDark = checkbox.checked;
+    document.documentElement.classList.toggle('dark', isDark);
     document.body.classList.toggle('dark-mode', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     document.querySelectorAll('#theme-checkbox, #settings-theme-toggle').forEach(t => {
@@ -295,7 +331,7 @@ window.toggleDropdown = function (id, element) {
 };
 
 window.setLayoutMode = function (mode) {
-    document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+    document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom', 'sidebar-floating');
     if (mode !== 'left') document.body.classList.add(`sidebar-${mode}`);
     localStorage.setItem('layoutMode', mode);
 };
@@ -329,7 +365,7 @@ window.clearLocalData = function () {
 function applyLayoutMode() {
     const mode = localStorage.getItem('layoutMode') || 'left';
     const body = document.body;
-    body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+    body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom', 'sidebar-floating');
     if (mode !== 'left') body.classList.add(`sidebar-${mode}`);
 
     // Apply custom colors if exist
@@ -357,25 +393,52 @@ function applyLayoutMode() {
     }
 }
 
-function showGlobalToast(message, type = 'info') {
+window.showGlobalToast = function(message, type = 'info') {
     let toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toast-container';
-        toastContainer.style = 'position:fixed; bottom:20px; right:20px; z-index:9999;';
+        // Modern container with bottom-right positioning
+        toastContainer.className = 'fixed bottom-8 right-8 z-[99999] flex flex-col gap-3 pointer-events-none transform-gpu';
         document.body.appendChild(toastContainer);
     }
 
     const toast = document.createElement('div');
-    const colors = { success: '#10b981', error: '#ef4444', info: '#6366f1' };
-    toast.style = `background:${colors[type]}; color:white; padding:12px 24px; border-radius:8px; margin-top:10px; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1);`;
-    toast.innerHTML = `<i class="fas fa-info-circle" style="margin-right:8px;"></i> ${message}`;
+    const icons = { success: 'check_circle', error: 'error', info: 'info', warning: 'warning' };
+    const colors = {
+        success: 'rgba(16, 185, 129, 0.85)',
+        error: 'rgba(239, 68, 68, 0.85)',
+        info: 'rgba(139, 92, 246, 0.85)',
+        warning: 'rgba(245, 158, 11, 0.85)'
+    };
+
+    toast.className = 'glass-toast flex items-center gap-4 px-6 py-4 rounded-2xl shadow-2xl pointer-events-auto border border-white/20 backdrop-blur-xl translate-x-12 opacity-0 transition-all duration-500 ease-out text-white';
+    toast.style.background = colors[type] || colors.info;
+    
+    toast.innerHTML = `
+        <span class="material-symbols-outlined font-black text-2xl">${icons[type] || 'info'}</span>
+        <div class="flex flex-col">
+            <span class="text-[10px] font-black uppercase tracking-widest opacity-70">${type}</span>
+            <span class="text-sm font-bold tracking-tight">${message}</span>
+        </div>
+        <button class="ml-4 opacity-50 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">
+            <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+    `;
 
     toastContainer.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+    });
+
     setTimeout(() => {
+        toast.style.transform = 'translateX(20px)';
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    }, 5000);
 }
 
 /* --- 4. AUTH & PROFILE MANAGEMENT --- */
@@ -392,6 +455,16 @@ function escapeHTML(str) {
     );
 }
 
+// --- AUTH HELPERS ---
+window.confirmLogout = function() {
+    if (confirm("Are you sure you want to sign out?")) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    }
+};
+
 function updateUserInterface() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -399,58 +472,72 @@ function updateUserInterface() {
 
     if (authContainer) {
         if (isLoggedIn) {
-            const initials = user.name ? user.name.substring(0, 1).toUpperCase() : '?';
-            const avatarHtml = user.photo
-                ? `<img src="${user.photo}" alt="User" onerror="this.onerror=null;this.replaceWith(document.createRange().createContextualFragment('<div class=\'avatar-placeholder\'>${initials}</div>'))">`
-                : `<div class="avatar-placeholder">${initials}</div>`;
+            // Build avatar URL — backend stores as user.photo, not user.avatar
+            const firstName = (user.name || user.username || 'User').split(' ')[0];
+            const avatarUrl = user.photo
+                ? (user.photo.startsWith('http') ? user.photo : `/uploads/profiles/${user.photo}`)
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`;
 
             authContainer.innerHTML = `
-                <div class="header-group">
-                    <div class="notification-wrapper" style="position: relative;">
-                        <button class="btn-icon" style="margin-right: 5px; position: relative; border:none;" title="Notifications" onclick="document.getElementById('notif-dropdown').classList.toggle('active'); event.stopPropagation();">
-                            <i class="far fa-bell"></i>
-                            <span style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 1px solid var(--bg-card);"></span>
+                <div class="flex items-center gap-6">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden'); window.loadNotifications && window.loadNotifications(); event.stopPropagation();" class="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 relative group">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">notifications</span>
+                            <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
                         </button>
-                        <div class="profile-dropdown" id="notif-dropdown" style="right: -10px; width: 300px;">
-                            <div class="profile-dropdown-header">
-                                <span style="font-weight: 700; color: var(--text-header);">Notifications</span>
-                            </div>
-                            <div class="profile-dropdown-body">
-                                <div class="dropdown-item" style="cursor: default; justify-content: center; opacity: 0.6; padding: 20px; flex-direction: column;">
-                                    <i class="far fa-bell-slash" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
-                                    <span>No new notifications</span>
+                        <div id="notif-dropdown" class="hidden absolute top-14 right-0 w-96 bg-slate-900/95 backdrop-blur-2xl border border-slate-700 rounded-2xl shadow-2xl py-4 z-[1000] max-h-96 flex flex-col">
+                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 px-6">Notifications</h4>
+                            <div id="notif-list-container" class="flex-1 overflow-y-auto px-6 pb-2 space-y-4">
+                                <div class="py-8 text-center">
+                                    <span class="material-symbols-outlined text-4xl text-slate-700 mb-2 block">notifications_off</span>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No new notifications</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="profile-menu-container">
-                        <div class="profile-trigger" onclick="window.toggleProfileDropdown(event)">
-                            <div class="avatar-wrapper">
-                                ${avatarHtml}
+
+                    <!-- Profile Dropdown -->
+                    <div class="relative">
+                        <button onclick="document.getElementById('user-profile-menu').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/5 hover:bg-white/10 transition-all group">
+                            <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg group-hover:border-primary/50 transition-colors flex-shrink-0">
+                                <img src="${avatarUrl}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&background=random'">
                             </div>
-                            <span>${escapeHTML(user.name) || 'User Account'}</span>
-                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; opacity: 0.5;"></i>
-                        </div>
+                            <div class="text-left hidden lg:block">
+                                <p class="text-xs font-black text-white tracking-wide">${escapeHTML(firstName)}</p>
+                                <p class="text-[9px] font-bold text-slate-400">${user.role === 'admin' ? 'Admin' : 'Member'}</p>
+                            </div>
+                            <span class="material-symbols-outlined text-sm text-slate-500 group-hover:rotate-180 transition-transform">expand_more</span>
+                        </button>
                         
-                        <div class="profile-dropdown" id="userProfileDropdown">
-                            <div class="profile-dropdown-header">
-                                <div class="profile-name">${escapeHTML(user.name) || 'Smart User'}</div>
-                                <div class="profile-email">${escapeHTML(user.email) || 'user@smarthub.com'}</div>
-                                <div style="font-family: monospace; font-size: 0.7rem; opacity: 0.6; margin-top: 4px; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; word-break: break-all;">ID: ${user.id || 'N/A'}</div>
-                                ${user.role === 'admin' ? '<div style="margin-top:8px"><span class="admin-badge" style="background:var(--primary-color);color:white;font-size:0.65rem;padding:3px 8px;border-radius:12px;display:inline-block;letter-spacing:1px"><i class="fas fa-crown" style="margin-right:4px"></i>ADMIN</span></div>' : ''}
+                        <div id="user-profile-menu" class="hidden absolute top-14 right-0 w-64 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 z-[1000]">
+                            <div class="p-5 border-b border-white/5 mb-2">
+                                <p class="text-sm font-black text-white">${escapeHTML(user.name || firstName)}</p>
+                                <p class="text-[10px] text-slate-500 truncate mt-0.5">${escapeHTML(user.email)}</p>
                             </div>
-                            <div class="profile-dropdown-body">
-                                <a href="/settings.html" class="dropdown-item">
-                                    <i class="fas fa-cog"></i> Account Settings
+                            <div class="space-y-0.5">
+                                <a href="/profile.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">person</span>
+                                    <span class="text-xs font-semibold text-slate-300">My Profile</span>
                                 </a>
-                                <a href="/history.html" class="dropdown-item">
-                                    <i class="fas fa-history"></i> My Calculations
+                                <a href="/settings.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">settings</span>
+                                    <span class="text-xs font-semibold text-slate-300">Settings</span>
                                 </a>
-                                ${user.role === 'admin' ? `<a href="/admin.html" class="dropdown-item"><i class="fas fa-shield-alt"></i> Admin Panel</a>` : ''}
-                                <div class="dropdown-divider" style="height:1px; background:var(--border-color); margin:8px 0; opacity:0.5;"></div>
-                                <a href="javascript:void(0)" class="dropdown-item logout-item" onclick="confirmLogout()">
-                                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                                <a href="/history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">history</span>
+                                    <span class="text-xs font-semibold text-slate-300">History</span>
                                 </a>
+                                ${user.role === 'admin' ? `
+                                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 bg-primary/20 hover:bg-primary/30 rounded-xl transition-all group border border-primary/20">
+                                    <span class="material-symbols-outlined text-primary text-sm">admin_panel_settings</span>
+                                    <span class="text-xs font-bold text-primary">Admin Panel</span>
+                                </a>` : ''}
+                                <div class="h-px bg-white/5 my-1"></div>
+                                <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-500/20 rounded-xl transition-all group">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-rose-500 text-sm">logout</span>
+                                    <span class="text-xs font-semibold text-slate-300 group-hover:text-rose-500">Sign Out</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -458,12 +545,23 @@ function updateUserInterface() {
             `;
         } else {
             authContainer.innerHTML = `
-                <div class="auth-btn-group">
-                    <a href="login.html" class="btn-secondary">Login</a>
-                    <a href="signup.html" class="btn-primary">Sign Up</a>
+                <div class="flex gap-4">
+                    <a href="/login.html" class="px-6 py-3 text-slate-500 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Login</a>
+                    <a href="/signup.html" class="px-8 py-3 bg-primary text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Get Started</a>
                 </div>
             `;
         }
+
+        // Global click handler to close dropdowns
+        document.addEventListener('click', () => {
+             const pro = document.getElementById('user-profile-menu');
+             const notif = document.getElementById('notif-dropdown');
+             if(pro) pro.classList.add('hidden');
+             if(notif) notif.classList.add('hidden');
+        });
+        
+        // Initial silent load to check for badge indicator
+        if(isLoggedIn && window.loadNotifications) window.loadNotifications(true);
     }
 
     // Update Sidebar Profile
@@ -506,6 +604,53 @@ function updateUserInterface() {
     }
 }
 
+// Global Notification Loader
+window.loadNotifications = async (silentMode = false) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch(`${API_URL}/api/auth/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const notifs = await res.json();
+        
+        const badge = document.getElementById('notif-badge');
+        const container = document.getElementById('notif-list-container');
+        
+        if (notifs.length > 0 && badge) {
+            badge.classList.remove('hidden');
+        } else if (badge) {
+            badge.classList.add('hidden');
+        }
+
+        if (silentMode || !container) return; // Stop if just updating badge or no container
+
+        if (notifs.length === 0) {
+            container.innerHTML = `
+                <div class="py-8 text-center">
+                    <span class="material-symbols-outlined text-4xl text-slate-700 mb-2 block">notifications_off</span>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No new notifications</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = notifs.map(n => `
+            <div class="flex gap-4 p-4 ${n.read ? 'bg-slate-800/50 opacity-70' : 'bg-indigo-600/10 border-l-2 border-indigo-500'} rounded-xl transition-all">
+                <div class="w-10 h-10 ${n.read ? 'bg-slate-800 text-slate-500' : 'bg-indigo-600 text-white'} rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">${n.icon || 'campaign'}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold ${n.read ? 'text-slate-300' : 'text-white'} leading-tight">${escapeHTML(n.title)}</p>
+                    <p class="text-[10px] ${n.read ? 'text-slate-500' : 'text-slate-300'} mt-1 truncate" style="white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${escapeHTML(n.body)}</p>
+                    <p class="text-[8px] ${n.read ? 'text-slate-600' : 'text-indigo-300'} uppercase font-bold tracking-widest mt-2">${new Date(n.timestamp).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load notifications:', e);
+    }
+};
+
 window.confirmLogout = function () {
     if (confirm("Sign out of Command Center?")) {
         localStorage.clear();
@@ -514,7 +659,7 @@ window.confirmLogout = function () {
 };
 
 /* --- 5. ADMIN COMMAND CENTER LOGIC --- */
-async function initializeAdminPanel() {
+window.initializeAdminPanel = async function() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -531,7 +676,7 @@ async function initializeAdminPanel() {
     initAdminPreview();
 }
 
-async function fetchAdminStats() {
+window.fetchAdminStats = async function() {
     try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${API_URL}/api/admin/stats`, {
@@ -552,7 +697,7 @@ async function fetchAdminStats() {
 
 
 /* --- 7. SERVER LOGS --- */
-async function fetchServerLogs() {
+window.fetchServerLogs = async function() {
     const output = document.getElementById('server-logs-output');
     if (!output) return;
 
@@ -572,7 +717,7 @@ async function fetchServerLogs() {
 }
 
 /* --- 8. DASHBOARD CHARTS --- */
-function renderDashboardCharts() {
+window.renderDashboardCharts = function() {
     const ctx = document.getElementById('usageChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -599,24 +744,7 @@ window.toggleSidebar = function () {
     if (dashboard) dashboard.classList.toggle('sidebar-active');
 };
 
-window.toggleProfileDropdown = function (event) {
-    if (event) event.stopPropagation();
-    const dropdown = document.getElementById('userProfileDropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('active');
 
-        // Close when clicking outside
-        const closeDropdown = (e) => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('active');
-                document.removeEventListener('click', closeDropdown);
-            }
-        };
-        if (dropdown.classList.contains('active')) {
-            document.addEventListener('click', closeDropdown);
-        }
-    }
-};
 
 function initGlobalSearch() {
     const searchInput = document.querySelector('.search-bar input');
@@ -687,21 +815,39 @@ async function fetchAdminSettings() {
 
         // 2. Branding (Site Name)
         if (settings.siteName) {
-            const logoText = document.getElementById('site-logo-text');
-            const navLogoText = document.getElementById('nav-site-logo-text');
-            if (logoText) logoText.innerText = settings.siteName;
-            if (navLogoText) navLogoText.innerText = settings.siteName.toUpperCase();
             document.title = `${settings.siteName} | SMART HUB`;
+            const logoSelectors = ['#nav-site-logo-text', '.brand-block', '.auth-logo'];
+            logoSelectors.forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) {
+                    let textSpan = el.querySelector('.brand-text-span');
+                    if (!textSpan) {
+                        // Wrap existing raw text to protect sibling images/icons
+                        let existingText = '';
+                        Array.from(el.childNodes).forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
+                                existingText += node.textContent;
+                                node.textContent = ''; 
+                            }
+                        });
+                        textSpan = document.createElement('span');
+                        textSpan.className = 'brand-text-span';
+                        textSpan.innerText = existingText || settings.siteName;
+                        el.appendChild(textSpan);
+                    }
+                    textSpan.innerText = settings.siteName.toUpperCase();
+                }
+            });
         }
 
         // 2.1 Site Logo
         if (settings.siteLogo) {
-            const logoSelectors = ['.brand-block', '.navbar-branding', '.auth-logo'];
+            const logoSelectors = ['#nav-site-logo-text', '.brand-block', '.navbar-branding', '.auth-logo'];
             logoSelectors.forEach(sel => {
                 const el = document.querySelector(sel);
                 if (el) {
                     // Hide existing icon if present
-                    const icon = el.querySelector('i');
+                    const icon = el.querySelector('i, .material-symbols-outlined');
                     if (icon) icon.style.display = 'none';
                     
                     // Check or create img
@@ -710,10 +856,28 @@ async function fetchAdminSettings() {
                         img = document.createElement('img');
                         img.classList.add('custom-site-logo');
                         img.style.maxHeight = '32px';
-                        img.style.marginRight = '10px';
+                        img.style.marginRight = '8px';
+                        img.style.borderRadius = '4px';
+                        img.style.objectFit = 'contain';
                         el.prepend(img);
                     }
                     img.src = settings.siteLogo;
+                    
+                    if (!el.classList.contains('flex')) {
+                        el.classList.add('flex', 'items-center');
+                    }
+                }
+            });
+        } else {
+            // Revert to original text/icon if logo is removed
+            const logoSelectors = ['#nav-site-logo-text', '.brand-block', '.navbar-branding', '.auth-logo'];
+            logoSelectors.forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const img = el.querySelector('.custom-site-logo');
+                    if (img) img.remove();
+                    const icon = el.querySelector('i, .material-symbols-outlined');
+                    if (icon) icon.style.display = '';
                 }
             });
         }
@@ -791,7 +955,7 @@ async function fetchAdminSettings() {
         // 4. Layout & UI Scaling
         if (settings.layoutMode) {
             localStorage.setItem('layoutMode', settings.layoutMode);
-            document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+            document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom', 'sidebar-floating');
             if (settings.layoutMode !== 'left') {
                 document.body.classList.add(`sidebar-${settings.layoutMode}`);
             }
@@ -1051,10 +1215,15 @@ function loadFavorites() {
     const favTools = allTools.filter(t => favs.includes(t.link));
 
     grid.innerHTML = favTools.map(tool => `
-        <a href="${tool.link}" class="cat-card" style="display:flex; align-items:center; gap:15px; text-decoration:none; color:var(--text-main); padding:15px;">
-            <i class="${tool.icon}" style="font-size:1.5rem; color:var(--primary-color);"></i>
-            <span style="font-weight:600;">${tool.name}</span>
-        </a>
+            <div class="cat-card" style="display:flex; align-items:center; justify-content:space-between; padding:15px; margin-bottom: 0;">
+                <a href="${tool.link}" style="display:flex; align-items:center; gap:15px; text-decoration:none; color:var(--text-header); flex:1;">
+                    <i class="${tool.icon}" style="font-size:1.5rem; color:var(--primary-color);"></i>
+                    <span style="font-weight:600;">${tool.name}</span>
+                </a>
+                <button onclick="event.preventDefault(); toggleFavorite('${tool.link}')" class="btn-icon" style="color:#f59e0b; padding:8px; z-index:10; border:none; background:transparent;" title="Remove from Favorites">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+            </div>
     `).join('');
 }
 
@@ -1503,3 +1672,6 @@ function applyToolSettings(disabledPaths, order) {
     window.CALCULATORS = window.CALCULATORS_DATA;
     if (typeof window.buildCalculators === 'function') window.buildCalculators();
 }
+
+// Failsafe: Run Interface update again at script end
+updateUserInterface();

@@ -1,129 +1,256 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Port Scanner & Service Mapper</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Port Scanner Tool</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#dbeafe",
+                        "on-secondary-fixed": "#1e3a8a",
+                        "primary-fixed-dim": "#93c5fd",
+                        "primary-container": "#2563eb",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #3b82f6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-radar"></i> Port Scanner & Service Mapper</h2>
-                            <p>Identify open ports and mapped services for security auditing and connectivity testing.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Host / IP Address</span>
-                                <input type="text" id="portHost" class="form-control" placeholder="e.g. 192.168.1.1 or example.com">
-                            </div>
-                            
-                            <div class="sub-link">
-                                <span>Scan Range</span>
-                                <select id="scanRange" class="form-control" style="background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 5px;">
-                                    <option value="common">Common Ports (Top 20)</option>
-                                    <option value="web">Web Services (80, 443, 8080, 8443)</option>
-                                    <option value="custom">Manual Range (1-1024)</option>
-                                </select>
-                            </div>
-                            
-                            <button id="btn-port-scan" class="btn-calc">Start Security Scan</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3><i class="fa-solid fa-list-check"></i> Scan Results</h3>
-                            <span id="scan-status" style="font-size: 0.8rem; color: var(--accent-color);"></span>
-                        </div>
-                        
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button id="save-btn-scan" class="btn-save">
-                                <i class="fa-solid fa-save"></i> Save Report
-                            </button>
-                            <button onclick="window.print()" class="btn-calc" style="background: var(--text-secondary);">
-                                <i class="fa-solid fa-print"></i> Print
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile"/>
+            </div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>NETWORK TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Port Scanner</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Network Shield.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Check which ports are open on your website or router. Help secure your network by identifying exposed services.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-blue-800">Scan History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent scans.</p>
+                    </div>
+                </div>
+
+                <div class="bg-blue-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">lock_open</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">security</span> Stay Safe
+                     </h4>
+                     <p class="text-blue-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Unnecessary open ports can be a security risk. If you see a port like 3389 (RDP) open and you don't use it, consider closing it in your firewall!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Scan Configuration</h4>
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Target Website or IP</label>
+                                    <input type="text" id="portHost" placeholder="e.g. google.com" class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-mono font-bold text-lg outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Scan Complexity</label>
+                                    <select id="scanRange" class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none">
+                                        <option value="common">Common Ports (Top 10)</option>
+                                        <option value="web">Web Services Only (80, 443)</option>
+                                        <option value="custom">Basic Check (20-100)</option>
+                                    </select>
+                                </div>
+                                <div class="flex gap-4 pt-2">
+                                    <button onclick="runAudit()" id="btn-scan" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">START SCAN</button>
+                                    <button onclick="clearData()" class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined">restart_alt</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="results-display" class="hidden space-y-6">
+                            <div class="flex items-center justify-between ml-1">
+                                <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Scan Status</h4>
+                                <span id="scan-status" class="text-[8px] font-black text-primary animate-pulse tracking-widest uppercase">SCANNING...</span>
+                            </div>
+                            <div class="bg-white p-4 rounded-3xl border border-slate-50 shadow-sm space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar" id="port-results-area">
+                                <!-- Results go here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 flex items-start gap-4">
+                        <span class="material-symbols-outlined text-blue-400">shield_with_heart</span>
+                        <p class="text-[11px] text-blue-800 leading-relaxed font-medium">
+                            This scanner simulates a basic connection test. "Exposed" means the port might be open, while "Shielded" means it appears closed or blocked by a firewall.
+                        </p>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex gap-3">
+                            <a href="tool_dns_lookup.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                            </a>
+                            <a href="tool_traceroute.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="commitToRegistry()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                            <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">print</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
+        let lastAudit = null;
         const COMMON_PORTS = {
-            21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP", 53: "DNS",
-            80: "HTTP", 110: "POP3", 143: "IMAP", 443: "HTTPS", 445: "SMB",
-            3306: "MySQL", 3389: "RDP", 5432: "PostgreSQL", 8080: "HTTP-Proxy"
+            21: "FTP", 22: "SSH", 23: "TEL", 25: "SMTP", 53: "DNS",
+            80: "HTTP", 443: "HTTPS", 3306: "SQL", 3389: "RDP", 8080: "PROXY"
         };
 
-        document.getElementById('btn-port-scan').addEventListener('click', async function() {
+        async function runAudit() {
             const host = document.getElementById('portHost').value.trim();
-            const range = document.getElementById('scanRange').value;
-            const resArea = document.getElementById('result-display-area');
-            const resCard = document.getElementById('results');
+            if (!host) return alert("Please enter a target address.");
+
+            const resArea = document.getElementById('port-results-area');
             const status = document.getElementById('scan-status');
+            const btn = document.getElementById('btn-scan');
 
-            if (!host) {
-                alert("Please enter a valid host or IP.");
-                return;
+            document.getElementById('results-display').classList.remove('hidden');
+            resArea.innerHTML = '';
+            status.innerText = "SCANNING...";
+            btn.disabled = true;
+
+            let ports = Object.keys(COMMON_PORTS);
+            let openCount = 0;
+
+            for (const port of ports) {
+                // Simulation delay
+                await new Promise(r => setTimeout(r, 150));
+                
+                // Actual browser port scan is limited by CORS/Fetch, we use a simulation logic for educational purposes
+                const isOpen = Math.random() > 0.8; 
+                if (isOpen) openCount++;
+
+                const html = `
+                    <div class="p-3 bg-white/50 rounded-lg border border-slate-100 flex justify-between items-center transition-all hover:bg-slate-50">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[9px] font-black text-slate-400 font-mono">PORT ${port}</span>
+                            <span class="text-[10px] font-black text-on-surface">${COMMON_PORTS[port]}</span>
+                        </div>
+                        <span class="text-[8px] font-black ${isOpen ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-50'} px-2 py-0.5 rounded uppercase tracking-widest">
+                            ${isOpen ? 'EXPOSED' : 'SHIELDED'}
+                        </span>
+                    </div>`;
+                
+                resArea.insertAdjacentHTML('beforeend', html);
+                resArea.scrollTop = resArea.scrollHeight;
             }
 
-            // UI Reset
-            resArea.innerHTML = "";
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
-            status.innerText = "Scanning...";
+            status.innerText = "SCAN COMPLETE";
+            btn.disabled = false;
+            lastAudit = { host, open: openCount, total: ports.length };
+        }
 
-            // Simulation Logic (Client-side JS cannot perform raw socket TCP scans due to browser sandbox)
-            // In a real SMART HUB environment, this would call a backend API.
-            // Here, we provide a sophisticated UI simulation of the scan process.
-            
-            let portsToScan = range === 'web' ? [80, 443, 8080, 8443] : Object.keys(COMMON_PORTS);
-            
-            for (const port of portsToScan) {
-                await new Promise(r => setTimeout(r, 150)); // Visual delay
-                const isOpen = Math.random() > 0.7; // Simulated result
-                const service = COMMON_PORTS[port] || "Unknown Service";
+        function clearData() {
+            document.getElementById('portHost').value = '';
+            document.getElementById('results-display').classList.add('hidden');
+            lastAudit = null;
+        }
 
-                const row = document.createElement('div');
-                row.className = "sub-link";
-                row.innerHTML = `
-                    <span>Port ${port} (${service})</span>
-                    <strong style="color: ${isOpen ? '#2ecc71' : '#e74c3c'}">
-                        ${isOpen ? '<i class="fa-solid fa-circle-check"></i> OPEN' : '<i class="fa-solid fa-circle-xmark"></i> CLOSED'}
-                    </strong>
-                `;
-                resArea.appendChild(row);
-            }
+        async function commitToRegistry() {
+            if (!lastAudit) return alert("Run a scan first!");
+            const inputs = [{ label: 'Target', val: lastAudit.host }];
+            const results = [
+                { label: 'Exposed', val: lastAudit.open + '/' + lastAudit.total, highlight: true },
+                { label: 'Status', val: 'Scanned' }
+            ];
+            const ok = await window.saveCalcToHistory('Port Scanner', inputs, results);
+            if (ok) initSidebarHistory('Port Scanner', 'sidebar-history-container');
+        }
 
-            status.innerText = "Scan Complete";
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Port Scanner', 'sidebar-history-container');
         });
     </script>
-    
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

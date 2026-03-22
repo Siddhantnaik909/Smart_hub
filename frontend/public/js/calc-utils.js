@@ -73,7 +73,7 @@ window.showResultCard = function (cardId) {
 };
 
 /* ─── 3. Save rich calculation to localStorage ─── */
-window.saveCalcToHistory = function (toolName, inputs, resultRows) {
+window.saveCalcToHistory = async function (toolName, inputs, resultRows) {
     const entry = {
         id: Date.now(),
         name: toolName,
@@ -84,14 +84,114 @@ window.saveCalcToHistory = function (toolName, inputs, resultRows) {
         // backward-compat details string
         details: `${inputs.map(i => i.val).join(', ')} ➔ ${(resultRows.find(r => r.highlight) || resultRows[0])?.val || ''}`,
     };
+
+    // 1. Save to LocalStorage (Immediate feedback / Offline)
     try {
         const history = JSON.parse(localStorage.getItem('calc_history') || '[]');
         history.unshift(entry);
         if (history.length > 50) history.pop();
         localStorage.setItem('calc_history', JSON.stringify(history));
         localStorage.setItem('last_active_time', new Date().toLocaleTimeString());
-        return true;
-    } catch (e) { return false; }
+    } catch (e) { console.error('LocalStorage Save Failed', e); }
+
+    // 2. Save to Backend (Permanent Cloud Sync)
+    const token = localStorage.getItem('token');
+    if (token) {
+        try {
+            const HOST = (window.location.protocol === 'file:') ? 'http://localhost:3000' : window.location.origin;
+            await fetch(`${HOST}/api/history`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    toolName,
+                    inputs,
+                    results: resultRows,
+                    details: entry.details
+                })
+            });
+        } catch (err) {
+            console.error('Remote History Save Failed', err);
+        }
+    }
+    
+    // 3. Trigger Sidebar Refresh if exists
+    if (typeof window.renderSidebarHistory === 'function') {
+        window.renderSidebarHistory();
+    }
+    
+    return true;
+};
+
+/* ─── 4. Standardized Sidebar History Rendering ─── */
+window.getUserPreference = function(key, defaultValue) {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return defaultValue;
+    try {
+        const user = JSON.parse(userStr);
+        return (user.preferences && user.preferences[key]) ? user.preferences[key] : defaultValue;
+    } catch (e) { return defaultValue; }
+};
+
+window.initSidebarHistory = function (toolName, containerId, partialMatch = false) {
+    window.currentToolName = toolName;
+    window.historyContainerId = containerId;
+    
+    window.renderSidebarHistory = function () {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const history = JSON.parse(localStorage.getItem('calc_history') || '[]');
+        const toolHistory = history.filter(h => {
+            const hName = h.name || h.toolName || '';
+            if (partialMatch) return hName.includes(toolName);
+            return hName === toolName;
+        }).slice(0, 5);
+        
+        if (toolHistory.length === 0) {
+            container.innerHTML = `<p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent ${toolName} records.</p>`;
+            return;
+        }
+        
+        container.innerHTML = toolHistory.map((item, idx) => {
+            const opacity = idx === 0 ? '' : 'opacity-60';
+            const border = idx === 0 ? 'border-primary' : 'border-surface-container-high';
+            const time = new Date(item.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let mainVal = item.results && item.results[0] ? item.results[0].val : '0.0';
+            let subLabel = item.results && item.results[1] ? item.results[1].val : (item.inputs && item.inputs[0] ? item.inputs[0].val : 'History');
+            
+            return `
+                <div class="flex flex-col gap-1 border-l-2 ${border} pl-4 ${opacity} transition-all hover:opacity-100">
+                    <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">${time}</span>
+                    <p class="text-xs font-bold text-on-surface truncate pr-4">${item.name || toolName}: ${mainVal}</p>
+                    <p class="text-[9px] font-black text-primary tracking-tighter uppercase font-mono">${subLabel}</p>
+                </div>`;
+        }).join('');
+    };
+
+    window.clearSidebarHistory = function () {
+        if (!confirm(`Purge ${toolName} records?`)) return;
+        let history = JSON.parse(localStorage.getItem('calc_history') || '[]');
+        history = history.filter(h => {
+            const hName = h.name || h.toolName || '';
+            if (partialMatch) return !hName.includes(toolName);
+            return hName !== toolName;
+        });
+        localStorage.setItem('calc_history', JSON.stringify(history));
+        window.renderSidebarHistory();
+    };
+
+    window.renderSidebarHistory();
+};
+
+/* ─── 4. Bridge for manual user edits (Standard Calculator) ─── */
+window.saveCalculation = function (name, expr, res) {
+    const inputs = [{ label: 'Expression', val: expr }];
+    const results = [{ label: 'Result', val: res, highlight: true }];
+    return window.saveCalcToHistory(name, inputs, results);
 };
 
 /* ─── 4. Attach save button handler ─── */

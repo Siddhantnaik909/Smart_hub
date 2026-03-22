@@ -1,129 +1,277 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Friendship Test</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Name Matcher & Compatibility</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-user-group"></i> Friendship Strength Test</h2>
-                            <p>Analyze the unique bond between two friends using name-frequency algorithms.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Your Name</span>
-                                <input type="text" id="name1" class="form-control" placeholder="Enter name">
-                            </div>
-                            
-                            <div class="sub-link">
-                                <span>Friend's Name</span>
-                                <input type="text" id="name2" class="form-control" placeholder="Enter friend's name">
-                            </div>
-                            
-                            <button id="calc-btn" class="btn-calc">Analyze Bond</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Analysis Result</h3>
-                        
-                        <div style="padding: 20px; text-align: center;">
-                            <div id="score-text" style="font-size: 3.5rem; font-weight: 800; color: var(--primary-color);">0%</div>
-                            <div style="width: 100%; background: var(--bg-main); height: 12px; border-radius: 6px; margin: 15px 0; overflow: hidden;">
-                                <div id="strength-bar" style="width: 0%; height: 100%; background: var(--primary-color); transition: width 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-                            </div>
-                        </div>
-
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-
-                        <button id="save-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save result
-                        </button>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>FUN ZONE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Bond Test</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Name Matcher.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">See how well two names go together! Enter your name and a friend's name to find your compatibility score.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Match History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent matches.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">favorite</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> Fun Idea
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Try matching your name with your favorite celebrity or pet! It's just for fun and uses name patterns to give you a score.
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">MATCH SCORE</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="bond-tag">READY TO TEST</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Relationship Match</div>
+                        <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0%
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 pb-4 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Your Name</label>
+                                    <input type="text" id="name1" placeholder="Enter name..." class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Friend's Name</label>
+                                    <input type="text" id="name2" placeholder="Enter name..." class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-4">
+                            <button onclick="calculateBond()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">CHECK MATCH</button>
+                            <button onclick="resetInputs()" class="p-5 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">restart_alt</span>
+                            </button>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_coin_flipper.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_dice_roller.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="saveToRegistry()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Bond Status</h5>
+                        <p id="resStatus" class="text-sm font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Match Level</h5>
+                        <p id="resMatch" class="text-sm font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Summary</h5>
+                        <p id="resDecoded" class="text-sm font-black text-primary uppercase tracking-tight">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        function calculateBond() {
+            const n1 = document.getElementById('name1').value.trim();
+            const n2 = document.getElementById('name2').value.trim();
+            const display = document.getElementById('calc-display');
+            const statusEl = document.getElementById('resStatus');
+            const matchEl = document.getElementById('resMatch');
+            const summaryEl = document.getElementById('resDecoded');
+            const tagEl = document.getElementById('bond-tag');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (!n1 || !n2) {
+                alert("Please enter both names!");
+                return;
+            }
+
+            const name1 = n1.toLowerCase();
+            const name2 = n2.toLowerCase();
+            const combined = (name1 + name2).split('').sort().join('');
+            
+            let sum = 0;
+            for (let i = 0; i < combined.length; i++) {
+                sum += combined.charCodeAt(i) * (i + 1);
+            }
+            
+            const percentage = (sum % 41) + 60;
+            let status = "";
+            let summary = "";
+
+            if (percentage > 90) {
+                status = "Great Match!";
+                summary = "Perfect Harmony";
+            } else if (percentage > 80) {
+                status = "Very Good!";
+                summary = "High Energy";
+            } else if (percentage > 70) {
+                status = "Good Match";
+                summary = "Strong Bond";
+            } else {
+                status = "Alright";
+                summary = "Solid Link";
+            }
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${percentage}%`;
+            tagEl.innerText = status.toUpperCase();
+            statusEl.innerText = status;
+            matchEl.innerText = percentage > 85 ? "EXCEPTIONAL" : "OPTIMAL";
+            summaryEl.innerText = summary;
+            
+            saveBtn.classList.remove('hidden');
+        }
+
+        function resetInputs() {
+            document.getElementById('name1').value = '';
+            document.getElementById('name2').value = '';
+            document.getElementById('calc-display').innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0%`;
+            document.getElementById('bond-tag').innerText = "READY TO TEST";
+            document.getElementById('save-btn').classList.add('hidden');
+            document.getElementById('resStatus').innerText = '--';
+            document.getElementById('resMatch').innerText = '--';
+            document.getElementById('resDecoded').innerText = '--';
+        }
+
+        async function saveToRegistry() {
+            const n1 = document.getElementById('name1').value.trim();
+            const n2 = document.getElementById('name2').value.trim();
+            const score = document.getElementById('calc-display').innerText.trim();
+            const status = document.getElementById('resStatus').innerText;
+
+            if (!n1 || !n2) return;
+
+            const inputs = [
+                { label: 'Name 1', val: n1 },
+                { label: 'Name 2', val: n2 }
+            ];
+            const results = [
+                { label: 'Score', val: score, highlight: true },
+                { label: 'Match', val: status }
+            ];
+            const ok = await window.saveCalcToHistory('Name Matcher', inputs, results);
+            if (ok) initSidebarHistory('Name Matcher', 'sidebar-history-container');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calcBtn = document.getElementById('calc-btn');
-            const resultsCard = document.getElementById('results');
-            const displayArea = document.getElementById('result-display-area');
-            const strengthBar = document.getElementById('strength-bar');
-            const scoreText = document.getElementById('score-text');
-
-            calcBtn.addEventListener('click', () => {
-                const n1 = document.getElementById('name1').value.trim().toLowerCase();
-                const n2 = document.getElementById('name2').value.trim().toLowerCase();
-
-                if (!n1 || !n2) {
-                    alert("Please enter both names for analysis.");
-                    return;
-                }
-
-                // Symmetry Algorithm: Summing char codes ensures (A+B) is same as (B+A)
-                const combined = (n1 + n2).split('').sort().join('');
-                let sum = 0;
-                for (let i = 0; i < combined.length; i++) {
-                    sum += combined.charCodeAt(i) * (i + 1);
-                }
-                
-                const percentage = (sum % 41) + 60; // Returns 60% to 100% for positivity
-
-                let message = "";
-                if (percentage > 90) message = "Unstoppable Duo! 🌟";
-                else if (percentage > 80) message = "Inseparable Besties! 🤝";
-                else if (percentage > 70) message = "Great Connection! 😊";
-                else message = "Solid Friendship! ✨";
-
-                // Inject using sub-link structure
-                displayArea.innerHTML = `
-                    <div class="sub-link">
-                        <span>Bond Status</span>
-                        <span style="font-weight: 600;">${message}</span>
-                    </div>
-                    <div class="sub-link">
-                        <span>Compatibility</span>
-                        <span>High</span>
-                    </div>
-                `;
-
-                // Update UI
-                scoreText.innerText = percentage + "%";
-                resultsCard.style.display = 'block';
-                resultsCard.classList.remove('hidden');
-                
-                // Trigger animation
-                setTimeout(() => {
-                    strengthBar.style.width = percentage + "%";
-                }, 100);
-            });
+            initSidebarHistory('Name Matcher', 'sidebar-history-container');
         });
     </script>
-
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

@@ -1,131 +1,364 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Advanced Ohm's Law</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Construction Circuit</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @keyframes flowPulse {
+            0% { transform: scaleX(1); opacity: 0.2; }
+            50% { transform: scaleX(1.1); opacity: 0.4; }
+            100% { transform: scaleX(1); opacity: 0.2; }
+        }
+        .flow-wire { animation: flowPulse 2.5s infinite ease-in-out; }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-bolt"></i> Electrical Pro: Ohm & Power</h2>
-                            <p>Enter any two values to solve for the missing electrical parameters.</p>
-                        </div>
-
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Voltage (V)</span>
-                                <input type="number" id="volts" class="form-control" placeholder="Volts">
-                            </div>
-                            <div class="sub-link">
-                                <span>Current (I)</span>
-                                <div style="display: flex; gap: 5px; width: 60%;">
-                                    <input type="number" id="amps" class="form-control" placeholder="Value">
-                                    <select id="ampsUnit" class="form-control" style="width: 80px;">
-                                        <option value="1">A</option>
-                                        <option value="0.001">mA</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="sub-link">
-                                <span>Resistance (R)</span>
-                                <div style="display: flex; gap: 5px; width: 60%;">
-                                    <input type="number" id="ohms" class="form-control" placeholder="Value">
-                                    <select id="ohmsUnit" class="form-control" style="width: 80px;">
-                                        <option value="1">Ω</option>
-                                        <option value="1000">kΩ</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <button id="calc-electrical-btn" class="btn-calc">Analyze Circuit</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Circuit Analysis Results</h3>
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-ohms-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Specs
-                        </button>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CONSTRUCTION & ENGINEERING</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Line Pro</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Electrical Load Calculator.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Easily solve for Voltage, Current, or Resistance. Just enter any two values and the 3rd will be solved automatically for you!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Site Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent site data.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/construction/calc_fuel.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Fuel Estimator</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/construction/calc_brick.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Brick Calculator</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
+                    <!-- Display -->
+                    <div class="bg-slate-950 m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[220px] shadow-inner relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10">
+                            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <path class="flow-wire" d="M0,50 Q25,20 50,50 T100,50" fill="none" stroke="#eab308" stroke-width="0.3"/>
+                                <circle cx="10" cy="50" r="1.5" fill="#eab308">
+                                    <animate attributeName="cx" from="-10" to="110" dur="2s" repeatCount="indefinite" />
+                                </circle>
+                            </svg>
+                        </div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-2 py-1 rounded bg-yellow-500 text-slate-900 text-[10px] font-bold tracking-widest uppercase">CONSTRUCTION LOAD</span>
+                            <span class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-[10px] font-bold tracking-widest uppercase" id="status-tag">Inert Wire</span>
+                        </div>
+                        <div id="calc-status" class="text-slate-400 text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting Load Inputs</div>
+                        <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-white flex items-center justify-end gap-2 overflow-hidden uppercase">
+                            <span class="w-1.5 h-16 bg-yellow-500 animate-pulse rounded-full mr-2"></span>0.0 V
+                        </div>
+                    </div>
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Transmission Specs</h4>
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1 block">Line Voltage (V)</label>
+                                        <input type="number" id="volts" oninput="calculate()" class="w-full bg-surface-container-lowest border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="110 / 220">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1 block">Load Amperage (I)</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="amps" oninput="calculate()" class="flex-1 bg-surface-container-lowest border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="Current">
+                                            <select id="ampsUnit" onchange="calculate()" class="w-24 bg-surface-container-lowest border border-surface-container-high rounded-xl font-bold text-xs uppercase focus:ring-2 focus:ring-primary">
+                                                <option value="1">A</option>
+                                                <option value="0.001">mA</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1 block">System Resistance (R)</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="ohms" oninput="calculate()" class="flex-1 bg-surface-container-lowest border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="Resistance">
+                                            <select id="ohmsUnit" onchange="calculate()" class="w-24 bg-surface-container-lowest border border-surface-container-high rounded-xl font-bold text-xs uppercase focus:ring-2 focus:ring-primary">
+                                                <option value="1">Ω</option>
+                                                <option value="1000">kΩ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-3 bg-surface-container rounded-xl text-on-surface-variant font-bold text-[10px] uppercase tracking-[0.2em] hover:text-primary transition-colors">Reset Ground</button>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Circuit Result Matrix</h4>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div class="p-6 bg-slate-900 border border-slate-700 rounded-xl">
+                                        <span class="text-[10px] font-bold text-yellow-500 uppercase tracking-widest block mb-1">Power Output (Watts)</span>
+                                        <p id="powerDisp" class="text-3xl font-black text-white tracking-tighter">0.00 W</p>
+                                    </div>
+                                    <div class="p-6 bg-purple-50 border border-purple-100 rounded-xl">
+                                        <span class="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">Conductance (S)</span>
+                                        <p id="metSiemens" class="text-2xl font-black text-on-surface tracking-tighter">0.0000</p>
+                                    </div>
+                                    <div class="p-6 bg-slate-50 border border-slate-200 rounded-xl">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Load Status</span>
+                                        <p id="metLoad" class="text-2xl font-black text-on-surface">IDLE</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                Solves for the 3rd variable when 2 are provided. Power calculation is automated based on solved V and I vectors.
+                            </p>
+                            <div class="flex gap-4">
+                                <button onclick="saveLog()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Registry Save</button>
+                                <button onclick="window.print()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Analytics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
+                    <div class="bg-surface-container p-6 rounded-xl border border-surface-container-high text-center">
+                        <h5 class="font-bold uppercase tracking-widest text-[8px] text-on-surface-variant mb-2">Coulomb Vol</h5>
+                        <p id="metCoulomb" class="text-xl font-black text-on-surface">0.00 C/s</p>
+                    </div>
+                    <div class="bg-surface-container p-6 rounded-xl border border-surface-container-high text-center">
+                        <h5 class="font-bold uppercase tracking-widest text-[8px] text-on-surface-variant mb-2">Joule Rate</h5>
+                        <p id="metJoule" class="text-xl font-black text-on-surface">0.00 J/s</p>
+                    </div>
+                    <div class="bg-surface-container p-6 rounded-xl border border-surface-container-high text-center">
+                        <h5 class="font-bold uppercase tracking-widest text-[8px] text-on-surface-variant mb-2">Line Rating</h5>
+                        <p id="metRating" class="text-xl font-black text-primary">Standard</p>
+                    </div>
+                    <div class="bg-surface-container p-6 rounded-xl border border-surface-container-high text-center">
+                        <h5 class="font-bold uppercase tracking-widest text-[8px] text-on-surface-variant mb-2">Efficiency</h5>
+                        <p id="metEff" class="text-xl font-black text-on-surface">100%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/";
-        window.COMPONENT_ROOT = "/components/";
+        function calculate() {
+            let v = parseFloat(document.getElementById('volts').value);
+            let i = parseFloat(document.getElementById('amps').value);
+            let r = parseFloat(document.getElementById('ohms').value);
+            const iUnit = parseFloat(document.getElementById('ampsUnit').value);
+            const rUnit = parseFloat(document.getElementById('ohmsUnit').value);
 
-        document.getElementById('calc-electrical-btn').addEventListener('click', function() {
-            let V = parseFloat(document.getElementById('volts').value);
-            let I = parseFloat(document.getElementById('amps').value) * parseFloat(document.getElementById('ampsUnit').value);
-            let R = parseFloat(document.getElementById('ohms').value) * parseFloat(document.getElementById('ohmsUnit').value);
-            
-            let resultHTML = "";
-            let solvedCount = [V, I, R].filter(x => !isNaN(x)).length;
+            if (!isNaN(i)) i *= iUnit;
+            if (!isNaN(r)) r *= rUnit;
 
-            if (solvedCount < 2) {
-                alert("Please provide at least two values to calculate the circuit.");
+            const inputsArr = [v, i, r].filter(x => !isNaN(x));
+            const display = document.getElementById('calc-display');
+            const status = document.getElementById('calc-status');
+            const tag = document.getElementById('status-tag');
+            const powerEl = document.getElementById('powerDisp');
+
+            if (inputsArr.length < 2) {
+                display.innerHTML = `<span class="w-1.5 h-16 bg-yellow-500 animate-pulse rounded-full mr-2"></span>0.0 V`;
+                status.innerText = "Awaiting Load Inputs";
+                tag.innerText = "Inert Wire";
+                tag.className = "px-2 py-1 rounded bg-slate-800 text-slate-400 text-[10px] font-bold tracking-widest uppercase";
+                powerEl.innerText = "0.00 W";
+                resetMetrics();
                 return;
             }
 
-            // Logic Core: Ohm's Law (V = IR) & Power Law (P = VI)
-            if (isNaN(V)) V = I * R;
-            else if (isNaN(I)) I = V / R;
-            else if (isNaN(R)) R = V / I;
+            // Solving logic
+            if (isNaN(v)) {
+                v = i * r;
+                display.innerText = v.toFixed(2) + " V";
+                status.innerText = "Solved Potential (Voltage)";
+            } else if (isNaN(i)) {
+                i = v / r;
+                display.innerText = (i >= 1 ? i.toFixed(3) : (i * 1000).toFixed(1) + 'm') + " A";
+                status.innerText = "Solved Intensity (Current)";
+            } else if (isNaN(r)) {
+                r = v / i;
+                display.innerText = (r >= 1000 ? (r / 1000).toFixed(2) + 'k' : r.toFixed(2)) + " Ω";
+                status.innerText = "Solved Resistance (Ohms)";
+            } else {
+                display.innerText = v.toFixed(2) + " V";
+                status.innerText = "Active Line Analysis";
+            }
 
-            const P = V * I; // Power in Watts
+            const p = v * i;
+            powerEl.innerText = p.toFixed(2) + " W";
+            tag.innerText = "LIVE LINE";
+            tag.className = "px-2 py-1 rounded bg-yellow-500 text-slate-900 text-[10px] font-bold tracking-widest uppercase";
+            updateMetrics(v, i, r, p);
+        }
 
-            resultHTML = `
-                <div class="sub-link">
-                    <span>Potential (Voltage)</span>
-                    <strong class="accent-text">${V.toFixed(2)} V</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Intensity (Current)</span>
-                    <strong class="accent-text">${I >= 1 ? I.toFixed(3) : (I * 1000).toFixed(2) + ' m'} A</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Resistance</span>
-                    <strong class="accent-text">${R >= 1000 ? (R / 1000).toFixed(2) + ' k' : R.toFixed(2)} Ω</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Power Dissipation</span>
-                    <strong style="color: #e74c3c;">${P.toFixed(2)} Watts (W)</strong>
-                </div>
-            `;
+        function updateMetrics(v, i, r, p) {
+            document.getElementById('metCoulomb').innerText = i.toFixed(3) + " C/s";
+            document.getElementById('metJoule').innerText = p.toFixed(2) + " J/s";
+            document.getElementById('metSiemens').innerText = (1/r).toFixed(4);
+            document.getElementById('metLoad').innerText = p > 500 ? "HEAVY" : (p > 5 ? "ACTIVE" : "NOMINAL");
+            document.getElementById('metRating').innerText = p > 2000 ? "IND-LVL" : "STD-LVL";
+        }
 
-            const displayArea = document.getElementById('result-display-area');
-            displayArea.innerHTML = resultHTML;
-            
-            const resultsCard = document.getElementById('results');
-            resultsCard.style.display = 'block';
-            resultsCard.classList.remove('hidden');
-        });
+        function resetMetrics() {
+            ['metCoulomb', 'metJoule', 'metSiemens'].forEach(id => {
+               const el = document.getElementById(id);
+               if(el) el.innerText = "0.00";
+            });
+            const loadEl = document.getElementById('metLoad');
+            if(loadEl) loadEl.innerText = "IDLE";
+        }
 
-        document.addEventListener('componentsLoaded', () => {
-            const title = document.getElementById('page-title-display');
-            if(title) title.textContent = "Advanced Electrical Calculator";
+        function resetInputs() {
+            ['volts', 'amps', 'ohms'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+            calculate();
+        }
+
+        async function saveLog() {
+            const displayEl = document.getElementById('calc-display');
+            if (!displayEl) return;
+            const val = displayEl.innerText.trim();
+            if (val === '0.0 V' || !val) return;
+
+            const btn = event.currentTarget;
+            const orig = btn.innerText;
+            btn.innerText = 'COMMITTING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Voltage', val: document.getElementById('volts').value || 'Solved' },
+                { label: 'Current', val: document.getElementById('amps').value || 'Solved' }
+            ];
+            const results = [
+                { label: 'Solved Node', val: val, highlight: true },
+                { label: 'Dissipation', val: document.getElementById('powerDisp').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory("Ohm's Law", inputs, results);
+                if (ok) {
+                    btn.innerText = 'COMMITTED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory("Ohm's Law", 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory("Ohm's Law", 'sidebar-history-container');
+                }
+            } catch (e) {}
+            calculate();
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

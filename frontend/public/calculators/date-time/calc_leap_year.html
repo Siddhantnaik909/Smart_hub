@@ -1,195 +1,293 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Leap Year Checker Elite</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Leap Year Checker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        /* Precision UI Styling */
-        .res-hero-box {
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 20px;
-            border: 2px solid transparent;
-        }
-        .leap-true { 
-            background: rgba(0, 255, 204, 0.1); 
-            border-color: var(--accent-color); 
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
-        }
-        .leap-false { 
-            background: rgba(255, 68, 68, 0.1); 
-            border-color: #ff4444; 
-            box-shadow: 0 0 15px rgba(255, 68, 68, 0.2);
-        }
-        .algo-box {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 4px solid var(--accent-color);
-            padding: 15px;
-            font-size: 0.9rem;
-            line-height: 1.6;
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-calendar-check"></i> Leap Year Checker</h2>
-                            <p>Determine if a year contains the intercalary day (Feb 29) based on the Gregorian calendar rules.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Target Year</span>
-                                <input type="number" id="yearInput" class="form-control" placeholder="e.g. 2024" min="1">
-                            </div>
-                            <button id="calc-btn" class="btn-calc" onclick="checkLeapYear()">Perform Chronos Scan</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
-                        <h3>Analysis Results</h3>
-                        
-                        <div id="resContainer" class="res-hero-box">
-                            <div id="resTitle" style="font-size: 2.2rem; font-weight: 800; margin-bottom: 5px;"></div>
-                            <p id="resDesc" style="margin: 0; opacity: 0.9; font-weight: 500;"></p>
-                        </div>
-
-                        <div class="sub-cat-list" id="result-display-area">
-                            <div class="sub-link">
-                                <span>Calendar Length</span>
-                                <strong id="totalDays">365 Days</strong>
-                            </div>
-                            <div class="sub-link">
-                                <span>February Status</span>
-                                <strong id="febDays">28 Days</strong>
-                            </div>
-                        </div>
-
-                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
-                            <i class="fa-solid fa-save"></i> Save to History
-                        </button>
-                    </div>
-
-                    
-                    <div class="cat-card stagger-3" style="margin-top: 20px;">
-                        <h3><i class="fa-solid fa-gears"></i> Technical Logic</h3>
-                        <div class="algo-box">
-                            <strong>Standard Rule:</strong> A year is leap if divisible by 4.<br>
-                            <strong>Exception 1:</strong> If divisible by 100, it is NOT leap.<br>
-                            <strong>Exception 2:</strong> If divisible by 400, it actually IS leap.
-                        </div>
-                    </div>
-
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>DATE & TIME</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Orbital Mechanics</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Leap Checker.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Easily check if a year is a leap year! Understand why we have an extra day in February and see the exact scientific reason for it.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/date-time/calc_hours_worked.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Hours Worked</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/date-time/calc_time_add.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Time Addition</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-center flex flex-col justify-center min-h-[300px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="days-tag">--- DAYS</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="scientific-tag">GREGORIAN STANDARD</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting year input...</div>
+                        <div id="calc-display" class="text-6xl md:text-8xl font-black tracking-tighter text-on-surface flex items-center justify-center gap-2 overflow-hidden leading-tight font-mono">
+                            ---
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Target Year</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Enter Year (e.g. 2024)</label>
+                                        <input type="number" id="year" placeholder="2026" oninput="solveLeap()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-6 py-4 font-bold text-3xl text-on-surface outline-none transition-all">
+                                    </div>
+                                    <div class="flex gap-2">
+                                         <button onclick="adjustYear(-1)" class="flex-1 py-3 bg-surface-container rounded-lg font-bold text-xs hover:bg-slate-200">-1 Year</button>
+                                         <button onclick="adjustYear(1)" class="flex-1 py-3 bg-surface-container rounded-lg font-bold text-xs hover:bg-slate-200">+1 Year</button>
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-surface-container text-on-surface-variant rounded-xl font-bold text-[10px] tracking-widest uppercase hover:bg-slate-200 transition-all">Reset Analysis</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Nearby Occurrences</h4>
+                                <div class="bg-primary/5 border border-primary/20 rounded-2xl p-8 space-y-6">
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Last Leap Year:</span>
+                                            <span id="prevLeap" class="text-primary">---</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Next Leap Year:</span>
+                                            <span id="nextLeap" class="text-primary">---</span>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-primary/10">
+                                        <p id="ruleMsg" class="text-[9px] font-bold text-on-surface-variant uppercase leading-relaxed text-center opacity-60">
+                                            Rules: Divisible by 4, but not by 100 unless divisible by 400.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                SYSTEM: GREGORIAN CALENDAR | PRECISION: ABSOLUTE
+                            </p>
+                            <button onclick="saveLeapLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Result</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Astronomical Fact: It takes Earth approximately 365.2422 days to orbit the Sun. Leap years correct this error; without them, our seasons would shift 24 days every century!"
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
-        let currentResult = null;
-
-        function checkLeapYear() {
-            const yearVal = document.getElementById('yearInput').value;
-            const year = parseInt(yearVal);
-
-            if (!yearVal || isNaN(year)) {
-                alert("Please enter a valid numeric year.");
-                return;
-            }
-
-            // The Leap Year Algorithm
-            const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-
-            // Select UI elements
-            const resultsCard = document.getElementById('results');
-            const container = document.getElementById('resContainer');
-            const title = document.getElementById('resTitle');
-            const desc = document.getElementById('resDesc');
-            const totalDays = document.getElementById('totalDays');
-            const febDays = document.getElementById('febDays');
-
-            // Force reset display (prevents stuck UI)
-            resultsCard.style.display = 'block';
-            resultsCard.classList.add('fade-in');
-
-            if (isLeap) {
-                container.className = "res-hero-box leap-true";
-                title.innerHTML = `<i class="fa-solid fa-circle-check"></i> LEAP YEAR`;
-                title.style.color = "var(--accent-color)";
-                desc.innerText = `${year} successfully passed the leap year scan.`;
-                totalDays.innerText = "366 Days";
-                febDays.innerText = "29 Days";
-            } else {
-                container.className = "res-hero-box leap-false";
-                title.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> COMMON YEAR`;
-                title.style.color = "#ff4444";
-                desc.innerText = `${year} follows the standard 365-day calendar.`;
-                totalDays.innerText = "365 Days";
-                febDays.innerText = "28 Days";
-            }
-
-            // Store data for the Save function
-            currentResult = {
-                y: year,
-                status: isLeap ? "Leap Year" : "Common Year",
-                summary: isLeap ? "366 Days" : "365 Days"
-            };
+        function isLeap(y) {
+            return (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0));
         }
 
-        // Integrated SMART HUB Save Listener
-        document.getElementById('save-btn').addEventListener('click', function() {
-            if (!currentResult) {
-                alert("Please perform a scan first.");
+        function solveLeap() {
+            const yearVal = parseInt(document.getElementById('year').value);
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const daysTag = document.getElementById('days-tag');
+            const prevLeapEl = document.getElementById('prevLeap');
+            const nextLeapEl = document.getElementById('nextLeap');
+
+            if (isNaN(yearVal)) {
+                display.innerText = "---";
+                statusText.innerText = "Awaiting year input...";
+                daysTag.innerText = "--- DAYS";
+                prevLeapEl.innerText = "---";
+                nextLeapEl.innerText = "---";
                 return;
             }
 
-            if (typeof saveCalculation === 'function') {
-                saveCalculation(
-                    'Leap Year Checker', 
-                    `Year: ${currentResult.y}`, 
-                    `${currentResult.status} (${currentResult.summary})`
-                );
-                
-                // Visual feedback
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fa-solid fa-check"></i> Analysis Saved';
-                this.style.background = 'var(--accent-color)';
-                this.style.color = '#000';
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.style.background = '';
-                    this.style.color = '';
-                }, 2000);
-            } else {
-                alert("Core system error: saveCalculation function not found.");
+            const isL = isLeap(yearVal);
+            display.innerText = isL ? "YES." : "NO.";
+            display.className = `text-6xl md:text-8xl font-black tracking-tighter flex items-center justify-center gap-2 overflow-hidden leading-tight font-mono ${isL ? 'text-primary' : 'text-on-surface'}`;
+            
+            statusText.innerText = isL ? `${yearVal} is a Leap Year` : `${yearVal} is a Common Year`;
+            daysTag.innerText = isL ? "366 DAYS" : "365 DAYS";
+
+            // Find nearby
+            let p = yearVal - 1;
+            while (!isLeap(p)) p--;
+            prevLeapEl.innerText = p;
+
+            let n = yearVal + 1;
+            while (!isLeap(n)) n++;
+            nextLeapEl.innerText = n;
+        }
+
+        function adjustYear(v) {
+            const el = document.getElementById('year');
+            el.value = (parseInt(el.value) || new Date().getFullYear()) + v;
+            solveLeap();
+        }
+
+        function resetInputs() {
+            document.getElementById('year').value = new Date().getFullYear();
+            solveLeap();
+        }
+
+        async function saveLeapLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '---') return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Year', val: document.getElementById('year').value }
+            ];
+            const results = [
+                { label: 'Is Leap Year?', val: val, highlight: true }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Leap Checker', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Leap Checker', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year').value = new Date().getFullYear();
+            solveLeap();
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Leap Checker', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
-
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

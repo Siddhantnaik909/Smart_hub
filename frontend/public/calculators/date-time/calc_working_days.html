@@ -1,158 +1,326 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Working Days Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
-    <style>
-        .work-hero {
-            background: rgba(0, 255, 204, 0.05);
-            border: 1px dashed var(--accent-color);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 20px;
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Business Day Hub</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
         }
-        .work-val { font-size: 2.8rem; font-weight: 800; color: var(--accent-color); line-height: 1; }
-        .work-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; margin-top: 10px; }
-        
-        .stat-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .stat-bar-fill { height: 100%; background: var(--accent-color); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-briefcase"></i> Working Days Pro</h2>
-                            <p>Determine business days between dates, excluding weekends (Saturday & Sunday).</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Start Date</span>
-                                <input class="form-control" id="startDate" type="date">
-                            </div>
-                            <div class="sub-link">
-                                <span>End Date</span>
-                                <input class="form-control" id="endDate" type="date">
-                            </div>
-                            <button class="btn-calc" onclick="calculateWorkingDays()">Calculate Business Duration</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Timeline Breakdown</h3>
-                        
-                        <div class="work-hero">
-                            <span class="work-val" id="resWorkingDays">0</span>
-                            <span class="work-label">Business Days</span>
-                        </div>
-
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Total Calendar Days</span>
-                                <strong id="resTotalDays">0</strong>
-                            </div>
-                            <div class="sub-link">
-                                <span>Weekend Days</span>
-                                <strong id="resWeekendDays" style="color: #ff4444;">0</strong>
-                            </div>
-                            <div class="sub-link" style="flex-direction: column; align-items: flex-start;">
-                                <span>Workload Ratio</span>
-                                <div class="stat-bar-container"><div id="work-bar" class="stat-bar-fill"></div></div>
-                            </div>
-                        </div>
-
-                        <button id="save-btn" class="btn-save" style="margin-top: 20px;">
-                            <i class="fa-solid fa-save"></i> Save to Project Log
-                        </button>
-                    </div>
-
-                    
-                    <div class="cat-card stagger-3" style="margin-top: 20px; border-left: 4px solid var(--accent-color);">
-                        <p style="font-size: 0.85rem; opacity: 0.8; margin: 0; line-height: 1.5;">
-                            <strong>Note:</strong> Public holidays are not automatically excluded as they vary by region. This tool strictly calculates the Monday-Friday cycle.
-                        </p>
-                    </div>
-
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>DATE & TIME</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Project Timeline</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Business Days.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Calculate the exact number of working days between two dates! Automatically exclude weekends and get your project timelines precisely right.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/date-time/calc_time_zone.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Time Zone</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/electronics/calc_ohm.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Ohm's Law</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-right flex flex-col justify-end min-h-[260px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="work-tag">BUSINESS DAYS</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="weekend-tag">0 WEEKEND DAYS</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting project interval...</div>
+                        <div id="calc-display" class="text-7xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 Days
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Project Window</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Start Date</label>
+                                        <input type="date" id="start" onchange="solveWorkDays()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">End Date</label>
+                                        <input type="date" id="end" onchange="solveWorkDays()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-surface-container text-on-surface-variant rounded-xl font-bold text-[10px] tracking-widest uppercase hover:bg-slate-200 transition-all">Reset Dates</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Timeline Analysis</h4>
+                                <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-8 space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg">
+                                            <span class="material-symbols-outlined">work</span>
+                                        </div>
+                                        <div>
+                                            <span id="percentWork" class="text-3xl font-black text-on-surface">0%</span>
+                                            <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block opacity-60 text-emerald-800">Working Day Density</span>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-emerald-200/50 space-y-3">
+                                        <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Include Saturday:</span>
+                                            <input type="checkbox" id="incSat" onchange="solveWorkDays()" class="rounded border-slate-300 text-primary">
+                                        </div>
+                                        <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                            <span class="text-on-surface-variant">Include Sunday:</span>
+                                            <input type="checkbox" id="incSun" onchange="solveWorkDays()" class="rounded border-slate-300 text-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="totalDaysAbs" class="text-xl font-black text-on-surface block">0</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Calendar Days</span>
+                                    </div>
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="totalWeeks" class="text-xl font-black text-on-surface block">0.0</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Total Weeks</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                METHOD: ITERATIVE GREGORIAN | PRECISION: 24H
+                            </p>
+                            <button onclick="saveWorkLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Record</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Project Fact: Efficient timelines aren't just about finishing fast—they're about balancing workload to prevent burnout while meeting deadlines!"
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        function solveWorkDays() {
+            const startVal = document.getElementById('start').value;
+            const endVal = document.getElementById('end').value;
+            const incSat = document.getElementById('incSat').checked;
+            const incSun = document.getElementById('incSun').checked;
 
-        let lastCalc = null;
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const weekendTag = document.getElementById('weekend-tag');
+            const totalDaysAbsEl = document.getElementById('totalDaysAbs');
+            const totalWeeksEl = document.getElementById('totalWeeks');
+            const percentWorkEl = document.getElementById('percentWork');
 
-        function calculateWorkingDays() {
-            const startStr = document.getElementById('startDate').value;
-            const endStr = document.getElementById('endDate').value;
-
-            if (!startStr || !endStr) { alert("Please select both dates"); return; }
-
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-
-            if (end < start) { alert("End date must be after start date"); return; }
-
-            let workDays = 0;
-            let totalDays = 0;
-            const cur = new Date(start);
-
-            while (cur <= end) {
-                const day = cur.getDay();
-                if (day !== 0 && day !== 6) workDays++;
-                totalDays++;
-                cur.setDate(cur.getDate() + 1);
+            if (!startVal || !endVal) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0 Days`;
+                statusText.innerText = "Awaiting project interval...";
+                weekendTag.innerText = "0 WEEKEND DAYS";
+                totalDaysAbsEl.innerText = "0";
+                totalWeeksEl.innerText = "0.0";
+                percentWorkEl.innerText = "0%";
+                return;
             }
 
-            const weekendDays = totalDays - workDays;
-            const ratio = (workDays / totalDays) * 100;
+            const d1 = new Date(startVal);
+            const d2 = new Date(endVal);
 
-            // UI Update
-            document.getElementById('resWorkingDays').innerText = workDays;
-            document.getElementById('resTotalDays').innerText = totalDays;
-            document.getElementById('resWeekendDays').innerText = weekendDays;
-            document.getElementById('work-bar').style.width = ratio + "%";
+            if (d1 > d2) {
+                statusText.innerText = "Warning: Start date is after End date";
+                display.innerText = "Error";
+                return;
+            }
 
-            const results = document.getElementById('results');
-            results.style.display = 'block';
-            results.classList.remove('hidden');
+            let working = 0;
+            let total = 0;
+            let current = new Date(d1);
 
-            lastCalc = {
-                range: `${startStr} to ${endStr}`,
-                result: `${workDays} Business Days`
-            };
+            while (current <= d2) {
+                total++;
+                const day = current.getDay();
+                let isWork = true;
+                if (day === 0 && !incSun) isWork = false;
+                if (day === 6 && !incSat) isWork = false;
+                
+                if (isWork) working++;
+                current.setDate(current.getDate() + 1);
+            }
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${working} Days`;
+            statusText.innerText = "Working days interval resolved";
+            weekendTag.innerText = (total - working) + " NON-WORKING DAYS";
+            totalDaysAbsEl.innerText = total;
+            totalWeeksEl.innerText = (total / 7).toFixed(1);
+            percentWorkEl.innerText = Math.round((working / total) * 100) + "%";
         }
 
-        document.getElementById('save-btn').onclick = function() {
-            if(!lastCalc) return;
-            if(typeof saveCalculation === 'function') {
-                saveCalculation('Working Days', lastCalc.range, lastCalc.result);
-                this.innerHTML = '<i class="fa-solid fa-check"></i> Logged Successfully';
-                setTimeout(() => { this.innerHTML = '<i class="fa-solid fa-save"></i> Save to Project Log'; }, 2000);
-            }
-        };
-    </script>
+        function resetInputs() {
+            document.getElementById('start').value = "";
+            document.getElementById('end').value = "";
+            solveWorkDays();
+        }
 
-    <script src="/js/component-loader.js"></script>
+        async function saveWorkLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '0 Days') return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Start', val: document.getElementById('start').value },
+                { label: 'End', val: document.getElementById('end').value }
+            ];
+            const results = [
+                { label: 'Working Days', val: val, highlight: true },
+                { label: 'Density', val: document.getElementById('percentWork').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Business Day Hub', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Business Day Hub', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const future = new Date();
+            future.setDate(now.getDate() + 14);
+            document.getElementById('start').valueAsDate = now;
+            document.getElementById('end').valueAsDate = future;
+            solveWorkDays();
+
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Business Day Hub', 'sidebar-history-container');
+                }
+            } catch(e){}
+        });
+    </script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

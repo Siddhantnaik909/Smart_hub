@@ -1,23 +1,31 @@
 module.exports = function (io) {
     const activeRooms = {};
+    const globalLeaderboard = []; // In-memory leaderboard for racing game
+    const globalWinsLeaderboard = {}; // { 'tictactoe': [{username, wins}], 'connect4': [...] }
+
+    // Expose activeRooms for REST API if needed
+    io.activeRooms = activeRooms;
 
     io.on('connection', (socket) => {
         console.log(`[Socket] User Connected: ${socket.id}`);
+        
+        socket.emit('leaderboard_update', globalLeaderboard);
 
         socket.on('create_room', (data) => {
-            if (!data.username) return;
-            // Generate a 5-character alphanumeric room code
-            const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            const username = data.username || `Guest_${socket.id.substring(0,4)}`;
+            // Generate a guaranteed 6-character alphanumeric room code to match UI length requirements
+            const roomCode = Math.random().toString(36).substring(2, 8).padEnd(6, 'X').toUpperCase();
 
             socket.join(roomCode);
             activeRooms[roomCode] = {
-                players: [{ id: socket.id, username: data.username, score: 0 }],
-                gameData: {}
+                players: [{ id: socket.id, username: username, score: 0 }],
+                gameData: {},
+                createdAt: new Date()
             };
 
             // Send back the room code to the creator
             socket.emit('room_created', { roomCode });
-            console.log(`[Socket] Room ${roomCode} created by ${data.username}`);
+            console.log(`[Socket] Room ${roomCode} created by ${username}`);
         });
 
         socket.on('join_room', (data) => {
@@ -68,6 +76,51 @@ module.exports = function (io) {
                 // Broadcast to the OTHER person in the room
                 socket.to(roomCode).emit('opponent_action', { action, payload });
             }
+        });
+
+        // Global Leaderboard Events
+        socket.on('submit_score', (data) => {
+            const { username, score, vehicle } = data;
+            if (!username || typeof score !== 'number') return;
+
+            // Check if user already exists and update their highest score
+            const existingIdx = globalLeaderboard.findIndex(entry => entry.username === username);
+            if (existingIdx !== -1) {
+                if (score > globalLeaderboard[existingIdx].score) {
+                    globalLeaderboard[existingIdx] = { username, score, vehicle };
+                }
+            } else {
+                globalLeaderboard.push({ username, score, vehicle });
+            }
+            
+            globalLeaderboard.sort((a, b) => b.score - a.score);
+            if (globalLeaderboard.length > 8) globalLeaderboard.pop(); // Keep top 8
+            
+            io.emit('leaderboard_update', globalLeaderboard);
+        });
+
+        // Global Wins Leaderboard (Tic Tac Toe, Connect 4, etc.)
+        socket.on('submit_win', (data) => {
+            const { username, gameType } = data; // gameType e.g., 'tictactoe' or 'connect4'
+            if (!username || !gameType) return;
+
+            if (!globalWinsLeaderboard[gameType]) {
+                globalWinsLeaderboard[gameType] = [];
+            }
+            
+            let gameBoard = globalWinsLeaderboard[gameType];
+            const existingIdx = gameBoard.findIndex(entry => entry.username === username);
+            
+            if (existingIdx !== -1) {
+                gameBoard[existingIdx].wins += 1;
+            } else {
+                gameBoard.push({ username, wins: 1 });
+            }
+            
+            gameBoard.sort((a, b) => b.wins - a.wins);
+            if (gameBoard.length > 10) gameBoard.pop(); // Keep top 10
+
+            io.emit(`${gameType}_leaderboard_update`, gameBoard);
         });
 
         socket.on('disconnect', () => {

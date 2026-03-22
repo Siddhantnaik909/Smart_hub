@@ -1,176 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Resistor Color Code</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
-    <style>
-        .resistor-visualizer {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Resistor Color Code Calculator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
         }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
         .resistor-body {
-            height: 40px;
-            width: 180px;
-            background: #d1b48c;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
+            height: 60px;
+            width: 240px;
+            background: #d4b48d;
+            border-radius: 30px;
             position: relative;
-            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
         }
         .resistor-body::before, .resistor-body::after {
             content: '';
             position: absolute;
-            height: 4px;
-            width: 40px;
-            background: #888;
-            top: 18px;
+            height: 6px;
+            width: 60px;
+            background: #94a3b8;
+            top: 50%;
+            transform: translateY(-50%);
             z-index: -1;
         }
-        .resistor-body::before { left: -40px; }
-        .resistor-body::after { right: -40px; }
-        .band-preview {
+        .resistor-body::before { left: -60px; }
+        .resistor-body::after { right: -60px; }
+        .band {
             height: 100%;
-            width: 12px;
-            transition: background 0.3s ease;
+            width: 16px;
+            transition: all 0.3s ease;
         }
-        .info-box {
-            background: rgba(99, 102, 241, 0.07);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin-bottom: 20px;
-        }
-        .info-box h4 { color: var(--primary-color); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
-        .info-box li { margin-bottom: 5px; opacity: 0.9; font-size: 0.95rem; }
-        
-        .tip-box {
-            background: rgba(16, 185, 129, 0.08);
-            border-left: 4px solid #10b981;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-top: 20px;
-        }
-        .tip-box h4 { color: #10b981; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
-        .tip-box li { margin-bottom: 5px; opacity: 0.9; font-size: 0.95rem; }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-palette"></i> 4-Band Resistor Decoder</h2>
-                            <p>Translate colored bands into precise resistance values.</p>
-                        </div>
-
-                        <div class="info-box">
-                            <h4><i class="fas fa-book-open"></i> How It Works</h4>
-                            <p style="margin-bottom: 10px; font-size: 0.95rem;">Standard 4-band resistors use a color code to indicate value and tolerance:</p>
-                            <ul style="padding-left: 20px; margin: 0;">
-                                <li><strong>Band 1 & 2:</strong> Significant digits (e.g., Brown=1, Black=0 → 10).</li>
-                                <li><strong>Band 3:</strong> Multiplier (Power of 10).</li>
-                                <li><strong>Band 4:</strong> Tolerance (Gold=±5%, Silver=±10%).</li>
-                            </ul>
-                        </div>
-
-                        <div class="resistor-visualizer">
-                            <div class="resistor-body">
-                                <div id="b1-view" class="band-preview" style="background: brown; border-top-left-radius: 10px; border-bottom-left-radius: 10px;"></div>
-                                <div id="b2-view" class="band-preview" style="background: black;"></div>
-                                <div id="bm-view" class="band-preview" style="background: red;"></div>
-                                <div id="bt-view" class="band-preview" style="background: gold; border-top-right-radius: 10px; border-bottom-right-radius: 10px; margin-left: 20px;"></div>
-                            </div>
-                        </div>
-                        
-                        
-
-[Image of resistor color code chart]
-
-
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>1st Band (Digit)</span>
-                                <select id="band1" class="form-control" onchange="updateResistor()"></select>
-                            </div>
-                            <div class="sub-link">
-                                <span>2nd Band (Digit)</span>
-                                <select id="band2" class="form-control" onchange="updateResistor()"></select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Multiplier</span>
-                                <select id="band-mult" class="form-control" onchange="updateResistor()"></select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Tolerance</span>
-                                <select id="band-tol" class="form-control" onchange="updateResistor()"></select>
-                            </div>
-                            <button id="calc-trigger" class="btn-calc" onclick="showResults()">Calculate Value</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2" style="display: none; margin-top: 20px;">
-                        <h3><i class="fas fa-chart-bar"></i> Calculated Resistance</h3>
-                        <div id="result-display-area"></div>
-                        <div class="button-group" style="margin-top: 15px;">
-                            <button id="save-btn" class="btn-save"><i class="fa-solid fa-save"></i> Save to Inventory</button>
-                        </div>
-                    </div>
-
-                    <div class="tip-box stagger-3">
-                        <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                        <ul style="padding-left: 20px; margin: 0;">
-                            <li><strong>Orientation:</strong> The tolerance band (usually Gold or Silver) is typically separated from the others. Hold this band to the <strong>right</strong>.</li>
-                            <li><strong>Mnemonics:</strong> "Big Boys Race Our Young Girls But Violet Generally Wins" (Black, Brown, Red, Orange, Yellow, Green, Blue, Violet, Grey, White).</li>
-                        </ul>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>ELECTRONICS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Resistor Color Code</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Color Code.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Decode the color bands on any resistor! Quickly determine the resistance value, tolerance, and temperature coefficient with our interactive visual tool.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/electronics/calc_led_resistor_calculator.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">LED Resistor</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/electronics/calc_capacitor_code.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Capacitor Code</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Visualizer -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 flex items-center justify-center min-h-[280px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">REAL-TIME PREVIEW</span>
+                        </div>
+                        <div class="resistor-body flex items-center justify-around px-8 scale-110 md:scale-150">
+                             <div id="b1-view" class="band rounded-l-sm" style="background: #4b2e1d;"></div>
+                             <div id="b2-view" class="band" style="background: #000000;"></div>
+                             <div id="bm-view" class="band" style="background: #ef4444;"></div>
+                             <div class="w-12"></div> <!-- Spacer -->
+                             <div id="bt-view" class="band rounded-r-sm" style="background: #d4af37;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[160px] shadow-inner relative">
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">1.00 kΩ</div>
+                        <div id="calc-display" class="text-6xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>±5% TOL
+                        </div>
+                    </div>
+
+                    <!-- Selectors -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Band 1 (Digit)</label>
+                                <select id="band1" onchange="runDecode()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface text-sm"></select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Band 2 (Digit)</label>
+                                <select id="band2" onchange="runDecode()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface text-sm"></select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Multiplier</label>
+                                <select id="bandMult" onchange="runDecode()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface text-sm"></select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Tolerance</label>
+                                <select id="bandTol" onchange="runDecode()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface text-sm"></select>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                MNEMONIC: BBROYGBVGW
+                            </p>
+                            <button onclick="saveResistorLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save to History</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Accuracy Tip: The tolerance band (usually Gold or Silver) is always located on the right side of the resistor when reading. Gold means ±5% and Silver means ±10%."
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
         const colors = {
             black: { val: 0, mult: 1, tol: null, hex: '#000000' },
-            brown: { val: 1, mult: 10, tol: 1, hex: '#8B4513' },
-            red: { val: 2, mult: 100, tol: 2, hex: '#FF0000' },
-            orange: { val: 3, mult: 1000, tol: null, hex: '#FFA500' },
-            yellow: { val: 4, mult: 10000, tol: null, hex: '#FFFF00' },
-            green: { val: 5, mult: 100000, tol: 0.5, hex: '#008000' },
-            blue: { val: 6, mult: 1000000, tol: 0.25, hex: '#0000FF' },
-            violet: { val: 7, mult: 10000000, tol: 0.1, hex: '#EE82EE' },
-            grey: { val: 8, mult: 100000000, tol: 0.05, hex: '#808080' },
-            white: { val: 9, mult: 1000000000, tol: null, hex: '#FFFFFF' },
-            gold: { val: null, mult: 0.1, tol: 5, hex: '#D4AF37' },
-            silver: { val: null, mult: 0.01, tol: 10, hex: '#C0C0C0' }
+            brown: { val: 1, mult: 10, tol: 1, hex: '#4b2e1d' },
+            red: { val: 2, mult: 100, tol: 2, hex: '#ef4444' },
+            orange: { val: 3, mult: 1000, tol: null, hex: '#f97316' },
+            yellow: { val: 4, mult: 10000, tol: null, hex: '#eab308' },
+            green: { val: 5, mult: 100000, tol: 0.5, hex: '#22c55e' },
+            blue: { val: 6, mult: 1000000, tol: 0.25, hex: '#3b82f6' },
+            violet: { val: 7, mult: 10000000, tol: 0.1, hex: '#a855f7' },
+            grey: { val: 8, mult: 100000000, tol: 0.05, hex: '#64748b' },
+            white: { val: 9, mult: 1000000000, tol: null, hex: '#ffffff' },
+            gold: { val: null, mult: 0.1, tol: 5, hex: '#d4af37' },
+            silver: { val: null, mult: 0.01, tol: 10, hex: '#94a3b8' }
         };
 
         function init() {
             const b1 = document.getElementById('band1');
             const b2 = document.getElementById('band2');
-            const bm = document.getElementById('band-mult');
-            const bt = document.getElementById('band-tol');
+            const bm = document.getElementById('bandMult');
+            const bt = document.getElementById('bandTol');
 
             Object.keys(colors).forEach(color => {
                 const name = color.charAt(0).toUpperCase() + color.slice(1);
@@ -182,59 +238,90 @@
                 if (colors[color].tol !== null) bt.add(new Option(name, color));
             });
 
-            // Set defaults
-            b1.value = 'brown'; b2.value = 'black'; bm.value = 'red'; bt.value = 'gold';
-            updateResistor();
+            b1.value = 'brown';
+            b2.value = 'black';
+            bm.value = 'red';
+            bt.value = 'gold';
+            runDecode();
         }
 
-        function updateResistor() {
-            document.getElementById('b1-view').style.background = colors[document.getElementById('band1').value].hex;
-            document.getElementById('b2-view').style.background = colors[document.getElementById('band2').value].hex;
-            document.getElementById('bm-view').style.background = colors[document.getElementById('band-mult').value].hex;
-            document.getElementById('bt-view').style.background = colors[document.getElementById('band-tol').value].hex;
-        }
+        function runDecode() {
+            const c1 = document.getElementById('band1').value;
+            const c2 = document.getElementById('band2').value;
+            const cm = document.getElementById('bandMult').value;
+            const ct = document.getElementById('bandTol').value;
 
-        function showResults() {
-            const b1 = colors[document.getElementById('band1').value].val;
-            const b2 = colors[document.getElementById('band2').value].val;
-            const mult = colors[document.getElementById('band-mult').value].mult;
-            const tol = colors[document.getElementById('band-tol').value].tol;
+            // Update Visualizer
+            document.getElementById('b1-view').style.background = colors[c1].hex;
+            document.getElementById('b2-view').style.background = colors[c2].hex;
+            document.getElementById('bm-view').style.background = colors[cm].hex;
+            document.getElementById('bt-view').style.background = colors[ct].hex;
+
+            // Logic
+            const b1 = colors[c1].val;
+            const b2 = colors[c2].val;
+            const mult = colors[cm].mult;
+            const tol = colors[ct].tol;
 
             const ohms = (b1 * 10 + b2) * mult;
-            let displayValue = ohms >= 1e6 ? (ohms/1e6).toFixed(2) + ' MΩ' : 
-                               ohms >= 1e3 ? (ohms/1e3).toFixed(2) + ' kΩ' : ohms + ' Ω';
+            let displayVal = ohms >= 1e9 ? (ohms/1e9).toFixed(2) + ' GΩ' :
+                             ohms >= 1e6 ? (ohms/1e6).toFixed(2) + ' MΩ' :
+                             ohms >= 1e3 ? (ohms/1e3).toFixed(2) + ' kΩ' :
+                             ohms.toFixed(2) + ' Ω';
 
-            const rows = [
-                { label: "Total Resistance", val: displayValue, highlight: true },
-                { label: "Tolerance Range", val: `±${tol}%` },
-                { label: "Ohmic Value", val: ohms.toLocaleString() + " Ω" }
-            ];
-
-            window.showResultCard('results');
-            window.renderResults('result-display-area', rows);
-
-            // Setup save button
-            const saveBtn = document.getElementById('save-btn');
-            const newBtn = saveBtn.cloneNode(true);
-            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
-            
-            newBtn.addEventListener('click', () => {
-                const inputs = [{label: "Bands", val: `${document.getElementById('band1').value}-${document.getElementById('band2').value}-${document.getElementById('band-mult').value}`}];
-                const ok = window.saveCalcToHistory("Resistor Decoder", inputs, rows);
-                if(ok) {
-                    const orig = newBtn.innerHTML;
-                    newBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    newBtn.style.background = '#10b981';
-                    setTimeout(() => { newBtn.innerHTML = orig; newBtn.style.background = ''; }, 2000);
-                }
-            });
+            document.getElementById('calc-status').innerText = displayVal;
+            document.getElementById('calc-display').innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>±${tol}% TOL`;
         }
 
-        window.onload = init;
+        async function saveResistorLog() {
+            const val = document.getElementById('calc-status').innerText;
+            if (!val) return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Color Bands', val: `${document.getElementById('band1').value}-${document.getElementById('band2').value}-${document.getElementById('bandMult').value}` }
+            ];
+            const results = [
+                { label: 'Resistance', val: val, highlight: true },
+                { label: 'Tolerance', val: document.getElementById('calc-display').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Resistor Color Code', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Resistor Color Code', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Resistor Color Code', 'sidebar-history-container');
+                }
+            } catch(e){}
+        });
     </script>
-    <script src="/js/component-loader.js"></script>
-    <script src="/js/calc-utils.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

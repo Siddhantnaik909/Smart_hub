@@ -1,343 +1,362 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Frequency & Wavelength Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Frequency & wavelength Calculator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .calc-wrapper {
-            max-width: 750px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .info-box {
-            background: rgba(99, 102, 241, 0.07);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 10px;
-            padding: 18px 20px;
-        }
-
-        .info-box h4 {
-            margin: 0 0 10px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box li,
-        .info-box p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .formula-box {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 14px 18px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.97rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin: 10px 0;
-            line-height: 1.9;
-        }
-
-        .tip-box {
-            background: rgba(16, 185, 129, 0.08);
-            border-left: 4px solid #10b981;
-            border-radius: 10px;
-            padding: 14px 18px;
-        }
-
-        .tip-box h4 {
-            color: #10b981;
-            margin: 0 0 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            opacity: 0;
-            transform: translateY(15px);
-            transition: all 0.4s ease;
-        }
-
-        .result-row.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .result-row:last-child {
-            border-bottom: none;
-        }
-
-        .result-label {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-        }
-
-        .result-val {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .result-highlight {
-            font-size: 1.4rem;
-            color: #10b981 !important;
-        }
-
-        #results {
-            display: none;
-        }
-
-        #results.visible {
-            display: block;
-            animation: fadeSlideIn 0.5s ease;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .band-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-            margin-top: 10px;
-        }
-
-        .band-table th,
-        .band-table td {
-            padding: 7px 10px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .band-table th {
-            background: var(--bg-card-2);
-            color: var(--primary-color);
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
 </head>
-
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="calc-wrapper">
-
-                        <div class="cat-card">
-                            <div class="calculator-header">
-                                <h2><i class="fas fa-wave-square" style="color:var(--primary-color)"></i> Frequency &
-                                    Wavelength Calculator</h2>
-                                <p>Convert between frequency (Hz), wavelength (m), and period (s). Enter <strong>any one
-                                        value</strong> to solve the rest.</p>
-                            </div>
-                        </div>
-
-                        <div class="info-box">
-                            <h4><i class="fas fa-book-open"></i> How It Works</h4>
-                            <p>Electromagnetic waves travel at the <strong>speed of light (c = 299,792,458 m/s)</strong>
-                                in a vacuum. Frequency, wavelength, and period are all mathematically related:</p>
-                            <div class="formula-box">
-                                λ = c ÷ f &nbsp;&nbsp;&nbsp; f = c ÷ λ &nbsp;&nbsp;&nbsp; T = 1 ÷ f<br>
-                                ω = 2π × f &nbsp;&nbsp;&nbsp; c = 299,792,458 m/s
-                            </div>
-                            <p>Where: <strong>λ</strong> = wavelength, <strong>f</strong> = frequency,
-                                <strong>T</strong> = period, <strong>ω</strong> = angular frequency</p>
-                            <p style="margin-top:10px"><strong>Electromagnetic Spectrum Reference:</strong></p>
-                            <table class="band-table">
-                                <tr>
-                                    <th>Band</th>
-                                    <th>Frequency Range</th>
-                                    <th>Wavelength</th>
-                                    <th>Use</th>
-                                </tr>
-                                <tr>
-                                    <td>ELF</td>
-                                    <td>3–30 Hz</td>
-                                    <td>10,000–100,000 km</td>
-                                    <td>Submarine comm.</td>
-                                </tr>
-                                <tr>
-                                    <td>AM Radio</td>
-                                    <td>530–1700 kHz</td>
-                                    <td>176–566 m</td>
-                                    <td>AM broadcast</td>
-                                </tr>
-                                <tr>
-                                    <td>FM Radio</td>
-                                    <td>88–108 MHz</td>
-                                    <td>2.8–3.4 m</td>
-                                    <td>FM broadcast</td>
-                                </tr>
-                                <tr>
-                                    <td>Wi-Fi 2.4G</td>
-                                    <td>2.4 GHz</td>
-                                    <td>12.5 cm</td>
-                                    <td>Wireless network</td>
-                                </tr>
-                                <tr>
-                                    <td>Wi-Fi 5G</td>
-                                    <td>5 GHz</td>
-                                    <td>6 cm</td>
-                                    <td>Wireless network</td>
-                                </tr>
-                                <tr>
-                                    <td>5G Cellular</td>
-                                    <td>28–39 GHz</td>
-                                    <td>7.7–10.7 mm</td>
-                                    <td>Mobile internet</td>
-                                </tr>
-                                <tr>
-                                    <td>Visible Light</td>
-                                    <td>430–750 THz</td>
-                                    <td>400–700 nm</td>
-                                    <td>Human vision</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <div class="cat-card">
-                            <div class="sub-cat-list">
-                                <div class="sub-link">
-                                    <span>Frequency (Hz)</span>
-                                    <input type="number" id="freq" class="form-control"
-                                        placeholder="e.g. 1000 or 2400000000" min="0" step="any">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Wavelength (m)</span>
-                                    <input type="number" id="wavelength" class="form-control" placeholder="e.g. 0.125"
-                                        min="0" step="any">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Period (seconds)</span>
-                                    <input type="number" id="period" class="form-control" placeholder="e.g. 0.001"
-                                        min="0" step="any">
-                                </div>
-                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i>
-                                    Calculate</button>
-                            </div>
-                        </div>
-
-                        <div class="cat-card" id="results">
-                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
-                                Results</h3>
-                            <div id="resultArea"></div>
-                        </div>
-
-                        <div class="tip-box">
-                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                            <ul style="padding-left:18px">
-                                <li>Enter frequency in Hz directly: 2.4 GHz = <strong>2,400,000,000</strong> Hz.</li>
-                                <li><strong>Higher frequency = shorter wavelength</strong>. This is why 5G uses small
-                                    antennas.</li>
-                                <li>Antenna length is typically <strong>¼ or ½ wavelength</strong> for best efficiency.
-                                </li>
-                                <li>In optical fiber, the speed of light is slower (~200,000 km/s). Results here assume
-                                    free space (vacuum).</li>
-                                <li>The <strong>period</strong> is the time for one complete wave cycle. For 60 Hz AC
-                                    power, T = 1/60 ≈ 16.67 ms.</li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>ELECTRONICS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Frequency & wavelength</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Wave Metrics.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Easily convert between Frequency, Period, and Wavelength! Whether you're working with audio, radio, or light waves, we'll help you find the exact timing and distance requirements.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/electronics/calc_555_timer.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">555 Timer</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/electronics/calc_power.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Power Calc</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-right flex flex-col justify-end min-h-[260px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="mode-tag">PRIMARY FREQUENCY</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="medium-tag">VACUUM (C)</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting waveform data...</div>
+                        <div id="calc-display" class="text-7xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 Hz
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Wave Parameters</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Frequency (f)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="freq" oninput="solveWave('f')" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="e.g. 100">
+                                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-on-surface-variant opacity-40">Hz</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Wavelength (λ)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="wavelength" oninput="solveWave('w')" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="e.g. 0.3">
+                                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-on-surface-variant opacity-40">m</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Period (T)</label>
+                                        <div class="relative group">
+                                            <input type="number" id="period" oninput="solveWave('p')" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-5 py-4 font-bold text-on-surface focus:ring-2 focus:ring-primary transition-all outline-none" placeholder="e.g. 0.01">
+                                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-on-surface-variant opacity-40">s</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-surface-container text-on-surface-variant rounded-xl font-bold text-[10px] tracking-widest uppercase hover:bg-slate-200 transition-all">Reset Waves</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Phase & Meduim</h4>
+                                <div class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-8 space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg">
+                                            <span class="material-symbols-outlined">waves</span>
+                                        </div>
+                                        <div>
+                                            <span id="omegaValue" class="text-3xl font-black text-on-surface">0.00 rad/s</span>
+                                            <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest block opacity-60">Angular Freq (ω)</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2 pt-4 border-t border-indigo-200/50">
+                                        <span class="text-[10px] font-black text-indigo-700 uppercase tracking-widest block">Propagation Medium</span>
+                                        <select id="medium" onchange="solveWave('m')" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface text-sm appearance-none">
+                                            <option value="299792458">Vacuum (c)</option>
+                                            <option value="343">Air @ 20°C (Sound)</option>
+                                            <option value="1480">Water (Sound)</option>
+                                            <option value="200000000">Fiber Optic (Approx)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="resK" class="text-xl font-black text-on-surface block truncate">0.00</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Wave Number (k)</span>
+                                    </div>
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="resCategory" class="text-xl font-black text-on-surface block truncate">---</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Spectrum Category</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                FUNDAMENTAL: f = 1/T | λ = v/f
+                            </p>
+                            <button onclick="saveWaveLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save to History</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Wave Tip: When a wave moves from one medium to another (e.g., light into water), its frequency stays the same, but its speed and wavelength change!"
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
-        const SPEED_OF_LIGHT = 299792458;
-        document.getElementById('calcBtn').addEventListener('click', function () {
-            const fVal = document.getElementById('freq').value;
-            const λVal = document.getElementById('wavelength').value;
-            const TVal = document.getElementById('period').value;
-            let f = parseFloat(fVal);
-            let λ = parseFloat(λVal);
-            let T = parseFloat(TVal);
-            const has = (v) => v !== '' && !isNaN(parseFloat(v)) && parseFloat(v) > 0;
-            if (!has(fVal) && !has(λVal) && !has(TVal)) { alert("Please enter at least one value."); return; }
-            if (has(fVal)) { T = 1 / f; λ = SPEED_OF_LIGHT / f; }
-            else if (has(λVal)) { f = SPEED_OF_LIGHT / λ; T = 1 / f; }
-            else if (has(TVal)) { f = 1 / T; λ = SPEED_OF_LIGHT / f; }
-            const omega = 2 * Math.PI * f;
-            const fmtFreq = (n) => {
-                if (n >= 1e12) return `${(n / 1e12).toFixed(4)} THz`;
-                if (n >= 1e9) return `${(n / 1e9).toFixed(4)} GHz`;
-                if (n >= 1e6) return `${(n / 1e6).toFixed(4)} MHz`;
-                if (n >= 1e3) return `${(n / 1e3).toFixed(4)} kHz`;
-                return `${n.toFixed(4)} Hz`;
-            };
-            const fmtWave = (n) => {
-                if (n < 1e-9) return `${(n * 1e12).toFixed(4)} pm`;
-                if (n < 1e-6) return `${(n * 1e9).toFixed(4)} nm`;
-                if (n < 1e-3) return `${(n * 1e6).toFixed(4)} µm`;
-                if (n < 0.01) return `${(n * 100).toFixed(4)} cm`;
-                if (n < 1) return `${(n * 1000).toFixed(4)} mm`;
-                if (n >= 1000) return `${(n / 1000).toFixed(4)} km`;
-                return `${n.toFixed(4)} m`;
-            };
-            const fmtPeriod = (n) => {
-                if (n < 1e-9) return `${(n * 1e12).toFixed(4)} ps`;
-                if (n < 1e-6) return `${(n * 1e9).toFixed(4)} ns`;
-                if (n < 1e-3) return `${(n * 1e6).toFixed(4)} µs`;
-                if (n < 1) return `${(n * 1000).toFixed(4)} ms`;
-                return `${n.toFixed(6)} s`;
-            };
-            const rows = [
-                { label: 'Frequency (f)', val: fmtFreq(f), highlight: true },
-                { label: 'Wavelength (λ)', val: fmtWave(λ), highlight: true },
-                { label: 'Period (T)', val: fmtPeriod(T) },
-                { label: 'Angular Frequency (ω)', val: `${omega.toFixed(4)} rad/s` },
-                { label: 'Speed of Light Used', val: `${SPEED_OF_LIGHT.toLocaleString()} m/s` },
+        function solveWave(source) {
+            const fIn = document.getElementById('freq');
+            const wIn = document.getElementById('wavelength');
+            const pIn = document.getElementById('period');
+            const medIn = document.getElementById('medium');
+
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const omegaEl = document.getElementById('omegaValue');
+            const kEl = document.getElementById('resK');
+            const catEl = document.getElementById('resCategory');
+            const medTag = document.getElementById('medium-tag');
+
+            const v = parseFloat(medIn.value);
+            medTag.innerText = medIn.options[medIn.selectedIndex].text.toUpperCase();
+
+            let f = parseFloat(fIn.value);
+            let w = parseFloat(wIn.value);
+            let p = parseFloat(pIn.value);
+
+            if (source === 'f' && !isNaN(f) && f > 0) {
+                p = 1 / f;
+                w = v / f;
+                pIn.value = p.toExponential(4);
+                wIn.value = w.toExponential(4);
+            } else if (source === 'w' && !isNaN(w) && w > 0) {
+                f = v / w;
+                p = 1 / f;
+                fIn.value = f.toExponential(4);
+                pIn.value = p.toExponential(4);
+            } else if (source === 'p' && !isNaN(p) && p > 0) {
+                f = 1 / p;
+                w = v / f;
+                fIn.value = f.toExponential(4);
+                wIn.value = w.toExponential(4);
+            } else if (source === 'm' && (!isNaN(f) || !isNaN(w))) {
+                // If medium changes, recalculate based on frequency (preferred constant)
+                if (!isNaN(f) && f > 0) {
+                   w = v / f;
+                   wIn.value = w.toExponential(4);
+                } else if (!isNaN(w) && w > 0) {
+                   f = v / w;
+                   fIn.value = f.toExponential(4);
+                }
+            }
+
+            if (isNaN(f) || f <= 0) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 Hz`;
+                statusText.innerText = "Awaiting waveform data...";
+                omegaEl.innerText = "0.00 rad/s";
+                kEl.innerText = "0.00";
+                catEl.innerText = "---";
+                return;
+            }
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${fmtFreq(f)}`;
+            statusText.innerText = "Spectral solution resolved";
+            
+            omegaEl.innerText = (2 * Math.PI * f).toExponential(3) + " rad/s";
+            kEl.innerText = (2 * Math.PI / w).toFixed(4);
+            catEl.innerText = getFreqCategory(f, v);
+        }
+
+        function fmtFreq(n) {
+            if (n >= 1e12) return (n / 1e12).toFixed(2) + ' THz';
+            if (n >= 1e9) return (n / 1e9).toFixed(2) + ' GHz';
+            if (n >= 1e6) return (n / 1e6).toFixed(2) + ' MHz';
+            if (n >= 1e3) return (n / 1e3).toFixed(2) + ' kHz';
+            return n.toFixed(2) + ' Hz';
+        }
+
+        function getFreqCategory(f, v) {
+            if (v < 1000) { // Sound in air/water
+                if (f < 20) return "Infrasound";
+                if (f > 20000) return "Ultrasound";
+                return "Audible Sound";
+            } else { // Electromagnetic
+                if (f < 3e9) return "Radio/Microwave";
+                if (f < 4e14) return "Infrared";
+                if (f < 8e14) return "Visible Light";
+                if (f < 3e16) return "Ultraviolet";
+                return "X-Ray/Gamma";
+            }
+        }
+
+        function resetInputs() {
+            document.getElementById('freq').value = "";
+            document.getElementById('wavelength').value = "";
+            document.getElementById('period').value = "";
+            solveWave('reset');
+        }
+
+        async function saveWaveLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '0.00 Hz') return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Medium', val: document.getElementById('medium-tag').innerText },
+                { label: 'Frequency', val: val }
             ];
-            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
-                `<div class="result-row" id="rr${i}">
-                    <span class="result-label">${r.label}</span>
-                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
-                </div>`
-            ).join('');
-            const resultsEl = document.getElementById('results');
-            resultsEl.className = 'cat-card visible';
-            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
-            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const results = [
+                { label: 'Wavelength', val: document.getElementById('wavelength').value + ' m', highlight: true },
+                { label: 'Category', val: document.getElementById('resCategory').innerText }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Frequency Engine', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Frequency Engine', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Frequency Engine', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

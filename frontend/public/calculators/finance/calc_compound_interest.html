@@ -1,134 +1,429 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Advanced Savings Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Compound Interest Studio (India)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-piggy-bank"></i> Advanced Savings Calculator</h2>
-                            <p>Calculate growth with compound interest and regular monthly contributions.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Initial Deposit ($)</span>
-                                <input type="number" id="principal" class="form-control" placeholder="5000">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Monthly Contribution ($)</span>
-                                <input type="number" id="contribution" class="form-control" placeholder="200">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Annual Interest Rate (%)</span>
-                                <input type="number" id="rate" class="form-control" placeholder="7">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Years to Grow</span>
-                                <input type="number" id="years" class="form-control" placeholder="20">
-                            </div>
-
-                            <div class="sub-link">
-                                <span>Compounding Interval</span>
-                                <select id="frequency" class="form-control">
-                                    <option value="12">Monthly</option>
-                                    <option value="4">Quarterly</option>
-                                    <option value="1">Annually</option>
-                                </select>
-                            </div>
-                            
-                            <button id="calc-btn-savings" class="btn-calc">Calculate Future Value</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Financial Projection</h3>
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-savings-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Projection
-                        </button>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12 text-center md:text-left">
+            <nav class="flex items-center justify-center md:justify-start gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>INDIAN FINANCE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Wealth Generation</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Compound interest.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl mx-auto md:mx-0">Visualize your wealth growth in India! From Mutual Fund SIPs to PPF deposits, see how time and consistency build massive corpuses.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">History Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/date-time/calc_working_days.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Work Days</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/finance/calc_loan_emi.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Loan EMI</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+
+                 <div class="bg-emerald-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">account_balance</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">tips_and_updates</span> Wealth Wisdom
+                     </h4>
+                     <p class="text-emerald-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Indian investors can use PPF (Public Provident Fund) for low-risk 7.1%+ tax-free growth, or Equity Mutual Funds for potential 12-15% long-term returns.
+                     </p>
+                     <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-emerald-200">
+                            <span class="w-1 h-1 bg-emerald-400 rounded-full"></span> PPF: Stable & Tax-Free
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-emerald-200">
+                            <span class="w-1 h-1 bg-emerald-400 rounded-full"></span> Mutual Funds: SIP Power
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-emerald-200">
+                            <span class="w-1 h-1 bg-emerald-400 rounded-full"></span> FD: Fixed but taxable
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-2 shadow-2xl overflow-hidden mb-8">
+                    <!-- Display -->
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-12 text-right flex flex-col justify-end min-h-[300px] shadow-inner relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="absolute top-8 left-8 flex gap-2">
+                             <span class="px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">FUTURE VALUE</span>
+                             <span class="px-3 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="growth-tag">+0.0% GROWTH</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Awaiting financial data...</div>
+                        <div id="calc-display" class="text-6xl md:text-8xl font-black tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight font-mono">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>₹0
+                        </div>
+                        <div id="interest-earned" class="mt-2 text-sm font-bold text-emerald-600 uppercase tracking-widest opacity-60">
+                            + ₹0 INTEREST EARNED
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Capital Base</h4>
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Initial Principal (₹)</label>
+                                        <input type="number" id="principal" value="100000" oninput="solveCompound()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Monthly SIP / Deposit (₹)</label>
+                                        <input type="number" id="contribution" value="5000" oninput="solveCompound()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Returns Rate (%)</label>
+                                            <input type="number" id="rate" value="12" step="0.1" oninput="solveCompound()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Time (Years)</label>
+                                            <input type="number" id="years" value="15" oninput="solveCompound()" class="w-full bg-surface-container border-2 border-transparent focus:border-primary/30 rounded-xl px-4 py-3 font-bold text-on-surface outline-none transition-all">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-surface-container text-on-surface-variant rounded-xl font-bold text-[10px] tracking-widest uppercase hover:bg-slate-200 transition-all">Reset Capital</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-4">Growth Analysis</h4>
+                                <div class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-6 h-[260px] flex flex-col items-center justify-center">
+                                    <canvas id="growthChart"></canvas>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="totalDeposits" class="text-xl font-black text-on-surface block">₹0</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Total Invested</span>
+                                    </div>
+                                    <div class="p-5 bg-surface-container rounded-xl text-center">
+                                        <span id="effectiveRate" class="text-xl font-black text-on-surface block">12.68%</span>
+                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Effective Rate</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-8 border-t border-surface-container-high">
+                            <p class="text-[10px] font-mono text-on-surface-variant font-bold max-w-xs uppercase tracking-widest leading-loose">
+                                FORMULA: A = P(1 + r/n)^(nt) | TARGET: INDIAN MARKETS
+                            </p>
+                            <button onclick="saveCompoundLog()" id="saveBtn" class="bg-primary text-white px-10 py-5 rounded-xl font-bold text-[10px] tracking-widest hover:shadow-xl transition-all uppercase hover:scale-[1.02] active:scale-95">Save Plan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projection Table -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-xl overflow-hidden mb-8 border border-surface-container-high">
+                    <div class="p-8 border-b border-surface-container-high bg-slate-50/50 flex items-center justify-between">
+                        <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Annual Growth Table</h4>
+                        <span class="text-[10px] font-bold text-primary uppercase bg-primary/10 px-3 py-1 rounded-full">Projections Only</span>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar" style="max-height: 400px; overflow-y: auto;">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead class="sticky top-0 bg-white/90 backdrop-blur-sm z-10 border-b-2 border-slate-100">
+                                <tr class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.15em]">
+                                    <th class="px-8 py-5">Year</th>
+                                    <th class="px-8 py-5">Value Invested</th>
+                                    <th class="px-8 py-5">Growth Earned</th>
+                                    <th class="px-8 py-5 text-right">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectionBody" class="font-bold text-on-surface">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="bg-surface-container p-10 rounded-2xl border border-surface-container-high italic text-[11px] text-on-surface-variant leading-relaxed text-center opacity-70">
+                    "Growth Fact: Compounding works best at the end. In a 20-year investment, more than 50% of the final wealth is often created in the last 4-5 years! Stay the course."
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        let growthChart = null;
 
-        document.getElementById('calc-btn-savings').addEventListener('click', function() {
+        function solveCompound() {
             const P = parseFloat(document.getElementById('principal').value) || 0;
             const PMT = parseFloat(document.getElementById('contribution').value) || 0;
             const r = (parseFloat(document.getElementById('rate').value) || 0) / 100;
             const t = parseFloat(document.getElementById('years').value) || 0;
-            const n = parseInt(document.getElementById('frequency').value);
+            const n = 12; // Monthly compounding
 
-            if (t <= 0) {
-                alert("Please enter a valid time period.");
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const growthTag = document.getElementById('growth-tag');
+            const interestEl = document.getElementById('interest-earned');
+            const totalDepEl = document.getElementById('totalDeposits');
+            const effRateEl = document.getElementById('effectiveRate');
+            const tableBody = document.getElementById('projectionBody');
+
+            if (t <= 0 || (P <= 0 && PMT <= 0)) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>₹0`;
+                statusText.innerText = "Awaiting financial data...";
+                tableBody.innerHTML = "";
                 return;
             }
 
-            // Formula for Compound Interest with Monthly Contributions:
-            // FV = [ P(1 + r/n)^(nt) ] + [ PMT * (((1 + r/n)^(nt) - 1) / (r/n)) ]
-            const periodicRate = r / n;
-            const totalPeriods = n * t;
+            const solveForYear = (year) => {
+                const periods = n * year;
+                const periodicRate = r / n;
+                const principalGrowth = P * Math.pow(1 + periodicRate, periods);
+                const contributionGrowth = PMT * ((Math.pow(1 + periodicRate, periods) - 1) / periodicRate);
+                return principalGrowth + contributionGrowth;
+            };
+
+            const totalFinal = solveForYear(t);
+            const totalInvested = P + (PMT * 12 * t);
+            const totalInterest = totalFinal - totalInvested;
+            const growthPct = totalInvested > 0 ? ((totalFinal - totalInvested) / totalInvested * 100).toFixed(1) : 0;
+
+            const f = (val) => '₹' + val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${f(totalFinal)}`;
+            statusText.innerText = "Investment projection resolved";
+            growthTag.innerText = `+${growthPct}% GROWTH`;
+            interestEl.innerText = `+ ${f(totalInterest)} EARNED`;
+            totalDepEl.innerText = f(totalInvested);
             
-            const compoundInterestPrincipal = P * Math.pow((1 + periodicRate), totalPeriods);
-            const futureValueSeries = PMT * ((Math.pow((1 + periodicRate), totalPeriods) - 1) / periodicRate);
-            
-            const totalFinalBalance = compoundInterestPrincipal + futureValueSeries;
-            const totalDeposits = P + (PMT * 12 * t);
-            const totalInterestEarned = totalFinalBalance - totalDeposits;
+            const ear = (Math.pow(1 + r/n, n) - 1) * 100;
+            effRateEl.innerText = ear.toFixed(2) + "%";
 
-            const displayArea = document.getElementById('result-display-area');
-            const resultsCard = document.getElementById('results');
+            let html = "";
+            let labels = [];
+            let dataPoints = [];
+            for(let i = 1; i <= t; i++) {
+                const balance = solveForYear(i);
+                const invested = P + (PMT * 12 * i);
+                const interest = balance - invested;
+                html += `
+                    <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <td class="px-8 py-4 opacity-40">Year ${i}</td>
+                        <td class="px-8 py-4">${f(invested)}</td>
+                        <td class="px-8 py-4 text-emerald-600">+${f(interest)}</td>
+                        <td class="px-8 py-4 text-right">${f(balance)}</td>
+                    </tr>
+                `;
+                labels.push(`Year ${i}`);
+                dataPoints.push(balance.toFixed(0));
+            }
+            tableBody.innerHTML = html;
 
-            displayArea.innerHTML = `
-                <div class="sub-link">
-                    <span>End Balance</span>
-                    <strong style="color: var(--primary-color);">$${totalFinalBalance.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Total Deposits</span>
-                    <strong>$${totalDeposits.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Total Interest</span>
-                    <strong style="color: #2ecc71;">$${totalInterestEarned.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong>
-                </div>
-                <div class="sub-link">
-                    <span>Buying Power (Adjusted for 3% Inflation)</span>
-                    <small>$${(totalFinalBalance / Math.pow(1.03, t)).toLocaleString(undefined, {maximumFractionDigits: 2})}</small>
-                </div>
-            `;
+            updateChart(labels, dataPoints);
+        }
 
-            resultsCard.style.display = 'block';
-            resultsCard.classList.remove('hidden');
+        function updateChart(labels, data) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            if (growthChart) growthChart.destroy();
+
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Value',
+                        data: data,
+                        borderColor: '#8b5cf6',
+                        borderWidth: 4,
+                        fill: true,
+                        backgroundColor: 'rgba(139, 92, 246, 0.05)',
+                        tension: 0.4,
+                        pointRadius: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            display: true,
+                            position: 'right',
+                            grid: { display: false },
+                            ticks: { 
+                                font: { size: 9, weight: '800' }, 
+                                color: '#94a3b8',
+                                callback: function(value) { return '₹' + (value/100000).toFixed(0) + 'L'; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetInputs() {
+            document.getElementById('principal').value = 100000;
+            document.getElementById('contribution').value = 5000;
+            document.getElementById('rate').value = 12;
+            document.getElementById('years').value = 15;
+            solveCompound();
+        }
+
+        async function saveCompoundLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '₹0') return;
+
+            const btn = document.getElementById('saveBtn');
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Principal', val: '₹' + document.getElementById('principal').value },
+                { label: 'Horizon', val: document.getElementById('years').value + ' Years' }
+            ];
+            const results = [
+                { label: 'Future Value', val: val, highlight: true }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Compound Interest', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Compound Interest', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            solveCompound();
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Compound Interest', 'sidebar-history-container');
+                }
+            } catch(e){}
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

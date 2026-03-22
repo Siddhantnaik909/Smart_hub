@@ -1,310 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | Lumber Board Feet Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Smart Hub | Lumber Weight Calculator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "on-surface-variant": "#464555",
+                        "surface-container-low": "#f6f3f3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "surface-container": "#f0eded",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .calc-wrapper {
-            max-width: 750px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-
-        .info-box {
-            background: rgba(99, 102, 241, 0.07);
-            border-left: 4px solid var(--primary-color);
-            border-radius: 10px;
-            padding: 18px 20px;
-        }
-
-        .info-box h4 {
-            margin: 0 0 10px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box li {
-            margin: 5px 0;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .formula-box {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 14px 18px;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .tip-box {
-            background: rgba(16, 185, 129, 0.08);
-            border-left: 4px solid #10b981;
-            border-radius: 10px;
-            padding: 14px 18px;
-        }
-
-        .tip-box h4 {
-            color: #10b981;
-            margin: 0 0 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            opacity: 0;
-            transform: translateY(15px);
-            transition: all 0.4s ease;
-        }
-
-        .result-row.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .result-row:last-child {
-            border-bottom: none;
-        }
-
-        .result-label {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-        }
-
-        .result-val {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .result-highlight {
-            font-size: 1.4rem;
-            color: #10b981 !important;
-        }
-
-        #results {
-            display: none;
-        }
-
-        #results.visible {
-            display: block;
-            animation: fadeSlideIn 0.5s ease;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .lumber-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-            margin-top: 10px;
-        }
-
-        .lumber-table th,
-        .lumber-table td {
-            padding: 7px 10px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .lumber-table th {
-            background: var(--bg-card-2);
-            color: var(--primary-color);
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     </style>
 </head>
-
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="calc-wrapper">
-
-                        <div class="cat-card">
-                            <div class="calculator-header">
-                                <h2><i class="fas fa-tree" style="color:var(--primary-color)"></i> Lumber Board Feet
-                                    Calculator</h2>
-                                <p>Calculate board feet, total volume, and material cost for timber and lumber orders.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="info-box">
-                            <h4><i class="fas fa-book-open"></i> How to Calculate</h4>
-                            <ol style="padding-left:18px">
-                                <li>A <strong>Board Foot (BF)</strong> is a wood volume unit = 1 ft × 1 ft × 1 inch
-                                    thick.</li>
-                                <li>Enter the lumber's <strong>nominal thickness</strong> and <strong>width in
-                                        inches</strong>, and <strong>length in feet</strong>.</li>
-                                <li>Specify the <strong>number of pieces</strong> in your order.</li>
-                                <li>Optionally enter a <strong>price per board foot</strong> to get a cost estimate.
-                                </li>
-                            </ol>
-                            <div class="formula-box">Board Feet = (Thickness × Width × Length) ÷ 12<br>Total BF = Board
-                                Feet per Piece × Number of Pieces</div>
-                            <p style="margin-top:10px"><strong>Common lumber sizes (nominal → actual):</strong></p>
-                            <table class="lumber-table">
-                                <tr>
-                                    <th>Nominal</th>
-                                    <th>Actual Size</th>
-                                    <th>Common Use</th>
-                                </tr>
-                                <tr>
-                                    <td>1×4</td>
-                                    <td>0.75" × 3.5"</td>
-                                    <td>Shelving, trim</td>
-                                </tr>
-                                <tr>
-                                    <td>1×6</td>
-                                    <td>0.75" × 5.5"</td>
-                                    <td>Decking, paneling</td>
-                                </tr>
-                                <tr>
-                                    <td>2×4</td>
-                                    <td>1.5" × 3.5"</td>
-                                    <td>Wall framing</td>
-                                </tr>
-                                <tr>
-                                    <td>2×6</td>
-                                    <td>1.5" × 5.5"</td>
-                                    <td>Roof framing</td>
-                                </tr>
-                                <tr>
-                                    <td>4×4</td>
-                                    <td>3.5" × 3.5"</td>
-                                    <td>Posts, columns</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <div class="cat-card">
-                            <div class="sub-cat-list">
-                                <div class="sub-link">
-                                    <span>Thickness (inches)</span>
-                                    <input type="number" id="thickness" class="form-control" placeholder="1" value="1"
-                                        min="0.1" step="0.25">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Width (inches)</span>
-                                    <input type="number" id="width" class="form-control" placeholder="6" value="6"
-                                        min="0.1">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Length (feet)</span>
-                                    <input type="number" id="length" class="form-control" placeholder="8" value="8"
-                                        min="0.1">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Number of Pieces</span>
-                                    <input type="number" id="pieces" class="form-control" placeholder="1" value="1"
-                                        min="1">
-                                </div>
-                                <div class="sub-link">
-                                    <span>Price per Board Foot ($)</span>
-                                    <input type="number" id="pricePerBF" class="form-control" placeholder="2.50"
-                                        value="2.50" min="0" step="0.01">
-                                </div>
-                                <button id="calcBtn" class="btn-calc"><i class="fas fa-calculator"></i>
-                                    Calculate</button>
-                            </div>
-                        </div>
-
-                        <div class="cat-card" id="results">
-                            <h3 style="margin:0 0 15px;color:var(--primary-color)"><i class="fas fa-chart-bar"></i>
-                                Results</h3>
-                            <div id="resultArea"></div>
-                            <button id="saveBtn" class="btn-save" style="margin-top:15px"><i class="fas fa-save"></i>
-                                Save Result</button>
-                        </div>
-
-                        <div class="tip-box">
-                            <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
-                            <ul style="padding-left:18px">
-                                <li>Always use <strong>nominal sizes</strong> when calculating — the actual cut size is
-                                    smaller.</li>
-                                <li>Add <strong>5–10% waste</strong> for cuts and defects when ordering lumber.</li>
-                                <li>Hardwood is typically priced by board foot; softwood is often priced by linear foot.
-                                </li>
-                                <li>Air-dried lumber may warp. Kiln-dried is more stable for indoor furniture.</li>
-                                <li>Measure twice, cut once — verify piece count before ordering!</li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" />
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>CONSTRUCTION</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase">Lumber Weight</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Lumber Weight Calculator.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Calculate the total weight of your lumber boards. This is helpful for planning transport and ensuring your vehicle or structure can handle the load!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-white p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Load Log</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent loads.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="/calculators/construction/calc_wall_stud.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Wall Stud Architect</div>
+                            </div>
+                        </a>
+                        <a href="/calculators/construction/calc_fuel.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Fuel Estimator</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
+                    <!-- Display -->
+                    <div class="bg-white m-4 rounded-xl p-8 text-right flex flex-col justify-end min-h-[220px] shadow-inner relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-2 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">Est. Load</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 opacity-60">Volume: 0.00 board ft</div>
+                        <div id="calc-display" class="text-7xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.00 lbs
+                        </div>
+                    </div>
+                    <!-- Controls -->
+                    <div class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Board Specs</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Quantity</label>
+                                        <input type="number" id="quantity" oninput="calculateLumber()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg" placeholder="10" value="10">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">Species</label>
+                                        <select id="species" onchange="calculateLumber()" class="w-full bg-white border border-surface-container-high rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold">
+                                            <option value="35">Pine/SPF (35 lb/ft³)</option>
+                                            <option value="45">Oak/Hardwood (45 lb/ft³)</option>
+                                            <option value="30">Cedar (30 lb/ft³)</option>
+                                            <option value="40">Douglas Fir (40 lb/ft³)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">Dimensions</h4>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">T (in)</label>
+                                        <input type="number" id="thickness" oninput="calculateLumber()" class="w-full bg-white border border-surface-container-high rounded-xl px-2 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg text-center" value="2">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">W (in)</label>
+                                        <input type="number" id="width" oninput="calculateLumber()" class="w-full bg-white border border-surface-container-high rounded-xl px-2 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg text-center" value="4">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase ml-1">L (ft)</label>
+                                        <input type="number" id="length" oninput="calculateLumber()" class="w-full bg-white border border-surface-container-high rounded-xl px-2 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg text-center" value="8">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-8 items-center justify-between pt-8 border-t border-surface-container-high">
+                            <div class="flex gap-4">
+                                <button onclick="saveLumberProject()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Save Load</button>
+                                <button onclick="window.print()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-primary">scale</span>
+                            <h5 class="font-bold uppercase tracking-widest text-[10px]">Load Breakdown</h5>
+                        </div>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Single Board</span><span id="resSingle" class="font-bold">0.00 lbs</span></div>
+                            <div class="flex justify-between items-center"><span class="text-on-surface-variant">Total Volume</span><span id="resVolume" class="font-bold">0.00 ft³</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl border border-surface-container-high shadow-sm flex flex-col justify-center">
+                        <p class="text-[11px] text-on-surface-variant leading-loose opacity-80 italic">
+                            "Pro Tip: Fresh 'green' lumber can weigh up to 50% more than kiln-dried lumber due to moisture content. Always allow a safety buffer when loading small vehicles."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; window.COMPONENT_ROOT = "/components/";
-        document.getElementById('calcBtn').addEventListener('click', function () {
-            const t = parseFloat(document.getElementById('thickness').value);
-            const w = parseFloat(document.getElementById('width').value);
-            const l = parseFloat(document.getElementById('length').value);
-            const p = parseInt(document.getElementById('pieces').value) || 1;
-            const price = parseFloat(document.getElementById('pricePerBF').value) || 0;
-            if (!t || !w || !l) { alert("Please fill all dimensions."); return; }
-            const bfPerPiece = (t * w * l) / 12;
-            const totalBF = bfPerPiece * p;
-            const totalCost = totalBF * price;
-            const cubicFt = (t / 12) * (w / 12) * l * p;
-            const rows = [
-                { label: 'Board Feet per Piece', val: `${bfPerPiece.toFixed(3)} BF` },
-                { label: `Total Board Feet (${p} pcs)`, val: `${totalBF.toFixed(2)} BF`, highlight: true },
-                { label: 'Total Volume', val: `${cubicFt.toFixed(3)} ft³` },
-                { label: 'Estimated Cost', val: `$${totalCost.toFixed(2)}`, highlight: price > 0 },
-                { label: 'Cost per Piece', val: price > 0 ? `$${(bfPerPiece * price).toFixed(2)}` : '—' },
+        function calculateLumber() {
+            const qtyInput = document.getElementById('quantity');
+            const speciesInput = document.getElementById('species');
+            const thickInput = document.getElementById('thickness');
+            const widthInput = document.getElementById('width');
+            const lengthInput = document.getElementById('length');
+
+            if (!qtyInput || !speciesInput || !thickInput || !widthInput || !lengthInput) return;
+
+            const qty = parseFloat(qtyInput.value) || 0;
+            const density = parseFloat(speciesInput.value) || 35;
+            const t = parseFloat(thickInput.value) || 0;
+            const w = parseFloat(widthInput.value) || 0;
+            const l = parseFloat(lengthInput.value) || 0;
+
+            if (qty <= 0 || t <= 0 || w <= 0 || l <= 0) return;
+
+            // ft³ = (T" * W" * L') / 12
+            const ft3_per_board = (t * w * l) / 144;
+            const bf_per_board = (t * w * l) / 12;
+            
+            const weight_per_board = ft3_per_board * density;
+            const total_weight = weight_per_board * qty;
+            const total_bf = bf_per_board * qty;
+
+            // Update UI
+            const status = document.getElementById('calc-status');
+            if (status) status.innerText = `Volume: ${total_bf.toFixed(2)} board ft`;
+            
+            const display = document.getElementById('calc-display');
+            if (display) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${total_weight.toFixed(2)} lbs`;
+            }
+
+            const resSingle = document.getElementById('resSingle');
+            if (resSingle) resSingle.innerText = `${weight_per_board.toFixed(2)} lbs`;
+            
+            const resVolume = document.getElementById('resVolume');
+            if (resVolume) resVolume.innerText = `${(ft3_per_board * qty).toFixed(2)} ft³`;
+        }
+
+        async function saveLumberProject() {
+            const displayEl = document.getElementById('calc-display');
+            if (!displayEl) return;
+            const weight = displayEl.innerText.replace('lbs', '').trim();
+            if (weight === '0.00' || !weight) return;
+
+            const btn = event.currentTarget;
+            const orig = btn.innerText;
+            btn.innerText = 'SAVING LOAD...';
+            btn.disabled = true;
+
+            const inputs = [
+                { label: 'Boards', val: `${document.getElementById('quantity').value} pcs @ ${document.getElementById('thickness').value}x${document.getElementById('width').value}x${document.getElementById('length').value}` },
+                { label: 'Density', val: `${document.getElementById('species').options[document.getElementById('species').selectedIndex].text}` }
             ];
-            document.getElementById('resultArea').innerHTML = rows.map((r, i) =>
-                `<div class="result-row" id="rr${i}">
-                    <span class="result-label">${r.label}</span>
-                    <span class="result-val ${r.highlight ? 'result-highlight' : ''}">${r.val}</span>
-                </div>`
-            ).join('');
-            const resultsEl = document.getElementById('results');
-            resultsEl.className = 'cat-card visible';
-            rows.forEach((_, i) => setTimeout(() => document.getElementById(`rr${i}`)?.classList.add('show'), 80 + i * 100));
-            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const results = [
+                { label: 'Total Weight', val: weight + ' lbs', highlight: true },
+                { label: 'Total Volume', val: document.getElementById('calc-status').innerText.replace('Volume: ', '') }
+            ];
+
+            try {
+                const ok = await window.saveCalcToHistory('Lumber Calculator', inputs, results);
+                if (ok) {
+                    btn.innerText = 'SAVED TO REGISTRY';
+                    btn.classList.add('bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600');
+                        btn.disabled = false;
+                        if (typeof initSidebarHistory === 'function') {
+                            initSidebarHistory('Lumber Calculator', 'sidebar-history-container');
+                        }
+                    }, 2000);
+                } else {
+                    btn.innerText = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.innerText = orig;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof initSidebarHistory === 'function') {
+                    initSidebarHistory('Lumber Calculator', 'sidebar-history-container');
+                }
+            } catch (e) {}
+            calculateLumber();
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
-
 </html>

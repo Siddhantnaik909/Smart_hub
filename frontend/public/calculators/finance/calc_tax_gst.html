@@ -1,123 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Discount & Tax Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | GST Calculator (India)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "var(--primary-color, #8b5cf6)",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-tags"></i> Discount & Tax Pro</h2>
-                            <p>Professional price analysis including discounts, tax rates, and total savings.</p>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>BUSINESS TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Tax Calculator</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">GST Made Easy.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Calculate your GST in seconds! Supports all Indian tax slabs (5%, 12%, 18%, 28%) and gives you a clear CGST/SGST breakdown for your invoices.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Past Invoices</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent calculations.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">receipt_long</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> GST Guide (India)
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        GST stands for Goods and Services Tax. In India, we use slabs like 5% for food, 18% for services, and 28% for luxury items.
+                     </p>
+                     <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> CGST: Goes to Central Govt
                         </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Currency</span>
-                                <select id="currency" class="form-control">
-                                    <option value="$">USD ($)</option>
-                                    <option value="₹">INR (₹)</option>
-                                    <option value="€">EUR (€)</option>
-                                    <option value="£">GBP (£)</option>
-                                </select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Original Price</span>
-                                <input type="number" id="price" class="form-control" placeholder="100.00" step="0.01">
-                            </div>
-                            <div class="sub-link">
-                                <span>Discount Percentage (%)</span>
-                                <input type="number" id="discount" class="form-control" placeholder="20" step="1">
-                            </div>
-                            <div class="sub-link">
-                                <span>Tax Rate (GST/VAT %)</span>
-                                <input type="number" id="tax" class="form-control" placeholder="0" step="0.1">
-                            </div>
-                            
-                            <button id="calc-btn" class="btn-calc" onclick="calculateProDiscount()">Analyze Pricing</button>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> SGST: Goes to State Govt
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-indigo-200">
+                            <span class="w-1 h-1 bg-indigo-400 rounded-full"></span> IGST: For outside-state sales
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-2xl p-6 shadow-2xl space-y-8">
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
+                        <div class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2" id="calc-status">Enter your amount</div>
+                        <div id="calc-display" class="text-6xl font-black text-on-surface font-mono">₹0.00</div>
+                        <div id="gst-breakdown" class="mt-4 flex justify-center gap-8 text-[11px] font-bold text-indigo-600/60 uppercase tracking-widest">
+                            <span>CGST: ₹0.00</span>
+                            <span>SGST: ₹0.00</span>
                         </div>
                     </div>
 
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Cost Breakdown</h3>
-                        <div class="sub-cat-list" id="result-display-area">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Net Amount (₹)</label>
+                                <input type="number" id="netAmount" value="1000" oninput="solveGST()" class="w-full bg-white border-2 border-slate-100 focus:border-primary/30 rounded-2xl px-6 py-4 font-bold text-xl outline-none transition-all shadow-sm">
                             </div>
-
-                        <div class="sub-link" style="background: rgba(255, 193, 7, 0.05); border-left: 4px solid #ffc107; margin-top: 15px; padding: 15px;">
-                            <span style="color: #ffc107; font-weight: bold;"><i class="fa-solid fa-cart-shopping"></i> Smart Buyer Tip</span>
-                            <p id="pro-tip" style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;"></p>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Tax Method</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="setGSTType('add')" id="type-add" class="py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm bg-primary text-white">Add GST</button>
+                                    <button onclick="setGSTType('remove')" id="type-remove" class="py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm bg-slate-50 text-slate-400">Remove GST</button>
+                                </div>
+                            </div>
                         </div>
 
-                        <button id="save-btn" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Quote
+                        <div class="space-y-6">
+                             <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Select GST Slab (%)</label>
+                             <div class="grid grid-cols-2 gap-3">
+                                <button onclick="setSlab(5)" class="slab-btn p-4 rounded-xl border border-slate-100 bg-white font-black text-sm hover:border-primary/30 transition-all flex flex-col items-center">
+                                    <span>5%</span>
+                                    <span class="text-[8px] opacity-40 uppercase">Essential</span>
+                                </button>
+                                <button onclick="setSlab(12)" class="slab-btn p-4 rounded-xl border border-slate-100 bg-white font-black text-sm hover:border-primary/30 transition-all flex flex-col items-center">
+                                    <span>12%</span>
+                                    <span class="text-[8px] opacity-40 uppercase">Standard I</span>
+                                </button>
+                                <button onclick="setSlab(18)" class="slab-btn p-4 rounded-xl border-2 border-primary/40 bg-primary/5 font-black text-sm transition-all flex flex-col items-center" id="default-slab">
+                                    <span>18%</span>
+                                    <span class="text-[8px] opacity-40 uppercase tracking-tighter">Standard II</span>
+                                </button>
+                                <button onclick="setSlab(28)" class="slab-btn p-4 rounded-xl border border-slate-100 bg-white font-black text-sm hover:border-primary/30 transition-all flex flex-col items-center">
+                                    <span>28%</span>
+                                    <span class="text-[8px] opacity-40 uppercase">Luxury</span>
+                                </button>
+                             </div>
+                             <div class="pt-2">
+                                <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block opacity-60">Custom Tax (%)</label>
+                                <input type="number" id="customRate" value="18" oninput="solveGST()" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button onclick="saveGSTLog()" id="saveBtn" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Save Invoice Record</button>
+                        <button onclick="resetForms()" class="p-5 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">restart_alt</span>
                         </button>
                     </div>
-                </section>
-                <div id="footer-placeholder"></div>
+                </div>
+
+                <div class="p-8 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 flex items-start gap-4">
+                    <span class="material-symbols-outlined text-primary">info</span>
+                    <p class="text-[11px] text-indigo-900/60 leading-relaxed font-medium">
+                        <strong>Note for Businesses:</strong> CGST and SGST are applied for sales within the same state. If you are selling to another state, you should apply the full rate as IGST.
+                    </p>
+                </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        let currentMode = 'add'; 
+        let currentSlab = 18;
 
-        function calculateProDiscount() {
-            const symbol = document.getElementById('currency').value;
-            const originalPrice = parseFloat(document.getElementById('price').value) || 0;
-            const discountPercent = parseFloat(document.getElementById('discount').value) || 0;
-            const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
-            
-            const resArea = document.getElementById('result-display-area');
-            const resCard = document.getElementById('results');
-            const tipArea = document.getElementById('pro-tip');
+        function setGSTType(type) {
+            currentMode = type;
+            document.getElementById('type-add').className = `py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${type === 'add' ? 'bg-primary text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`;
+            document.getElementById('type-remove').className = `py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${type === 'remove' ? 'bg-primary text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`;
+            solveGST();
+        }
 
-            if (originalPrice <= 0) {
-                alert("Please enter a valid original price.");
+        function setSlab(val) {
+            currentSlab = val;
+            document.getElementById('customRate').value = val;
+            const btns = document.querySelectorAll('.slab-btn');
+            btns.forEach(btn => {
+                const text = btn.querySelector('span').innerText;
+                if (text === val + '%') {
+                    btn.classList.add('border-2', 'border-primary/40', 'bg-primary/5');
+                    btn.classList.remove('border-slate-100', 'bg-white');
+                } else {
+                    btn.classList.remove('border-2', 'border-primary/40', 'bg-primary/5');
+                    btn.classList.add('border-slate-100', 'bg-white');
+                }
+            });
+            solveGST();
+        }
+
+        function solveGST() {
+            const amount = parseFloat(document.getElementById('netAmount').value) || 0;
+            const rate = parseFloat(document.getElementById('customRate').value) || 0;
+            const display = document.getElementById('calc-display');
+            const statusText = document.getElementById('calc-status');
+            const breakdown = document.getElementById('gst-breakdown');
+
+            if (amount <= 0) {
+                display.innerText = "₹0.00";
+                statusText.innerText = "Enter your amount";
+                breakdown.innerHTML = `<span>CGST: ₹0.00</span><span>SGST: ₹0.00</span>`;
                 return;
             }
 
-            // Calculations
-            const discountAmount = originalPrice * (discountPercent / 100);
-            const discountedPrice = originalPrice - discountAmount;
-            const taxAmount = discountedPrice * (taxPercent / 100);
-            const finalPrice = discountedPrice + taxAmount;
-            const totalSaved = discountAmount;
+            let gstAmount = 0;
+            let total = 0;
 
-            resArea.innerHTML = `
-                <div class="sub-link" style="flex-direction: column; align-items: center; padding: 15px 0;">
-                    <span style="font-size: 0.9rem; color: var(--text-muted);">Final Out-of-Pocket Price</span>
-                    <strong style="font-size: 2.2rem; color: var(--accent-cyan);">${symbol}${finalPrice.toFixed(2)}</strong>
-                </div>
-                <div class="sub-link"><span>Total Discount Saved</span><strong style="color: #10b981;">-${symbol}${discountAmount.toFixed(2)}</strong></div>
-                <div class="sub-link"><span>Estimated Tax Amount</span><strong style="color: #ef4444;">+${symbol}${taxAmount.toFixed(2)}</strong></div>
-                <div class="sub-link"><span>Effective Discount Rate</span><strong>${((totalSaved/originalPrice)*100).toFixed(1)}%</strong></div>
-            `;
+            if (currentMode === 'add') {
+                gstAmount = amount * (rate / 100);
+                total = amount + gstAmount;
+                statusText.innerText = `Total with ${rate}% GST`;
+            } else {
+                total = amount / (1 + (rate / 100));
+                gstAmount = amount - total;
+                statusText.innerText = `Price without ${rate}% Tax`;
+            }
 
-            // Pro Tip: Psychological Price Point
-            tipArea.innerHTML = `This discount reduces the price by <strong>${symbol}${discountAmount.toFixed(2)}</strong>. If you're buying for business, remember that the <strong>${symbol}${taxAmount.toFixed(2)}</strong> tax might be claimable as an input credit!`;
+            const cgst = gstAmount / 2;
+            const sgst = gstAmount / 2;
+            const f = (val) => '₹' + val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            resCard.style.display = 'block';
-            resCard.classList.remove('hidden');
+            display.innerText = f(currentMode === 'add' ? total : total);
+            breakdown.innerHTML = `<span>CGST: ${f(cgst)}</span><span>SGST: ${f(sgst)}</span>`;
         }
-    </script>
 
-    <script src="/js/component-loader.js"></script>
+        async function saveGSTLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '₹0.00') return;
+            const ok = await window.saveCalcToHistory('GST Studio', 
+                [{ label: 'Base', val: '₹' + document.getElementById('netAmount').value }, { label: 'Rate', val: document.getElementById('customRate').value + '%' }], 
+                [{ label: 'Total', val: val, highlight: true }]
+            );
+            if (ok) renderSidebarHistory();
+        }
+
+        function renderSidebarHistory() {
+            if (typeof initSidebarHistory === 'function') {
+                initSidebarHistory('GST Studio', 'sidebar-history-container');
+            }
+        }
+
+        function resetForms() {
+            document.getElementById('netAmount').value = 1000;
+            solveGST();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            solveGST();
+            renderSidebarHistory();
+        });
+    </script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>

@@ -1,0 +1,50 @@
+{
+  "notifications": [
+    {
+      "id": "1774032325468",
+      "type": "notification",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "title": "checking",
+      "body": "hii user",
+      "targetUserId": "69bd93889a437022572d9f99",
+      "timestamp": "2026-03-20T18:45:25.469Z",
+      "read": false
+    }
+  ],
+  "chats": [
+    {
+      "id": "1774032666867",
+      "type": "chat",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "toUserId": "69ada0226f44f7b6badc21eb",
+      "toUserName": "user",
+      "message": "hi",
+      "timestamp": "2026-03-20T18:51:06.868Z",
+      "read": false
+    },
+    {
+      "id": "1774032672389",
+      "type": "chat",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "toUserId": "69bd93889a437022572d9f99",
+      "toUserName": "User",
+      "message": "hi",
+      "timestamp": "2026-03-20T18:51:12.389Z",
+      "read": false
+    },
+    {
+      "id": "1774033297401",
+      "type": "chat",
+      "from": "User",
+      "fromId": "69bd93889a437022572d9f99",
+      "toUserId": "69a5ed8764f95029b4643212",
+      "toUserName": "SIDDHANT SATISH NAIK",
+      "message": "hi",
+      "timestamp": "2026-03-20T19:01:37.403Z",
+      "read": false
+    }
+  ]
+}

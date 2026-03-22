@@ -1,178 +1,326 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMART HUB | US Navy Body Fat Analyzer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Body Fat Calculator</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-child-reaching"></i> US Navy Body Fat Analyzer</h2>
-                            <p>Calculate body fat percentage using standard circumferences for fitness assessment.</p>
-                        </div>
-                        
-                        <div class="sub-cat-list">
-                            <div class="sub-link">
-                                <span>Biological Gender</span>
-                                <select id="bfGender" class="form-control" onchange="toggleHips()">
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
-                            </div>
-                            <div class="sub-link">
-                                <span>Height (cm)</span>
-                                <input type="number" id="bfHeight" class="form-control" placeholder="e.g. 175">
-                            </div>
-                            <div class="sub-link">
-                                <span>Neck Circumference (cm)</span>
-                                <input type="number" id="bfNeck" class="form-control" placeholder="At narrowest point">
-                            </div>
-                            <div class="sub-link">
-                                <span>Waist Circumference (cm)</span>
-                                <input type="number" id="bfWaist" class="form-control" placeholder="At navel level">
-                            </div>
-                            <div class="sub-link" id="bfHipGroup" style="display: none;">
-                                <span>Hip Circumference (cm)</span>
-                                <input type="number" id="bfHip" class="form-control" placeholder="At widest point">
-                            </div>
-                            
-                            <button id="calculateBtn" class="btn-calc">Analyze Composition</button>
-                            <button id="clear-btn" class="btn-secondary" style="opacity: 0.7;">Clear</button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Body Composition Report</h3>
-                        
-                        <div style="text-align: center; padding: 20px 0;">
-                            <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Body Fat</span>
-                            <div id="bfResult" style="font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan);">0.0%</div>
-                            <strong id="bfCategory" style="font-size: 1.2rem; text-transform: uppercase;">-</strong>
-                        </div>
-
-                        
-
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-
-                        
-
-                        <div class="sub-link" style="background: rgba(0, 255, 242, 0.05); border-left: 4px solid var(--accent-cyan); margin-top: 15px; padding: 15px;">
-                            <span style="color: var(--accent-cyan); font-weight: bold;"><i class="fa-solid fa-tape"></i> Measurement Tip</span>
-                            <p style="font-size: 0.85rem; margin-top: 5px; line-height: 1.4;">
-                                Pull the tape measure so it sits on the skin surface, but do not compress the soft tissue. Measure on bare skin for the highest precision.
-                            </p>
-                        </div>
-
-                        <div class="button-group" style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="btn-save" style="flex: 1;">
-                                <i class="fa-solid fa-save"></i> Save to Log
-                            </button>
-                            <button onclick="window.print()" class="btn-secondary" style="flex: 1;">
-                                <i class="fa-solid fa-print"></i> Print Report
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>HEALTH TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Body Fat %</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Fat vs Muscle.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Estimate your body fat percentage using standard tape measurements. Much more helpful than just weight!</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Fat History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent records.</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">fitness_center</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> Measuring Tip
+                     </h4>
+                     <p class="text-indigo-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Measure your waist at the navel level (belly button). Don't pull the tape too tight or suck in your stomach!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">FAT PERCENT</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="status-tag">Awaiting Info</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Body Fat Estimate</div>
+                        <div id="calc-display" class="text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden uppercase">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.0%
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="p-8 pb-4 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Select Gender</label>
+                                        <select id="bfGender" onchange="toggleInputs()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm cursor-pointer">
+                                            <option value="male">MALE</option>
+                                            <option value="female">FEMALE</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Height (cm)</label>
+                                            <input type="number" id="bfHeight" oninput="calculateBodyFat()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="175">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Neck (cm)</label>
+                                            <input type="number" id="bfNeck" oninput="calculateBodyFat()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="38">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Waist (cm)</label>
+                                        <input type="number" id="bfWaist" oninput="calculateBodyFat()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="85">
+                                    </div>
+                                    <div id="bfHipGroup" class="hidden space-y-2">
+                                        <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Hip (cm)</label>
+                                        <input type="number" id="bfHip" oninput="calculateBodyFat()" class="w-full bg-white border border-slate-100 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary outline-none transition-all font-bold text-lg shadow-sm" placeholder="95">
+                                    </div>
+                                </div>
+                                <button onclick="resetInputs()" class="w-full py-4 bg-slate-100 rounded-xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:text-primary hover:bg-white transition-all shadow-sm">Reset Profile</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-8 bg-primary/5 border border-primary/10 rounded-2xl space-y-4 h-full flex flex-col justify-center">
+                                    <div>
+                                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Fitness Tier</p>
+                                        <p id="metZone" class="text-2xl font-black text-on-surface tracking-tighter">Awaiting Measurements</p>
+                                    </div>
+                                    <div class="pt-4 border-t border-primary/10">
+                                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Health Log</p>
+                                        <p class="text-[11px] text-on-surface-variant leading-relaxed font-medium italic">
+                                            Measure around your neck and waist. For females, also measure around the widest part of your hips.
+                                        </p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Est. Muscle %</h5>
+                                        <p id="metLean" class="text-xl font-black text-on-surface">0.0%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_bmr.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_calorie-calculator.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="saveCompositionLog()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Classification</h5>
+                        <p id="metCat" class="text-sm font-black text-on-surface uppercase tracking-tight">---</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Health Index</h5>
+                        <p id="metGrade" class="text-sm font-black text-on-surface uppercase tracking-tight">A+</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Body Fat Mass</h5>
+                        <p id="metFatMass" class="text-sm font-black text-primary uppercase tracking-tight">0.0 kg</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400 mb-2">Vein Visibility</h5>
+                        <p id="metVasc" class="text-sm font-black text-on-surface uppercase tracking-tight">Low</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
-
-        function toggleHips() {
+        function toggleInputs() {
             const gender = document.getElementById('bfGender').value;
-            document.getElementById('bfHipGroup').style.display = (gender === 'female') ? 'flex' : 'none';
+            document.getElementById('bfHipGroup').classList.toggle('hidden', gender !== 'female');
+            calculateBodyFat();
+        }
+
+        function calculateBodyFat() {
+            const gender = document.getElementById('bfGender').value;
+            const h = parseFloat(document.getElementById('bfHeight').value);
+            const n = parseFloat(document.getElementById('bfNeck').value);
+            const w = parseFloat(document.getElementById('bfWaist').value);
+            const hip = parseFloat(document.getElementById('bfHip').value) || 0;
+            const display = document.getElementById('calc-display');
+            const status = document.getElementById('calc-status');
+            const tag = document.getElementById('status-tag');
+            const zoneEl = document.getElementById('metZone');
+            const leanEl = document.getElementById('metLean');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (isNaN(h) || isNaN(n) || isNaN(w) || h <= 0 || n <= 0 || w <= 0 || (gender === 'female' && hip <= 0)) {
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.0%`;
+                tag.innerText = "Awaiting Info";
+                tag.className = "px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase";
+                zoneEl.innerText = "Awaiting Measurements";
+                leanEl.innerText = "0.0%";
+                saveBtn.classList.add('hidden');
+                resetMetrics();
+                return;
+            }
+
+            let bfp = 0;
+            if (gender === 'male') {
+                bfp = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
+            } else {
+                bfp = 495 / (1.29579 - 0.35004 * Math.log10(w + hip - n) + 0.22100 * Math.log10(h)) - 450;
+            }
+
+            if (bfp < 0) bfp = 0;
+            const bfpFixed = bfp.toFixed(1);
+            display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${bfpFixed}%`;
+            saveBtn.classList.remove('hidden');
+            status.innerText = "Fat Estimate Ready";
+
+            let cat = "Average";
+            let zone = "Normal";
+            let colorCls = "bg-emerald-100 text-emerald-700";
+
+            if (gender === 'male') {
+                if (bfp < 6) { cat = "Essential"; zone = "Elite"; colorCls = "bg-blue-100 text-blue-700"; }
+                else if (bfp < 14) { cat = "Athlete"; zone = "Fitness"; colorCls = "bg-purple-100 text-purple-700"; }
+                else if (bfp < 18) { cat = "Fitness"; zone = "Healthy"; colorCls = "bg-emerald-100 text-emerald-700"; }
+                else if (bfp < 25) { cat = "Average"; zone = "Normal"; colorCls = "bg-amber-100 text-amber-700"; }
+                else { cat = "High Fat"; zone = "Caution"; colorCls = "bg-rose-100 text-rose-700"; }
+            } else {
+                if (bfp < 14) { cat = "Essential"; zone = "Elite"; colorCls = "bg-blue-100 text-blue-700"; }
+                else if (bfp < 21) { cat = "Athlete"; zone = "Fitness"; colorCls = "bg-purple-100 text-purple-700"; }
+                else if (bfp < 25) { cat = "Fitness"; zone = "Healthy"; colorCls = "bg-emerald-100 text-emerald-700"; }
+                else if (bfp < 32) { cat = "Average"; zone = "Normal"; colorCls = "bg-amber-100 text-amber-700"; }
+                else { cat = "High Fat"; zone = "Caution"; colorCls = "bg-rose-100 text-rose-700"; }
+            }
+
+            tag.innerText = zone.toUpperCase();
+            tag.className = `px-3 py-1 rounded-lg ${colorCls} text-[10px] font-black tracking-widest uppercase`;
+            zoneEl.innerText = cat;
+            leanEl.innerText = (100 - bfp).toFixed(1) + "%";
+            updateMetrics(cat, bfp);
+        }
+
+        function updateMetrics(cat, bfp) {
+            document.getElementById('metCat').innerText = cat;
+            document.getElementById('metGrade').innerText = (bfp < 20) ? "A+" : (bfp < 30 ? "B" : "C");
+            document.getElementById('metFatMass').innerText = "CALC..."; 
+            document.getElementById('metVasc').innerText = bfp < 12 ? "High" : (bfp < 18 ? "Med" : "Low");
+        }
+
+        function resetMetrics() {
+            document.querySelectorAll('[id^="met"]').forEach(el => el.innerText = '---');
+        }
+
+        function resetInputs() {
+            ['bfHeight', 'bfNeck', 'bfWaist', 'bfHip'].forEach(id => document.getElementById(id).value = '');
+            calculateBodyFat();
+        }
+
+        async function saveCompositionLog() {
+            const val = document.getElementById('calc-display').innerText.trim();
+            if (val === '0.0%') return;
+            const inputs = [
+                { label: 'Gender', val: document.getElementById('bfGender').value.toUpperCase() },
+                { label: 'Waist', val: document.getElementById('bfWaist').value + ' cm' }
+            ];
+            const results = [
+                { label: 'Body Fat %', val: val, highlight: true },
+                { label: 'Type', val: document.getElementById('metZone').innerText }
+            ];
+            const ok = await window.saveCalcToHistory('Body Fat Calculator', inputs, results);
+            if (ok) initSidebarHistory('Body Fat Calculator', 'sidebar-history-container');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calculateBtn = document.getElementById('calculateBtn');
-
-            calculateBtn.addEventListener('click', () => {
-                const gender = document.getElementById('bfGender').value;
-                const allInputs = document.querySelectorAll('#bfHeight, #bfNeck, #bfWaist, #bfHip');
-                const requiredInputs = (gender === 'male')
-                    ? [document.getElementById('bfHeight'), document.getElementById('bfNeck'), document.getElementById('bfWaist')]
-                    : Array.from(allInputs);
-
-                if (!validateInputs(requiredInputs, { checkPositive: true })) {
-                    return;
-                }
-
-                const h = parseFloat(document.getElementById('bfHeight').value);
-                const n = parseFloat(document.getElementById('bfNeck').value);
-                const w = parseFloat(document.getElementById('bfWaist').value);
-                const hip = parseFloat(document.getElementById('bfHip').value) || 0;
-
-                let bfp = 0;
-                if (gender === 'male') {
-                    bfp = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
-                } else {
-                    bfp = 495 / (1.29579 - 0.35004 * Math.log10(w + hip - n) + 0.22100 * Math.log10(h)) - 450;
-                }
-
-                const finalBfp = bfp.toFixed(1);
-                const resCard = document.getElementById('results');
-                const resultDisplay = document.getElementById('bfResult');
-                const catDisplay = document.getElementById('bfCategory');
-                const resArea = document.getElementById('result-display-area');
-
-                // Category Logic (ACE Standards)
-                let category = "";
-                if (gender === 'male') {
-                    if (bfp < 6) category = "Essential Fat";
-                    else if (bfp < 14) category = "Athlete";
-                    else if (bfp < 18) category = "Fitness";
-                    else if (bfp < 25) category = "Average";
-                    else category = "Obese";
-                } else {
-                    if (bfp < 14) category = "Essential Fat";
-                    else if (bfp < 21) category = "Athlete";
-                    else if (bfp < 25) category = "Fitness";
-                    else if (bfp < 32) category = "Average";
-                    else category = "Obese";
-                }
-
-                resultDisplay.innerText = finalBfp + "%";
-                catDisplay.innerText = category;
-                resCard.style.display = 'block';
-                resCard.classList.remove('hidden');
-
-                resArea.innerHTML = `
-                    <div class="sub-link"><span>Methodology</span><strong>U.S. Navy Formula</strong></div>
-                    <div class="sub-link"><span>Lean Body Mass</span><strong>${(100 - bfp).toFixed(1)}%</strong></div>
-                    <div class="sub-link"><span>Fitness Level</span><strong>${category}</strong></div>
-                `;
-
-                // Save to history
-                const inputData = [{ label: 'Gender', val: gender }, { label: 'Height', val: `${h}cm` }, { label: 'Neck', val: `${n}cm` }, { label: 'Waist', val: `${w}cm` }];
-                if (gender === 'female') inputData.push({ label: 'Hip', val: `${hip}cm` });
-                window.setLastCalc('Body Fat Analyzer', inputData, [
-                    { label: 'Body Fat %', val: `${finalBfp}%`, highlight: true },
-                    { label: 'Category', val: category }
-                ]);
-            });
+            initSidebarHistory('Body Fat Calculator', 'sidebar-history-container');
         });
     </script>
-
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
 </body>
 </html>

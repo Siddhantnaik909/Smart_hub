@@ -1,140 +1,251 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMART HUB | Fortune Cookie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Fortune Cookie & Daily Luck</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        .cookie-container {
-            text-align: center;
-            padding: 40px 0;
-            perspective: 1000px;
-        }
-        .cookie-btn {
-            background: none;
-            border: none;
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined'; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        } 
+        .cookie-wrapper { perspective: 1000px; }
+        .cookie-3d { 
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transform-style: preserve-3d;
             cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .cookie-btn:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-        .cookie-btn:active {
-            transform: scale(0.9);
-        }
-        .cookie-icon {
-            font-size: 6rem;
-            color: #f97316; /* Accent Orange */
-            filter: drop-shadow(0 10px 15px rgba(249, 115, 22, 0.2));
-        }
-        .cracked {
-            animation: crack 0.5s ease-in-out;
-        }
-        @keyframes crack {
+        .cookie-3d:hover { transform: scale(1.1) rotateX(10deg); }
+        .cracked { animation: crack-pulse 0.5s forwards; }
+        @keyframes crack-pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.2) rotate(-10deg); }
+            50% { transform: scale(1.3) rotate(-5deg); filter: brightness(1.2); }
             100% { transform: scale(1); }
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-layout" id="dashboard-wrapper">
-        <div class="overlay" id="mobile-overlay"></div>
-        <div id="sidebar-placeholder"></div>
-        
-        <main class="main-content">
-            <div id="header-placeholder"></div>
-            <div class="page-body">
-                <section class="container fade-in">
-                    <div class="cat-card stagger-1">
-                        <div class="calculator-header">
-                            <h2><i class="fa-solid fa-cookie-bite"></i> Fortune Cookie</h2>
-                            <p>Tap the golden cookie to reveal what the future holds for you.</p>
-                        </div>
-                        
-                        <div class="cookie-container">
-                            <button id="cookie-trigger" class="cookie-btn">
-                                <i class="fas fa-cookie-bite cookie-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="results" class="cat-card stagger-2 hidden" style="display: none; margin-top: 20px;">
-                        <h3>Your Fortune</h3>
-                        <div class="sub-cat-list" id="result-display-area">
-                            </div>
-                        <button id="save-fortune" class="btn-save">
-                            <i class="fa-solid fa-save"></i> Save Fortune
-                        </button>
-                    </div>
-                </section>
-                <div id="footer-placeholder"></div>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
             </div>
-        </main>
-    </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
 
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>FUN ZONE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Fortune Cookie</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Your Fortune.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Open a digital fortune cookie to see what the day holds! Get a positive message and your lucky numbers instantly.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Past Fortunes</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent messages.</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-[120px]">auto_awesome</span>
+                     </div>
+                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">stars</span> Fun Tip
+                     </h4>
+                     <p class="text-amber-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Feeling lucky? Try using your lucky numbers for fun or games. Remember, every cookie has a positive vibe!
+                     </p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
+                    <!-- Display -->
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                        <div class="absolute top-8 left-8 flex gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">FORTUNE STATUS</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="oracle-tag">READY TO OPEN</span>
+                        </div>
+                        <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">Today's Message</div>
+                        <div id="calc-display" class="text-3xl md:text-5xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden italic leading-tight">
+                            <span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>Click the Cookie
+                        </div>
+                    </div>
+
+                    <!-- Interaction Area -->
+                    <div class="p-12 flex flex-col items-center justify-center space-y-12">
+                        <div class="cookie-wrapper">
+                            <div id="cookie-trigger" class="cookie-3d w-48 h-48 bg-amber-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-amber-600/50 group">
+                                <span class="material-symbols-outlined text-7xl text-amber-100 group-hover:scale-110 transition-transform">cookie</span>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="w-full pt-6 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-3">
+                                <a href="calc_flames.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">arrow_back</span> Previous
+                                </a>
+                                <a href="calc_love.html" class="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="save-btn" onclick="saveProphecy()" class="hidden bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
+                                <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">print</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-primary text-sm">psychology_alt</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Lucky Numbers</h5>
+                        </div>
+                        <p id="resNumbers" class="text-lg font-black text-on-surface uppercase tracking-tight">--</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                             <span class="material-symbols-outlined text-emerald-500 text-sm">offline_bolt</span>
+                             <h5 class="font-black uppercase tracking-widest text-[8px] text-slate-400">Randomness</h5>
+                        </div>
+                        <p id="resRandomness" class="text-lg font-black text-on-surface uppercase tracking-tight">STABLE</p>
+                    </div>
+                </div>
+
+                <p id="pro-tip" class="text-[10px] text-center text-on-surface-variant mt-8 opacity-60 uppercase tracking-widest font-bold">
+                    Cookies are randomized. Use them to start your day with a smile!
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
+        <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
+                <a class="hover:text-primary transition-colors" href="/history.html">History</a>
+                <a class="hover:text-primary transition-colors" href="/about.html">About</a>
+                <a class="hover:text-primary transition-colors" href="/privacy.html">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/calc-utils.js"></script>
     <script>
-        window.FRONTEND_ROOT = "/"; 
-        window.COMPONENT_ROOT = "/components/"; 
+        const fortunes = [
+            "A beautiful, smart, and loving person will be coming into your life.",
+            "A fresh start will put you on your way to success.",
+            "A friend asks only for your time, not your money.",
+            "Adventure can be real happiness.",
+            "Believe in yourself and others will too.",
+            "Change is happening in your life, so go with the flow!",
+            "Don't be afraid to take that big step.",
+            "Every day is a new beginning. Treat it that way.",
+            "Good things come to those who wait.",
+            "Your hard work will pay off in unexpected ways.",
+            "The sun always shines after the storm.",
+            "Fortune favors the bold."
+        ];
+
+        let lastFortune = "";
+        let lastNumbers = "";
+
+        document.getElementById('cookie-trigger').addEventListener('click', function() {
+            const cookie = this;
+            const tag = document.getElementById('oracle-tag');
+            const display = document.getElementById('calc-display');
+            const saveBtn = document.getElementById('save-btn');
+            
+            cookie.classList.add('cracked');
+            
+            setTimeout(() => {
+                const choice = fortunes[Math.floor(Math.random() * fortunes.length)];
+                const nums = Array.from({ length: 3 }, () => Math.floor(Math.random() * 99) + 1).join(', ');
+                
+                lastFortune = choice;
+                lastNumbers = nums;
+
+                tag.innerText = "COOKIE OPENED";
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>"${choice}"`;
+                document.getElementById('resNumbers').innerText = nums;
+                document.getElementById('resRandomness').innerText = "DYNAMIC";
+                
+                saveBtn.classList.remove('hidden');
+                cookie.classList.remove('cracked');
+            }, 600);
+        });
+
+        async function saveProphecy() {
+            if (!lastFortune) return;
+            const inputs = [{ label: 'Try', val: 'Digital Cookie' }];
+            const results = [
+                { label: 'Fortune', val: lastFortune, highlight: true },
+                { label: 'Lucky Nums', val: lastNumbers }
+            ];
+            const ok = await window.saveCalcToHistory('Fortune Cookie', inputs, results);
+            if (ok) initSidebarHistory('Fortune Cookie', 'sidebar-history-container');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const cookieBtn = document.getElementById('cookie-trigger');
-            const resultsCard = document.getElementById('results');
-            const displayArea = document.getElementById('result-display-area');
-
-            const fortunes = [
-                "A beautiful, smart, and loving person will be coming into your life.",
-                "A fresh start will put you on your way to success.",
-                "A friend asks only for your time, not your money.",
-                "Adventure can be real happiness.",
-                "Believe in yourself and others will too.",
-                "Change is happening in your life, so go with the flow!",
-                "Don’t be afraid to take that big step.",
-                "Every day is a new beginning. Treat it that way.",
-                "Good things come to those who wait.",
-                "Your hard work will pay off in unexpected ways.",
-                "The sun always shines after the storm.",
-                "Fortune favors the bold."
-            ];
-
-            cookieBtn.addEventListener('click', () => {
-                // Add "Cracking" animation
-                cookieBtn.classList.add('cracked');
-                
-                // Logic: Pick random fortune
-                const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-                
-                // Logic: Generate 3 Lucky Numbers
-                const luckyNums = Array.from({length: 3}, () => Math.floor(Math.random() * 99) + 1).join(', ');
-
-                // Rule 3: Inject results into #result-display-area using sub-link structure
-                displayArea.innerHTML = `
-                    <div class="sub-link" style="padding: 20px 15px;">
-                        <span class="fortune-text" style="font-style: italic; font-size: 1.1rem; color: var(--text-header); width: 100%; text-align: center;">
-                            "${randomFortune}"
-                        </span>
-                    </div>
-                    <div class="sub-link">
-                        <span>Lucky Numbers</span>
-                        <span style="font-weight: 700; color: var(--primary-color);">${luckyNums}</span>
-                    </div>
-                `;
-
-                // Rule 3: Update visibility
-                setTimeout(() => {
-                    resultsCard.style.display = 'block';
-                    resultsCard.classList.remove('hidden');
-                    cookieBtn.classList.remove('cracked');
-                }, 400);
-            });
+            initSidebarHistory('Fortune Cookie', 'sidebar-history-container');
         });
     </script>
-    <script src="/js/component-loader.js"></script>
     <script type="module" src="/js/script.js"></script>
-    <script src="/js/calculators.js"></script>
-    <script src="/js/custom.js"></script>
 </body>
 </html>
