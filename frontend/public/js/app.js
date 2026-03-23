@@ -147,7 +147,7 @@ function initTheme() {
     if (isCollapsed) document.body.classList.add('sidebar-collapsed');
 
     // Remove old layout classes before applying new one
-    document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+    document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom', 'sidebar-floating');
 
     // 4. Global Settings (Layout, Color, Font Size, Glassmorphism)
     const layoutMode = localStorage.getItem('layoutMode') || 'left';

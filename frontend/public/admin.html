@@ -727,7 +727,7 @@
                                             <h4 class="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Visual Preview</h4>
                                             <div id="preview-container" class="space-y-6">
                                                 <div class="flex items-center gap-4">
-                                                    <button id="preview-btn" class="px-8 py-3 bg-primary text-white font-black rounded-2xl text-xs shadow-lg shadow-primary/20 transition-all" style="pointer-events: none;">Button Sample</button>
+                                                    <button id="preview-btn" class="px-8 py-3 bg-primary text-white font-black rounded-2xl text-xs shadow-lg shadow-primary/20 transition-all pointer-events-none">Button Sample</button>
                                                     <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
                                                         <i class="fa-solid fa-heart text-primary"></i>
                                                     </div>
@@ -2085,7 +2085,7 @@
         }
 
         function adminSetLayoutMode(mode) {
-            document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom');
+            document.body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-top', 'sidebar-bottom', 'sidebar-floating');
             if (mode !== 'left') document.body.classList.add(`sidebar-${mode}`);
         }
 
