@@ -268,18 +268,31 @@
             const height = parseFloat(document.getElementById('bmiHeight').value);
             const unit = document.getElementById('unitToggle').value;
             const display = document.getElementById('calc-display');
-            // ... rest ...
-            
+            const tag = document.getElementById('bmi-status-tag');
+            const rangeEl = document.getElementById('idealRange');
+            const targetEl = document.getElementById('targetGoal');
+            const insightEl = document.getElementById('healthInsight');
+            const saveBtn = document.getElementById('save-btn');
+
             if (isNaN(weight) || isNaN(height) || height <= 0 || weight <= 0) {
-                // ... reset logic ...
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.0`;
+                tag.innerText = 'Awaiting Data';
+                tag.className = 'px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase';
+                rangeEl.innerText = '-- / -- kg';
+                targetEl.innerText = 'Status';
+                insightEl.innerText = '"Input your numbers to see your personalized health tips."';
+                saveBtn.classList.add('hidden');
+                resetMetrics();
                 return;
             }
 
             let bmi;
+            let heightM; // height in meters for ideal range calc
             if (unit === 'imperial') {
                 bmi = (weight / (height * height)) * 703;
+                heightM = height * 0.0254; // convert inches to meters
             } else {
-                const heightM = height / 100;
+                heightM = height / 100;
                 bmi = weight / (heightM * heightM);
             }
             const bmiFixed = bmi.toFixed(1);

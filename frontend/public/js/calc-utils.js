@@ -297,6 +297,191 @@ window.attachSaveBtn = function (btnId, toolName, inputsFn, resultsFn) {
         }
         .calc-tip-box h4 { color: #10b981; margin: 0 0 8px; display:flex; align-items:center; gap:8px; }
         .calc-tip-box li { margin: 5px 0; font-size: 0.93rem; opacity: 0.9; }
+
+        /* --- Google Translate Floating Button --- */
+        #sh-translate-fab {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.35);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sh-translate-fab:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.5);
+        }
+        #sh-translate-fab svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        #sh-translate-popup {
+            position: fixed;
+            bottom: 80px;
+            left: 24px;
+            z-index: 10000;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+            padding: 20px;
+            width: 280px;
+            display: none;
+            animation: calcFadeUp 0.3s ease;
+        }
+        #sh-translate-popup.active { display: block; }
+        #sh-translate-popup h4 {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #475569;
+            margin: 0 0 12px 0;
+        }
+        #sh-translate-popup .sh-lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        #sh-translate-popup .sh-lang-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #0f172a;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        #sh-translate-popup .sh-lang-btn:hover {
+            background: #ede9fe;
+            border-color: #c4b5fd;
+            color: #7c3aed;
+        }
+        #sh-translate-popup .sh-lang-btn.active {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            color: #fff;
+        }
+        /* Hide default Google Translate bar */
+        .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
     `;
     document.head.appendChild(s);
+})();
+
+/* ─── 6. Google Translate Floating Widget ─── */
+(function injectTranslateWidget() {
+    if (document.getElementById('sh-translate-fab')) return;
+
+    const languages = [
+        { code: 'en', name: 'English', flag: '🇺🇸' },
+        { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+        { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
+        { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
+        { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
+        { code: 'bn', name: 'বাংলা', flag: '🇮🇳' },
+        { code: 'gu', name: 'ગુજરાતી', flag: '🇮🇳' },
+        { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
+        { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
+        { code: 'pa', name: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+        { code: 'ur', name: 'اردو', flag: '🇵🇰' },
+        { code: 'es', name: 'Español', flag: '🇪🇸' },
+        { code: 'fr', name: 'Français', flag: '🇫🇷' },
+        { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+        { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
+        { code: 'ja', name: '日本語', flag: '🇯🇵' },
+        { code: 'ko', name: '한국어', flag: '🇰🇷' },
+        { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+        { code: 'pt', name: 'Português', flag: '🇧🇷' },
+        { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+    ];
+
+    // Create FAB button
+    const fab = document.createElement('button');
+    fab.id = 'sh-translate-fab';
+    fab.title = 'Translate this page';
+    fab.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg> Translate`;
+
+    // Create popup
+    const popup = document.createElement('div');
+    popup.id = 'sh-translate-popup';
+    popup.innerHTML = `
+        <h4>🌐 Select Language</h4>
+        <div class="sh-lang-grid">
+            ${languages.map(l => `<button class="sh-lang-btn" data-lang="${l.code}" onclick="window._shTranslateTo('${l.code}', this)">${l.flag} ${l.name}</button>`).join('')}
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+    document.body.appendChild(fab);
+
+    // Toggle popup
+    fab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        popup.classList.toggle('active');
+    });
+
+    // Close popup on outside click
+    document.addEventListener('click', (e) => {
+        if (!popup.contains(e.target) && e.target !== fab) {
+            popup.classList.remove('active');
+        }
+    });
+
+    // Google Translate Element init
+    window.googleTranslateElementInit = function() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            autoDisplay: false,
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+    };
+
+    // Hidden container for Google Translate
+    const gDiv = document.createElement('div');
+    gDiv.id = 'google_translate_element';
+    gDiv.style.display = 'none';
+    document.body.appendChild(gDiv);
+
+    // Load Google Translate script
+    const gScript = document.createElement('script');
+    gScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    gScript.async = true;
+    document.body.appendChild(gScript);
+
+    // Translation trigger
+    window._shTranslateTo = function(langCode, btnEl) {
+        // Update active state
+        popup.querySelectorAll('.sh-lang-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+
+        // Trigger Google Translate
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+            select.value = langCode;
+            select.dispatchEvent(new Event('change'));
+        }
+
+        // Close popup after selection
+        setTimeout(() => popup.classList.remove('active'), 300);
+    };
 })();
