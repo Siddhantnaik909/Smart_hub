@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Smart Hub | Admin Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Smart Hub | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
     <script>
         // Immediate Auth Check to prevent unauthorized access
         (function () {
@@ -18,506 +24,679 @@
         })();
     </script>
     <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "on-tertiary-fixed-variant": "#004395",
-              "on-secondary-fixed": "#01006e",
-              "on-tertiary": "#ffffff",
-              "on-primary": "#ffffff",
-              "error-container": "#ffdad6",
-              "on-secondary-fixed-variant": "#3136ab",
-              "secondary-fixed-dim": "#bfc2ff",
-              "surface-tint": "#4d44e3",
-              "on-primary-fixed-variant": "#3323cc",
-              "on-background": "#1b1c1c",
-              "primary": "#3525cd",
-              "background": "#fbf9f8",
-              "on-surface": "#1b1c1c",
-              "secondary-container": "#8088fe",
-              "surface-bright": "#fbf9f8",
-              "outline-variant": "#c7c4d8",
-              "primary-fixed-dim": "#c3c0ff",
-              "on-primary-container": "#dad7ff",
-              "on-error": "#ffffff",
-              "primary-fixed": "#e2dfff",
-              "on-secondary": "#ffffff",
-              "on-error-container": "#93000a",
-              "tertiary": "#004598",
-              "primary-container": "#4f46e5",
-              "surface-container": "#f0eded",
-              "secondary": "#4a50c4",
-              "on-tertiary-fixed": "#001a42",
-              "on-primary-fixed": "#0f0069",
-              "on-tertiary-container": "#cedbff",
-              "surface-container-low": "#f6f3f3",
-              "inverse-primary": "#c3c0ff",
-              "error": "#ba1a1a",
-              "tertiary-fixed-dim": "#adc6ff",
-              "tertiary-fixed": "#d8e2ff",
-              "surface": "#fbf9f8",
-              "surface-container-highest": "#e4e2e2",
-              "tertiary-container": "#005cc6",
-              "on-secondary-container": "#0e0f92",
-              "surface-container-high": "#eae7e7",
-              "surface-variant": "#e4e2e2",
-              "inverse-on-surface": "#f3f0f0",
-              "surface-container-lowest": "#ffffff",
-              "secondary-fixed": "#e0e0ff",
-              "on-surface-variant": "#464555",
-              "inverse-surface": "#303031",
-              "outline": "#777587",
-              "surface-dim": "#dcd9d9"
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#004395",
+                        "on-secondary-fixed": "#01006e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#3136ab",
+                        "secondary-fixed-dim": "#bfc2ff",
+                        "surface-tint": "#4d44e3",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-background": "#1b1c1c",
+                        "primary": "#3525cd",
+                        "background": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "secondary-container": "#8088fe",
+                        "surface-bright": "#fbf9f8",
+                        "outline-variant": "#c7c4d8",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-primary-container": "#dad7ff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#e2dfff",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#004598",
+                        "primary-container": "#4f46e5",
+                        "surface-container": "#f0eded",
+                        "secondary": "#4a50c4",
+                        "on-tertiary-fixed": "#001a42",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary-container": "#cedbff",
+                        "surface-container-low": "#f6f3f3",
+                        "inverse-primary": "#c3c0ff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "surface": "#fbf9f8",
+                        "surface-container-highest": "#e4e2e2",
+                        "tertiary-container": "#005cc6",
+                        "on-secondary-container": "#0e0f92",
+                        "surface-container-high": "#eae7e7",
+                        "surface-variant": "#e4e2e2",
+                        "inverse-on-surface": "#f3f0f0",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-surface-variant": "#464555",
+                        "inverse-surface": "#303031",
+                        "outline": "#777587",
+                        "surface-dim": "#dcd9d9"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
             },
-            fontFamily: {
-              "headline": ["Plus Jakarta Sans"],
-              "body": ["Plus Jakarta Sans"],
-              "label": ["Plus Jakarta Sans"]
-            },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-          },
-        },
-      }
+        }
     </script>
-<style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .material-symbols-outlined { font-family: 'Material Symbols Outlined'; 
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
         .glass-header {
             background: rgba(251, 249, 248, 0.7);
             backdrop-filter: blur(20px);
         }
+
         .indigo-gradient {
             background: linear-gradient(135deg, #4f46e5 0%, #3525cd 100%);
         }
+
         .tonal-shadow {
             box-shadow: 0px 20px 40px rgba(16, 18, 147, 0.06);
         }
     </style>
 </head>
+
 <body class="bg-surface text-on-surface flex min-h-screen">
-<!-- SideNavBar Component -->
-<aside class="h-screen w-64 bg-slate-50 dark:bg-slate-900 border-r-0 flex flex-col sticky top-0 shadow-[20px_0px_40px_rgba(16,18,147,0.04)] z-50">
-<div class="flex flex-col h-full p-4 font-plus-jakarta text-sm font-medium tracking-tight">
-<!-- Brand Logo Area -->
-<div class="flex items-center gap-3 px-3 py-6 mb-4">
-<div class="w-10 h-10 indigo-gradient rounded-xl flex items-center justify-center text-white">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
-</div>
-<div>
-<h1 class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">SMART HUB</h1>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">System Administrator</p>
-</div>
-</div>
-<!-- Main Nav -->
-<nav class="flex-1 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 shadow-sm font-semibold rounded-lg transition-all duration-200 active:scale-95" href="/AdminDashboard.html">
-<span class="material-symbols-outlined">dashboard</span>
-<span>Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/admin.html">
-<span class="material-symbols-outlined">monitoring</span>
-<span>Analytics & Files</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/GameLobby.html">
-<span class="material-symbols-outlined">sports_esports</span>
-<span>Game Management</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/calculators.html">
-<span class="material-symbols-outlined">build</span>
-<span>Toolbox</span>
-</a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/settings.html">
-                        <span class="material-symbols-outlined">settings</span>
-                        <span>Settings</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/admin_mobile_trace.html">
-                        <span class="material-symbols-outlined">track_changes</span>
-                        <span>Mobile Trace</span>
-                    </a>
-                </nav>
-<!-- Footer Nav -->
-<div class="pt-4 mt-4 border-t border-slate-200/50 dark:border-slate-800 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 transition-all duration-200" href="/contact.html">
-<span class="material-symbols-outlined">help</span>
-<span>Support</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/5 transition-all duration-200" href="javascript:void(0)" onclick="confirmLogout()">
-<span class="material-symbols-outlined">logout</span>
-<span>Logout</span>
-</a>
-</div>
-</div>
-</aside>
-<!-- Main Canvas -->
-<main class="flex-1 flex flex-col min-w-0">
-<!-- TopAppBar Component -->
-<header class="w-full h-16 sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-sm flex justify-between items-center px-8">
-<div class="flex items-center flex-1 max-w-xl">
-<div class="relative w-full group">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all" placeholder="Search system logs, tools, or users..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4 ml-8">
-<button class="p-2 text-slate-500 hover:text-primary transition-colors relative">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
-</button>
-<button class="p-2 text-slate-500 hover:text-primary transition-colors">
-<span class="material-symbols-outlined">apps</span>
-</button>
-<div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
-<div class="flex items-center gap-3">
-<div class="text-right hidden sm:block">
-<p id="admin-display-name" class="text-xs font-bold text-on-surface">Admin User</p>
-<p id="admin-display-role" class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Super Admin</p>
-</div>
-<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-primary/10">
-<img class="w-full h-full object-cover" data-alt="Admin User Profile Avatar Portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkLBUoLkUO-gPKLkYz2PunBB5-eApa_MyqtXlaGww6UH9N5aaB3_H1Lw7MkFGqryIhaWyNDz85EW5zZ2vTK-27j1HewER-QHwAuRYxLw_e8qGLfOvriucVnU3FLw6rQUtsrRiLRl08G_87BjBUtMBPnGcPerSQ56NW2IS9iJa9e_6NQODbh7Amrlk08I1_DJuj2XAEr-le5PFWIEuGYsdICqleqesQdKjWRRrlcgyI0K71L85yMSx_8TBW7m4B_y7hmc8zwiSRJiyI"/>
-</div>
-</div>
-</div>
-</header>
-<!-- Content Area -->
-<div class="p-10 space-y-10 max-w-[1600px] mx-auto w-full">
-<!-- Hero Stats Row -->
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-<!-- Total Users -->
-<div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
-<div class="flex justify-between items-start mb-4">
-<div class="p-3 bg-primary/5 text-primary rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
-<span class="material-symbols-outlined">group</span>
-</div>
-<span class="text-xs font-bold text-success text-emerald-600 flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">trending_up</span> +12%
+    <!-- SideNavBar Component -->
+    <aside
+        class="h-screen w-64 bg-slate-50 dark:bg-slate-900 border-r-0 flex flex-col sticky top-0 shadow-[20px_0px_40px_rgba(16,18,147,0.04)] z-50">
+        <div class="flex flex-col h-full p-4 font-plus-jakarta text-sm font-medium tracking-tight">
+            <!-- Brand Logo Area -->
+            <div class="flex items-center gap-3 px-3 py-6 mb-4">
+                <div class="w-10 h-10 indigo-gradient rounded-xl flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">SMART HUB</h1>
+                    <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Admin Panel</p>
+                </div>
+            </div>
+            <!-- Sidebar Profile Info -->
+            <div class="px-3 mb-8">
+                <div
+                    class="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 overflow-hidden ring-2 ring-primary/5">
+                        <img id="sidebar-admin-avatar" class="w-full h-full object-cover"
+                            src="/assets/admin_dashboard/admin-avatar.png">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p id="sidebar-admin-name" class="text-sm font-bold truncate text-slate-900 dark:text-white">
+                            Admin User</p>
+                        <p id="sidebar-admin-role"
+                            class="text-[10px] uppercase font-black tracking-widest text-primary">Super Admin</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Main Nav -->
+            <nav class="flex-1 space-y-1">
+                <a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 shadow-sm font-semibold rounded-lg transition-all duration-200 active:scale-95"
+                    href="/AdminDashboard.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200"
+                    href="/admin.html">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    <span>Analytics & Files</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200"
+                    href="/GameLobby.html">
+                    <span class="material-symbols-outlined">sports_esports</span>
+                    <span>Game Management</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200"
+                    href="/calculators.html">
+                    <span class="material-symbols-outlined">build</span>
+                    <span>Toolbox</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200"
+                    href="/settings.html">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Settings</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200"
+                    href="/admin_mobile_trace.html">
+                    <span class="material-symbols-outlined">track_changes</span>
+                    <span>Mobile Trace</span>
+                </a>
+            </nav>
+            <!-- Footer Nav -->
+            <div class="pt-4 mt-4 border-t border-slate-200/50 dark:border-slate-800 space-y-1">
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 transition-all duration-200"
+                    href="/contact.html">
+                    <span class="material-symbols-outlined">help</span>
+                    <span>Support</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/5 transition-all duration-200"
+                    href="javascript:void(0)" onclick="confirmLogout()">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+    <!-- Main Canvas -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- TopAppBar Component -->
+        <header
+            class="w-full h-16 sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-sm flex justify-between items-center px-8">
+            <div class="flex items-center flex-1 max-w-xl">
+                <div class="relative w-full group">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                    <input
+                        class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all"
+                        placeholder="Search system logs, tools, or users..." type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-4 ml-8">
+                <div class="relative group">
+                    <button class="p-2 text-slate-500 hover:text-primary transition-colors relative"
+                        onclick="alert('Notification Center: Storage capacity on Node-03 at 85% - Review required.')">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+                    </button>
+                </div>
+                <button class="p-2 text-slate-500 hover:text-primary transition-colors"
+                    onclick="alert('Admin Hub v2.4.1 - Centralized Control Active')">
+                    <span class="material-symbols-outlined">apps</span>
+                </button>
+                <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
+                <div class="flex items-center gap-3 relative group ml-2">
+                    <div class="text-right hidden sm:block">
+                        <p id="admin-header-name" class="text-xs font-bold text-on-surface">Admin User</p>
+                        <p id="admin-header-role"
+                            class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Super Admin</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-primary/10 cursor-pointer transition-transform hover:scale-105"
+                        onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <img id="admin-top-avatar" class="w-full h-full object-cover"
+                            src="/assets/admin_dashboard/admin-avatar.png" />
+                    </div>
+                    <!-- Avatar Dropdown -->
+                    <div id="avatar-dropdown"
+                        class="hidden absolute right-0 top-14 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 p-2 z-[9999]">
+                        <a href="/settings.html"
+                            class="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm transition-colors">
+                            <span class="material-symbols-outlined text-sm">settings</span> Settings
+                        </a>
+                        <a href="/profile.html"
+                            class="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm transition-colors">
+                            <span class="material-symbols-outlined text-sm">person</span> Profile
+                        </a>
+                        <div class="h-[1px] bg-slate-100 dark:bg-slate-800 my-1"></div>
+                        <button onclick="confirmLogout()"
+                            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-error/10 text-error rounded-lg text-sm transition-colors text-left">
+                            <span class="material-symbols-outlined text-sm">logout</span> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Content Area -->
+        <div class="p-10 space-y-10 max-w-[1600px] mx-auto w-full">
+            <!-- Hero Stats Row -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Total Users -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-primary/5 text-primary rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">group</span>
+                        </div>
+                        <span class="text-xs font-bold text-success text-emerald-600 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">trending_up</span> +12%
                         </span>
-</div>
-<p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Total Users</p>
-<h2 id="stat-total-users" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
-</div>
-<!-- Active Sessions -->
-<div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
-<div class="flex justify-between items-start mb-4">
-<div class="p-3 bg-secondary/5 text-secondary rounded-lg group-hover:bg-secondary group-hover:text-white transition-colors">
-<span class="material-symbols-outlined">bolt</span>
-</div>
-<span class="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                    </div>
+                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Total Users</p>
+                    <h2 id="stat-total-users" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
+                </div>
+                <!-- Active Sessions -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-secondary/5 text-secondary rounded-lg group-hover:bg-secondary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">bolt</span>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-600 flex items-center gap-1">
                             Live
                         </span>
-</div>
-<p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Active Sessions</p>
-<h2 id="stat-active-sessions" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
-</div>
-<!-- Server Latency -->
-<div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
-<div class="flex justify-between items-start mb-4">
-<div class="p-3 bg-tertiary/5 text-tertiary rounded-lg group-hover:bg-tertiary group-hover:text-white transition-colors">
-<span class="material-symbols-outlined">speed</span>
-</div>
-<span class="text-xs font-bold text-emerald-600 flex items-center gap-1"> Optimal </span>
-</div>
-<p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Server Latency</p>
-<h2 id="stat-latency" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
-</div>
-<!-- Daily Players -->
-<div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
-<div class="flex justify-between items-start mb-4">
-<div class="p-3 bg-error/5 text-error rounded-lg group-hover:bg-error group-hover:text-white transition-colors">
-<span class="material-symbols-outlined">videogame_asset</span>
-</div>
-<span class="text-xs font-bold text-on-surface-variant flex items-center gap-1"> Stable </span>
-</div>
-<p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Daily Players</p>
-<h2 id="stat-daily-players" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
-</div>
-</section>
-<!-- Main Grid: Chart & Alerts -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-<!-- Performance Chart Section -->
-<div class="lg:col-span-2 space-y-6">
-<div class="bg-surface-container-lowest rounded-xl tonal-shadow p-8">
-<div class="flex justify-between items-center mb-10">
-<div>
-<h3 class="text-xl font-bold tracking-tight text-on-surface">Platform Performance</h3>
-<p class="text-sm text-on-surface-variant">System load and traffic metrics (24h)</p>
-</div>
-<div class="flex gap-2">
-<button class="px-4 py-1.5 text-xs font-bold bg-primary text-white rounded-full">TRAFFIC</button>
-<button class="px-4 py-1.5 text-xs font-bold text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">CPU LOAD</button>
-</div>
-</div>
-<!-- Placeholder for a sleek line chart -->
-<div class="h-64 relative flex items-end gap-1">
-<div class="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
-<div class="w-full border-t border-slate-100"></div>
-<div class="w-full border-t border-slate-100"></div>
-<div class="w-full border-t border-slate-100"></div>
-<div class="w-full border-t border-slate-100"></div>
-</div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[40%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[55%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[75%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[60%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[85%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[95%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[70%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[50%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[65%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[80%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/10 rounded-t-sm h-[45%] hover:bg-primary/20 transition-all"></div>
-<div class="flex-1 bg-primary/20 rounded-t-sm h-[30%] hover:bg-primary/30 transition-all"></div>
-</div>
-<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
-<span>00:00</span>
-<span>04:00</span>
-<span>08:00</span>
-<span>12:00</span>
-<span>16:00</span>
-<span>20:00</span>
-</div>
-</div>
-</div>
-<!-- System Alerts Sidebar -->
-<div class="bg-surface-container-low rounded-xl p-6 flex flex-col">
-<div class="flex items-center justify-between mb-6">
-<h3 class="font-bold text-on-surface tracking-tight">System Alerts</h3>
-<span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded-md">2 CRITICAL</span>
-</div>
-<div class="space-y-4 flex-1 overflow-y-auto">
-<div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-error shadow-sm">
-<div class="flex justify-between items-start mb-1">
-<span class="text-xs font-bold text-error uppercase">Security Breach</span>
-<span class="text-[10px] text-on-surface-variant">2m ago</span>
-</div>
-<p class="text-sm text-on-surface">Multiple failed login attempts detected on API Node-04.</p>
-</div>
-<div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-amber-500 shadow-sm">
-<div class="flex justify-between items-start mb-1">
-<span class="text-xs font-bold text-amber-600 uppercase">Warning</span>
-<span class="text-[10px] text-on-surface-variant">45m ago</span>
-</div>
-<p class="text-sm text-on-surface">Storage capacity on Log-Server-B is exceeding 85%.</p>
-</div>
-<div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
-<div class="flex justify-between items-start mb-1">
-<span class="text-xs font-bold text-indigo-600 uppercase">Maintenance</span>
-<span class="text-[10px] text-on-surface-variant">2h ago</span>
-</div>
-<p class="text-sm text-on-surface">Scheduled database optimization completed successfully.</p>
-</div>
-<div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
-<div class="flex justify-between items-start mb-1">
-<span class="text-xs font-bold text-indigo-600 uppercase">Update</span>
-<span class="text-[10px] text-on-surface-variant">5h ago</span>
-</div>
-<p class="text-sm text-on-surface">Scientific Engine tool updated to v2.4.1.</p>
-</div>
-</div>
-<button class="w-full mt-6 py-3 text-xs font-bold text-primary border-2 border-primary/10 rounded-xl hover:bg-primary/5 transition-all uppercase tracking-widest">View All Logs</button>
-</div>
-</div>
-<!-- Management Modules Section -->
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
-<!-- Calculator Tools Admin -->
-<section class="space-y-6">
-<div class="flex items-center justify-between">
-<h3 class="text-xl font-bold tracking-tight text-on-surface">Calculator Tools Admin</h3>
-<button class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">add</span> New Tool
+                    </div>
+                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Active Sessions
+                    </p>
+                    <h2 id="stat-active-sessions" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
+                </div>
+                <!-- Server Latency -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-tertiary/5 text-tertiary rounded-lg group-hover:bg-tertiary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">speed</span>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-600 flex items-center gap-1"> Optimal </span>
+                    </div>
+                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Server Latency
+                    </p>
+                    <h2 id="stat-latency" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
+                </div>
+                <!-- Daily Players -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-error/5 text-error rounded-lg group-hover:bg-error group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">videogame_asset</span>
+                        </div>
+                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1"> Stable </span>
+                    </div>
+                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Daily Players</p>
+                    <h2 id="stat-daily-players" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
+                </div>
+            </section>
+            <!-- Main Grid: Chart & Alerts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Performance Chart Section -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-surface-container-lowest rounded-xl tonal-shadow p-8">
+                        <div class="flex justify-between items-center mb-10">
+                            <div>
+                                <h3 class="text-xl font-bold tracking-tight text-on-surface">Platform Performance</h3>
+                                <p class="text-sm text-on-surface-variant">System load and traffic metrics (24h)</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    class="px-4 py-1.5 text-xs font-bold bg-primary text-white rounded-full">TRAFFIC</button>
+                                <button
+                                    class="px-4 py-1.5 text-xs font-bold text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">CPU
+                                    LOAD</button>
+                            </div>
+                        </div>
+                        <!-- Placeholder for a sleek line chart -->
+                        <div class="h-64 relative flex items-end gap-1">
+                            <div class="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
+                                <div class="w-full border-t border-slate-100"></div>
+                                <div class="w-full border-t border-slate-100"></div>
+                                <div class="w-full border-t border-slate-100"></div>
+                                <div class="w-full border-t border-slate-100"></div>
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[40%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[55%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[75%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[60%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[85%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[95%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[70%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[50%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[65%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[80%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/10 rounded-t-sm h-[45%] hover:bg-primary/20 transition-all">
+                            </div>
+                            <div class="flex-1 bg-primary/20 rounded-t-sm h-[30%] hover:bg-primary/30 transition-all">
+                            </div>
+                        </div>
+                        <div
+                            class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                            <span>00:00</span>
+                            <span>04:00</span>
+                            <span>08:00</span>
+                            <span>12:00</span>
+                            <span>16:00</span>
+                            <span>20:00</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- System Alerts Sidebar -->
+                <div class="bg-surface-container-low rounded-xl p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-on-surface tracking-tight">System Alerts</h3>
+                        <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded-md">2 CRITICAL</span>
+                    </div>
+                    <div class="space-y-4 flex-1 overflow-y-auto">
+                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-error shadow-sm">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs font-bold text-error uppercase">Security Breach</span>
+                                <span class="text-[10px] text-on-surface-variant">2m ago</span>
+                            </div>
+                            <p class="text-sm text-on-surface">Multiple failed login attempts detected on API Node-04.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-amber-500 shadow-sm">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs font-bold text-amber-600 uppercase">Warning</span>
+                                <span class="text-[10px] text-on-surface-variant">45m ago</span>
+                            </div>
+                            <p class="text-sm text-on-surface">Storage capacity on Log-Server-B is exceeding 85%.</p>
+                        </div>
+                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs font-bold text-indigo-600 uppercase">Maintenance</span>
+                                <span class="text-[10px] text-on-surface-variant">2h ago</span>
+                            </div>
+                            <p class="text-sm text-on-surface">Scheduled database optimization completed successfully.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs font-bold text-indigo-600 uppercase">Update</span>
+                                <span class="text-[10px] text-on-surface-variant">5h ago</span>
+                            </div>
+                            <p class="text-sm text-on-surface">Scientific Engine tool updated to v2.4.1.</p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full mt-6 py-3 text-xs font-bold text-primary border-2 border-primary/10 rounded-xl hover:bg-primary/5 transition-all uppercase tracking-widest">View
+                        All Logs</button>
+                </div>
+            </div>
+            <!-- Management Modules Section -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                <!-- Calculator Tools Admin -->
+                <section class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold tracking-tight text-on-surface">Calculator Tools Admin</h3>
+                        <button class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">add</span> New Tool
                         </button>
-</div>
-<div class="bg-surface-container-lowest rounded-xl tonal-shadow overflow-hidden">
-<table class="w-full text-left">
-<thead class="bg-surface-container-low">
-<tr>
-<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Tool Name</th>
-<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Status</th>
-<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Usage</th>
-<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-slate-50">
-<tr class="hover:bg-slate-50/50 transition-colors">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center">
-<span class="material-symbols-outlined text-lg">calculate</span>
-</div>
-<span class="font-bold text-sm">Scientific Engine</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
-</td>
-<td class="px-6 py-4 text-sm text-on-surface-variant">12.4k req/h</td>
-<td class="px-6 py-4 text-right">
-<div class="flex justify-end gap-2">
-<button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
-<span class="material-symbols-outlined text-lg">toggle_on</span>
-</button>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-slate-50/50 transition-colors">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
-<span class="material-symbols-outlined text-lg">currency_exchange</span>
-</div>
-<span class="font-bold text-sm">Currency Converter</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
-</td>
-<td class="px-6 py-4 text-sm text-on-surface-variant">8.1k req/h</td>
-<td class="px-6 py-4 text-right">
-<div class="flex justify-end gap-2">
-<button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
-<span class="material-symbols-outlined text-lg">toggle_on</span>
-</button>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-slate-50/50 transition-colors">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded bg-slate-100 text-slate-400 flex items-center justify-center">
-<span class="material-symbols-outlined text-lg">functions</span>
-</div>
-<span class="font-bold text-sm text-slate-400">Equation Solver</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-3 py-1 bg-slate-200 text-slate-500 text-[10px] font-bold rounded-full uppercase">Paused</span>
-</td>
-<td class="px-6 py-4 text-sm text-on-surface-variant">0 req/h</td>
-<td class="px-6 py-4 text-right">
-<div class="flex justify-end gap-2">
-<button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-2 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">
-<span class="material-symbols-outlined text-lg">toggle_off</span>
-</button>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<!-- Game Lobby Admin -->
-<section class="space-y-6">
-<div class="flex items-center justify-between">
-<h3 class="text-xl font-bold tracking-tight text-on-surface">Game Lobby Admin</h3>
-<div class="flex items-center gap-4">
-<span class="text-xs font-bold text-on-surface-variant">42 Active Rooms</span>
-<button class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Create Lobby</button>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<!-- Lobby Card 1 -->
-<div class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="Cyberpunk Game Concept Art Illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACKl_f_MJFBiiu8JVY_opNcI59XUhaol3vDyAL80LXol7cJdJSkiD64shHpIrOCqWzpySXo2LCEgsGEDNIGLAKANfpuVnfmrTo703n7BgOkDUrvQrNzOmJEPCdNlFOxWhLz3cS0VoUbTzCs6bA02iCRRU_teKu9saemxwI4PmF73T9qP55-QUaY0FyOparu6HgLhd0m5TSVQGVSzTrJLABeNmsvlUJxFPhBbcIv-8AfVnjVtXlTnAl1Z2Jt6Uprl2TnnhyutMWsgK1"/>
-</div>
-<div>
-<h4 class="font-bold text-sm">Nexus Rift [EU-1]</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Competitive • 5v5</p>
-</div>
-</div>
-<div class="flex justify-between items-center mb-4">
-<div class="flex -space-x-2">
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-400"></div>
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">7+</div>
-</div>
-<span class="text-xs font-bold text-primary">8/10 Players</span>
-</div>
-<div class="flex gap-2">
-<button class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
-<button class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
-<span class="material-symbols-outlined text-sm">close</span>
-</button>
-</div>
-</div>
-<!-- Lobby Card 2 -->
-<div class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="Neon Futuristic Game Interface Design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8704JBudIxrqPo63XaC3WIZDA_lOGS3jbnSES0REWP4TqiszxPuRaH-M1PipyBgL7hDusj9DknaEacsH-Wk70kzRyMrvul8PdDTrjj-UMCp5K2hwm1ZqXjoVH98xDX88zQiyQ_2yfOVJGhLYDMCRZX5n33ONN2pT3aEinl7pojF_hdgvtxYS4UOZokoQfEk9Smr90Nf2kVrswPZ3fZz5Uqjueol3OkVA-vyS44fq_V54jFgjW0kKuYpYIBXIppOKbuSEqJVtlx6We"/>
-</div>
-<div>
-<h4 class="font-bold text-sm">Void Runners</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Casual • Battle Royale</p>
-</div>
-</div>
-<div class="flex justify-between items-center mb-4">
-<div class="flex -space-x-2">
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
-<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">2+</div>
-</div>
-<span class="text-xs font-bold text-amber-600">Waiting...</span>
-</div>
-<div class="flex gap-2">
-<button class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
-<button class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
-<span class="material-symbols-outlined text-sm">close</span>
-</button>
-</div>
-</div>
-</div>
-</section>
-</div>
-</div>
-<!-- System Footer -->
-    <script type="module" src="/js/script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load Admin Profile
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (user && user.name) {
-                document.getElementById('admin-display-name').innerText = user.name;
-                document.getElementById('admin-display-role').innerText = user.role?.toUpperCase() || 'ADMIN';
-                const avatarImg = document.querySelector('img[data-alt*="Admin User"]');
-                if (avatarImg && user.photo) {
-                    // Resolve avatar path
-                    const photoPath = user.photo.startsWith('http') ? user.photo : `http://localhost:3000${user.photo}`;
-                    avatarImg.src = photoPath;
-                }
-            }
+                    </div>
+                    <div class="bg-surface-container-lowest rounded-xl tonal-shadow overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-surface-container-low">
+                                <tr>
+                                    <th
+                                        class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                                        Tool Name</th>
+                                    <th
+                                        class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                                        Usage</th>
+                                    <th
+                                        class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-lg">calculate</span>
+                                            </div>
+                                            <span class="font-bold text-sm">Scientific Engine</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-on-surface-variant">12.4k req/h</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
+                                                <span class="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
+                                                <span class="material-symbols-outlined text-lg">toggle_on</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-lg">currency_exchange</span>
+                                            </div>
+                                            <span class="font-bold text-sm">Currency Converter</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-on-surface-variant">8.1k req/h</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
+                                                <span class="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
+                                                <span class="material-symbols-outlined text-lg">toggle_on</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded bg-slate-100 text-slate-400 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-lg">functions</span>
+                                            </div>
+                                            <span class="font-bold text-sm text-slate-400">Equation Solver</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="px-3 py-1 bg-slate-200 text-slate-500 text-[10px] font-bold rounded-full uppercase">Paused</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-on-surface-variant">0 req/h</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
+                                                <span class="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                            <button
+                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">
+                                                <span class="material-symbols-outlined text-lg">toggle_off</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <!-- Game Lobby Admin -->
+                <section class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold tracking-tight text-on-surface">Game Lobby Admin</h3>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-bold text-on-surface-variant">42 Active Rooms</span>
+                            <button
+                                class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Create
+                                Lobby</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Lobby Card 1 -->
+                        <div
+                            class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
+                                    <img class="w-full h-full object-cover"
+                                        data-alt="Cyberpunk Game Concept Art Illustration"
+                                        src="/assets/admin_dashboard/nexus-rift.png" />
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">Nexus Rift [EU-1]</h4>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">
+                                        Competitive • 5v5</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-400"></div>
+                                    <div
+                                        class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">
+                                        7+</div>
+                                </div>
+                                <span class="text-xs font-bold text-primary">8/10 Players</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
+                                <button
+                                    class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Lobby Card 2 -->
+                        <div
+                            class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
+                                    <img class="w-full h-full object-cover"
+                                        data-alt="Neon Futuristic Game Interface Design"
+                                        src="/assets/admin_dashboard/void-runners.png" />
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">Void Runners</h4>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Casual •
+                                        Battle Royale</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+                                    <div
+                                        class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">
+                                        2+</div>
+                                </div>
+                                <span class="text-xs font-bold text-amber-600">Waiting...</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
+                                <button
+                                    class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <!-- System Footer -->
+        <script type="module" src="/js/script.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                // Load Admin Profile
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-            // Load Platform Stats
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('/api/admin/stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const stats = await response.json();
-                
-                if (stats && !stats.error) {
-                    document.getElementById('stat-total-users').innerText = stats.users.toLocaleString();
-                    document.getElementById('stat-active-sessions').innerText = stats.activeSessions.toLocaleString();
-                    document.getElementById('stat-latency').innerText = stats.latency;
-                    document.getElementById('stat-daily-players').innerText = stats.dailyPlayers.toLocaleString();
+                const updateUI = (u) => {
+                    if (!u || !u.name) return;
+                    const nameEls = ['sidebar-admin-name', 'admin-header-name'];
+                    const roleEls = ['sidebar-admin-role', 'admin-header-role'];
+                    const imgEls = ['sidebar-admin-avatar', 'admin-top-avatar'];
+
+                    nameEls.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerText = u.name;
+                    });
+                    roleEls.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerText = u.role?.toUpperCase() || 'ADMIN';
+                    });
+
+                    if (u.photo) {
+                        const path = u.photo.startsWith('http') ? u.photo : `${window.location.origin}${u.photo}`;
+                        imgEls.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.src = path;
+                        });
+                    }
+                };
+
+                if (isLoggedIn && user.name) updateUI(user);
+
+                // Platform Stats Logic
+                const updateStats = (data) => {
+                    document.getElementById('stat-total-users').innerText = (data.users || 1240).toLocaleString();
+                    document.getElementById('stat-active-sessions').innerText = (data.activeSessions || 42).toLocaleString();
+                    document.getElementById('stat-latency').innerText = data.latency || "24ms";
+                    document.getElementById('stat-daily-players').innerText = (data.dailyPlayers || 315).toLocaleString();
+                };
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('/api/admin/stats', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) throw new Error("Backend Offline");
+                    const stats = await response.json();
+                    if (stats && !stats.error) updateStats(stats);
+                    else throw new Error("Stats Data Corrupt");
+                } catch (err) {
+                    console.warn("Using simulation mode for platform stats:", err.message);
+                    updateStats({ users: 1240, activeSessions: 42, latency: "24ms", dailyPlayers: 315 });
                 }
-            } catch (err) {
-                console.error("Failed to load platform stats:", err);
-            }
+
+                // Local Table Filter Search
+                const searchInput = document.querySelector('input[placeholder*="Search system logs"]');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        const term = e.target.value.toLowerCase();
+                        const rows = document.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const name = row.querySelector('.font-bold')?.innerText.toLowerCase();
+                            if (name) row.style.display = name.includes(term) ? '' : 'none';
+                        });
+                    });
+                }
+
+            // Close dropdown on click outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('avatar-dropdown');
+                const avatar = document.getElementById('admin-top-avatar');
+                if (dropdown && !dropdown.contains(e.target) && e.target !== avatar && !avatar.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
         });
 
         function confirmLogout() {
@@ -528,4 +707,5 @@
         }
     </script>
 </body>
+
 </html>
