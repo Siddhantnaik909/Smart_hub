@@ -27,6 +27,17 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'https://via.placeholder.com/150'
     },
+    mobile: {
+        type: String,
+        trim: true
+    },
+    lastIp: {
+        type: String,
+        trim: true
+    },
+    lastLogin: {
+        type: Date
+    },
     preferences: {
         unitWeight: { type: String, default: 'kg' },
         theme: { type: String, default: 'light' }

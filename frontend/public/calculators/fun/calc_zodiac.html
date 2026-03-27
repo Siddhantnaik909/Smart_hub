@@ -74,7 +74,7 @@
       <div
         class="max-w-[1440px] mx-auto w-full flex justify-between items-center"
       >
-        <div class="flex items-center gap-8">
+        <div class="flex items-center gap-8" id="nav-logo-block">
           <span
             id="nav-site-logo-text"
             class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase"
@@ -511,19 +511,31 @@
 
       function moonLongitude(jd) { 
           const T = (jd - 2451545.0)/36525; 
-          let L0 = 218.3164477 + 481267.88123421*T; 
-          let M = 134.9633964 + 477198.8675055*T; 
-          let D = 297.8501921 + 445267.1114034*T; 
+          let L0 = 218.3164477 + 481267.88123421*T; // Mean Longitude
+          let M = 134.9633964 + 477198.8675055*T;   // Mean Anomaly 
+          let D = 297.8501921 + 445267.1114034*T;   // Mean Elongation
+          let M_sun = 357.5291092 + 35999.0502909*T; // Sun Mean Anomaly
+          
           L0 = ((L0%360)+360)%360; 
           M = ((M%360)+360)%360; 
           D = ((D%360)+360)%360; 
-          let lon = L0 + 6.289 * Math.sin(M*Math.PI/180) + 1.274 * Math.sin((2*D - M)*Math.PI/180); 
+          M_sun = ((M_sun%360)+360)%360;
+
+          const toRad = Math.PI / 180;
+          let lon = L0 
+              + 6.289 * Math.sin(M * toRad)                // Center displacement
+              + 1.274 * Math.sin((2 * D - M) * toRad)      // Evection
+              + 0.658 * Math.sin(2 * D * toRad)            // Variation
+              + 0.214 * Math.sin(2 * M * toRad)            // Center displacement 2nd term
+              - 0.186 * Math.sin(M_sun * toRad);           // Solar term
+              
           return ((lon%360)+360)%360; 
       } 
 
       function lahiriAyanamsa(jd) { 
           const t = (jd - 2451545.0)/36525; 
-          return 22.460148 + 1.396042*t; 
+          // Accurate Lahiri Ayanamsa approximation for modern era
+          return 23.85694 + 1.3975 * t; 
       } 
 
       // Helper function to convert English digits to Marathi digits

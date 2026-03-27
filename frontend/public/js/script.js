@@ -467,31 +467,46 @@ window.confirmLogout = function() {
 
 function updateUserInterface() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let user = {};
+    try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+    } catch (e) {
+        console.error("[Smart Hub] Failed to parse user data", e);
+    }
     const authContainer = document.getElementById('auth-actions');
 
     if (authContainer) {
         if (isLoggedIn) {
             // Build avatar URL — backend stores as user.photo, not user.avatar
             const firstName = (user.name || user.username || 'User').split(' ')[0];
-            const avatarUrl = user.photo
-                ? (user.photo.startsWith('http') ? user.photo : `/uploads/profiles/${user.photo}`)
-                : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`;
+            
+            // Build avatar URL — handle local vs remote vs absolute paths
+            let avatarUrl = "";
+            if (user.photo) {
+                if (user.photo.startsWith('http')) {
+                    avatarUrl = user.photo;
+                } else {
+                    const cleanPhoto = user.photo.startsWith('/') ? user.photo : '/' + user.photo;
+                    avatarUrl = `${API_URL}${cleanPhoto}`;
+                }
+            } else {
+                avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`;
+            }
 
             authContainer.innerHTML = `
                 <div class="flex items-center gap-6">
                     <!-- Notifications -->
                     <div class="relative">
-                        <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden'); window.loadNotifications && window.loadNotifications(); event.stopPropagation();" class="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 relative group">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">notifications</span>
+                        <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden'); window.loadNotifications && window.loadNotifications(); event.stopPropagation();" class="p-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl transition-all border border-slate-200 dark:border-white/5 relative group">
+                            <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">notifications</span>
                             <span id="notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
                         </button>
-                        <div id="notif-dropdown" class="hidden absolute top-14 right-0 w-96 bg-slate-900/95 backdrop-blur-2xl border border-slate-700 rounded-2xl shadow-2xl py-4 z-[1000] max-h-96 flex flex-col">
-                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 px-6">Notifications</h4>
+                        <div id="notif-dropdown" class="hidden absolute top-14 right-0 w-96 bg-white dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl py-4 z-[1000] max-h-96 flex flex-col">
+                            <h4 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 px-6">Notifications</h4>
                             <div id="notif-list-container" class="flex-1 overflow-y-auto px-6 pb-2 space-y-4">
                                 <div class="py-8 text-center">
-                                    <span class="material-symbols-outlined text-4xl text-slate-700 mb-2 block">notifications_off</span>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No new notifications</p>
+                                    <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2 block">notifications_off</span>
+                                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">No new notifications</p>
                                 </div>
                             </div>
                         </div>
@@ -499,44 +514,44 @@ function updateUserInterface() {
 
                     <!-- Profile Dropdown -->
                     <div class="relative">
-                        <button onclick="document.getElementById('user-profile-menu').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/5 hover:bg-white/10 transition-all group">
+                        <button onclick="document.getElementById('user-profile-menu').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-3 bg-slate-100 dark:bg-white/5 p-2 pr-4 rounded-full border border-slate-200 dark:border-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all group">
                             <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg group-hover:border-primary/50 transition-colors flex-shrink-0">
                                 <img src="${avatarUrl}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&background=random'">
                             </div>
                             <div class="text-left hidden lg:block">
-                                <p class="text-xs font-black text-white tracking-wide">${escapeHTML(firstName)}</p>
-                                <p class="text-[9px] font-bold text-slate-400">${user.role === 'admin' ? 'Admin' : 'Member'}</p>
+                                <p class="text-xs font-black text-slate-900 dark:text-white tracking-wide">${escapeHTML(firstName)}</p>
+                                <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400">${user.role?.toLowerCase() === 'admin' ? 'Admin' : 'Member'}</p>
                             </div>
-                            <span class="material-symbols-outlined text-sm text-slate-500 group-hover:rotate-180 transition-transform">expand_more</span>
+                            <span class="material-symbols-outlined text-sm text-slate-400 group-hover:rotate-180 transition-transform">expand_more</span>
                         </button>
                         
-                        <div id="user-profile-menu" class="hidden absolute top-14 right-0 w-64 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 z-[1000]">
-                            <div class="p-5 border-b border-white/5 mb-2">
-                                <p class="text-sm font-black text-white">${escapeHTML(user.name || firstName)}</p>
+                        <div id="user-profile-menu" class="hidden absolute top-14 right-0 w-64 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 z-[1000]">
+                            <div class="p-5 border-b border-slate-100 dark:border-white/5 mb-2">
+                                <p class="text-sm font-black text-slate-900 dark:text-white">${escapeHTML(user.name || firstName)}</p>
                                 <p class="text-[10px] text-slate-500 truncate mt-0.5">${escapeHTML(user.email)}</p>
                             </div>
                             <div class="space-y-0.5">
-                                <a href="/profile.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                <a href="/profile.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all group">
                                     <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">person</span>
-                                    <span class="text-xs font-semibold text-slate-300">My Profile</span>
+                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">My Profile</span>
                                 </a>
-                                <a href="/settings.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                <a href="/settings.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all group">
                                     <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">settings</span>
-                                    <span class="text-xs font-semibold text-slate-300">Settings</span>
+                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Settings</span>
                                 </a>
-                                <a href="/history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                                <a href="/history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all group">
                                     <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">history</span>
-                                    <span class="text-xs font-semibold text-slate-300">History</span>
+                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">History</span>
                                 </a>
-                                ${user.role === 'admin' ? `
-                                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 bg-primary/20 hover:bg-primary/30 rounded-xl transition-all group border border-primary/20">
+                                ${user.role?.toLowerCase() === 'admin' ? `
+                                <a href="/AdminDashboard.html" class="flex items-center gap-3 px-4 py-3 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 rounded-xl transition-all group border border-primary/20">
                                     <span class="material-symbols-outlined text-primary text-sm">admin_panel_settings</span>
-                                    <span class="text-xs font-bold text-primary">Admin Panel</span>
+                                    <span class="text-xs font-bold text-primary">Admin Dashboard</span>
                                 </a>` : ''}
-                                <div class="h-px bg-white/5 my-1"></div>
-                                <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-500/20 rounded-xl transition-all group">
+                                <div class="h-px bg-slate-100 dark:bg-white/5 my-1"></div>
+                                <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded-xl transition-all group">
                                     <span class="material-symbols-outlined text-slate-400 group-hover:text-rose-500 text-sm">logout</span>
-                                    <span class="text-xs font-semibold text-slate-300 group-hover:text-rose-500">Sign Out</span>
+                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-rose-500">Sign Out</span>
                                 </button>
                             </div>
                         </div>
@@ -546,7 +561,7 @@ function updateUserInterface() {
         } else {
             authContainer.innerHTML = `
                 <div class="flex gap-4">
-                    <a href="/login.html" class="px-6 py-3 text-slate-500 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Login</a>
+                    <a href="/login.html" class="px-6 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors">Login</a>
                     <a href="/signup.html" class="px-8 py-3 bg-primary text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Get Started</a>
                 </div>
             `;
@@ -573,7 +588,7 @@ function updateUserInterface() {
                 <div class="user-avatar" style="background: var(--primary-color); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold;">${initials}</div>
                 <div class="user-info">
                     <h4>${escapeHTML(user.name) || 'User'}</h4>
-                    <p>${user.role === 'admin' ? 'Admin' : 'Member'}</p>
+                    <p>${user.role?.toLowerCase() === 'admin' ? 'Admin' : 'Member'}</p>
                 </div>
             `;
         } else {
@@ -599,7 +614,7 @@ function updateUserInterface() {
     }
 
     // Initialize Admin Live Editor if user is admin
-    if (isLoggedIn && user.role === 'admin') {
+    if (isLoggedIn && user.role?.toLowerCase() === 'admin') {
         initAdminLiveEditor();
     }
 }
@@ -663,7 +678,7 @@ window.initializeAdminPanel = async function() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    if (!token || user.role !== 'admin') {
+    if (!token || user.role?.toLowerCase() !== 'admin') {
         console.warn("Unauthorized access attempt to Admin Panel.");
         window.location.href = 'login.html';
         return;
@@ -1359,12 +1374,13 @@ function initAdminLiveEditor() {
     if (document.getElementById('admin-live-toolbar')) return;
 
     // Don't show on admin.html itself to prevent breaking the dashboard logic
-    if (window.location.pathname.includes('admin.html')) return;
+    if (window.location.pathname.toLowerCase().includes('admin')) return;
 
     const toolbar = document.createElement('div');
     toolbar.id = 'admin-live-toolbar';
+    toolbar.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:2147483647; pointer-events:none;';
     toolbar.innerHTML = `
-        <div style="position:fixed; bottom:20px; right:80px; z-index:9999; display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:10px; align-items:center; pointer-events:auto;">
             <div id="edit-controls" style="display:none; gap:8px; background:var(--bg-card); padding:8px 12px; border-radius:50px; box-shadow:var(--shadow-hover); border:1px solid var(--primary-color); animation: fadeIn 0.3s; align-items:center;">
                 
                 <button id="mode-text" class="btn-icon" style="width:32px; height:32px; font-size:0.85rem; border-radius:50%; background:var(--primary-color); color:white; border:1px solid var(--primary-color);" title="Text Edit Mode">
@@ -1386,7 +1402,7 @@ function initAdminLiveEditor() {
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <button id="toggle-edit-btn" class="btn-icon" style="width:48px; height:48px; border-radius:50%; background:var(--bg-card); color:var(--primary-color); border:2px solid var(--primary-color); box-shadow:var(--shadow-card); transition:all 0.3s;" title="Enable Visual Editor">
+            <button id="toggle-edit-btn" class="btn-icon" style="width:54px; height:54px; border-radius:50%; background:var(--primary-color); color:white; border:4px solid var(--bg-card); box-shadow:0 4px 15px rgba(0,0,0,0.3); transition:all 0.3s;" title="Enable Visual Editor">
                 <i class="fas fa-pen"></i>
             </button>
         </div>

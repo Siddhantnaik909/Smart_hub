@@ -83,11 +83,15 @@ function validateInputs(inputs, options = { checkPositive: false }) {
             if (input.value.trim() === '') {
                 hasError = true;
             }
-        } else { // Handle numeric and other text-based inputs
+        } else if (input.type === 'number' || input.inputMode === 'numeric') { // Handle numeric inputs
             const value = parseFloat(input.value);
             if (input.value.trim() === '' || isNaN(value)) {
                 hasError = true;
             } else if (options.checkPositive && value <= 0) {
+                hasError = true;
+            }
+        } else { // Handle general text/string inputs
+            if (input.value.trim() === '') {
                 hasError = true;
             }
         }
@@ -267,6 +271,13 @@ window.setLastCalc = (name, inputs, results) => {
     };
     // Enable save buttons once data exists
     document.querySelectorAll('.btn-save').forEach(btn => btn.disabled = false);
+
+    // Auto-reveal results container if hidden
+    const resultsContainer = document.getElementById('results');
+    if (resultsContainer && resultsContainer.classList.contains('hidden')) {
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.style.display = 'block';
+    }
 };
 
 // --- Favorites / Pinning Logic ---

@@ -43,7 +43,7 @@
 <body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
     <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
         <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-8" id="nav-logo-block">
                 <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
                 <div class="hidden md:flex items-center gap-6">
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
@@ -53,9 +53,7 @@
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
                 </div>
             </div>
-            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 overflow-hidden">
-                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile"/>
-            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
         </div>
     </nav>
 
@@ -197,14 +195,14 @@
             
             btn.innerText = "LOOKING UP...";
             resArea.innerHTML = '<div class="space-y-3"><div class="h-4 bg-slate-100 rounded animate-pulse"></div><div class="h-4 bg-slate-100 rounded w-5/6 animate-pulse"></div></div>';
+            document.getElementById('results-display').classList.remove('hidden');
             
             try {
-                let url = mode === 'network' ? `https://rdap.org/ip/${target}` : `https://rdap.org/domain/${target}`;
+                let url = `/api/proxy/rdap?target=${target}&mode=${mode}`;
                 const response = await fetch(url);
-                if (!response.ok) throw new Error("Could not find registry data for this target.");
-                
                 const data = await response.json();
-                document.getElementById('results-display').classList.remove('hidden');
+                
+                if (!response.ok) throw new Error(data.error || "Could not find registry data for this target.");
                 
                 let html = '';
                 if (mode === 'network') {

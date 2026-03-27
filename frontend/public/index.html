@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>SMART HUB | SMART HUB</title>
+    <title>SMART HUB | All-in-One Productivity Hub</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@
 <body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300 hero-gradient sidebar-top">
     <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
         <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-8" id="nav-logo-block">
                 <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">SMART HUB</span>
                 <div class="hidden md:flex items-center gap-6">
                     <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/index.html">Home</a>
@@ -65,66 +65,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4" id="auth-actions">
-                <div class="flex items-center gap-6">
-                    <!-- Notifications -->
-                    <div class="relative">
-                        <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden'); event.stopPropagation();" class="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 relative group">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">notifications</span>
-                        </button>
-                        <div id="notif-dropdown" class="hidden absolute top-14 right-0 w-80 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-6 z-[1000]">
-                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Notifications</h4>
-                            <div class="py-12 text-center">
-                                <span class="material-symbols-outlined text-4xl text-slate-700 mb-4 block">notifications_off</span>
-                                <p class="text-xs font-bold text-slate-500">No new notifications</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Profile Dropdown -->
-                    <div class="relative">
-                        <button onclick="document.getElementById('user-profile-menu').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-3 bg-white/5 p-2 pr-4 rounded-full border border-white/5 hover:bg-white/10 transition-all group">
-                            <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg group-hover:border-primary/50 transition-colors flex-shrink-0">
-                                <img src="https://ui-avatars.com/api/?name=SIDDHANT%20SATISH%20NAIK&amp;background=random" alt="User Avatar" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=SIDDHANT%20SATISH%20NAIK&amp;background=random'">
-                            </div>
-                            <div class="text-left hidden lg:block">
-                                <p class="text-xs font-black text-white tracking-wide">SIDDHANT</p>
-                                <p class="text-[9px] font-bold text-slate-400">Admin</p>
-                            </div>
-                            <span class="material-symbols-outlined text-sm text-slate-500 group-hover:rotate-180 transition-transform">expand_more</span>
-                        </button>
-                        
-                        <div id="user-profile-menu" class="hidden absolute top-14 right-0 w-64 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 z-[1000]">
-                            <div class="p-5 border-b border-white/5 mb-2">
-                                <p class="text-sm font-black text-white">SIDDHANT SATISH NAIK</p>
-                                <p class="text-[10px] text-slate-500 truncate mt-0.5">admin@smarthub.com</p>
-                            </div>
-                            <div class="space-y-0.5">
-                                <a href="/profile.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
-                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">person</span>
-                                    <span class="text-xs font-semibold text-slate-300">My Profile</span>
-                                </a>
-                                <a href="/settings.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
-                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">settings</span>
-                                    <span class="text-xs font-semibold text-slate-300">Settings</span>
-                                </a>
-                                <a href="/history.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
-                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-sm">history</span>
-                                    <span class="text-xs font-semibold text-slate-300">History</span>
-                                </a>
-                                
-                                <a href="/admin.html" class="flex items-center gap-3 px-4 py-3 bg-primary/20 hover:bg-primary/30 rounded-xl transition-all group border border-primary/20">
-                                    <span class="material-symbols-outlined text-primary text-sm">admin_panel_settings</span>
-                                    <span class="text-xs font-bold text-primary">Admin Panel</span>
-                                </a>
-                                <div class="h-px bg-white/5 my-1"></div>
-                                <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-500/20 rounded-xl transition-all group">
-                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-rose-500 text-sm">logout</span>
-                                    <span class="text-xs font-semibold text-slate-300 group-hover:text-rose-500">Sign Out</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Populated by script.js -->
             </div>
         </div>
     </nav>

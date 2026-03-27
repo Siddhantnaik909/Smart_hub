@@ -1,31 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const Setting = require('../models/Setting'); // Assuming you have a Setting model
+const UIState = require('../models/UIState');
 
+// GET /api/admin/settings — Fetch global UI state settings
 router.get('/settings', async (req, res) => {
     try {
-        const settings = await Setting.findOne({}); // Assuming only one settings document
-        res.json(settings);
+        const state = await UIState.findOne({ key: 'global' });
+        res.json(state || {});
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error fetching settings' });
     }
 });
 
+// POST /api/admin/settings — Update global UI state settings
 router.post('/settings', async (req, res) => {
     try {
-        //const settings = await Setting.findOne({});
-        //settings.set(req.body);
-        //await settings.save();
-
-        //Upsert is generally safer here, but depends if you initialize a document first
-        await Setting.updateOne({}, req.body, { upsert: true, setDefaultsOnInsert: true, });
+        await UIState.updateOne(
+            { key: 'global' },
+            { $set: req.body },
+            { upsert: true, setDefaultsOnInsert: true }
+        );
         res.json({ message: 'Settings updated successfully' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error updating settings' });
     }
 });
-
 
 module.exports = router;

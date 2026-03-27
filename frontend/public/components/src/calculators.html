@@ -227,9 +227,13 @@
         .mobile-toggle { display: block; }
     }
   </style>
+    <link rel="stylesheet" href="/css/premium-layout.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 </head>
 
 <body>
+    <nav id="main-nav" data-component="navbar.html"></nav>
 
     <!-- Mobile Toggle -->
     <button class="mobile-toggle" onclick="toggleSidebar()">
@@ -457,5 +461,8 @@ if (localStorage.getItem('theme') === 'dark') {
 }
 </script>
 
+        <footer id="footer-placeholder" data-component="footer.html"></footer>
+    <script src="/js/component-loader.js"></script>
+    <script type="module" src="/js/script.js"></script>
 </body>
 </html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Smart Hub Admin | Mobile Trace Tool</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        // Immediate Auth Check
+        (function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!isLoggedIn || user.role?.toLowerCase() !== 'admin') {
+                window.location.href = '/login.html';
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#0f172a] selection:bg-primary/20 transition-colors duration-300">
+    <nav
+        class="fixed top-0 w-full z-50 bg-slate-50/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span class="text-xl font-bold tracking-tighter text-primary uppercase">Smart Hub Admin</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors"
+                        href="/AdminDashboard.html">Dashboard</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/admin.html">Management</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="#">Mobile Trace</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-4 font-medium tracking-wide">
+                <span>ADMIN TOOLS</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Mobile Number Trace</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-slate-900 mb-2">Secure Mobile Trace.</h1>
+            <p class="text-slate-500 text-lg max-w-2xl">Exclusively for administrators. Retrieve user identity, contact
+                details, and last known IP address from a registered mobile number.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div
+                    class="bg-white p-8 rounded-3xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] border border-slate-100">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">shield</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black uppercase tracking-widest text-slate-900">Privileged Access
+                            </h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Internal Security
+                                Protocol</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed opacity-80 mb-6">
+                        This tool queries the internal user database. All lookups are logged in the system audit for
+                        security compliance.
+                    </p>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Notice</p>
+                        <p class="text-[10px] font-bold text-slate-600">Unauthorized use or disclosure of retrieved data
+                            is strictly prohibited.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-span-12 lg:col-span-8">
+                <div class="bg-white rounded-[3rem] p-10 shadow-2xl space-y-12">
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target
+                            Identification</h4>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">phone_iphone</span>
+                                <input type="text" id="mobileNumber" placeholder="+91 00000 00000"
+                                    class="w-full pl-16 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] font-bold text-slate-900 text-xl focus:ring-4 focus:ring-primary/10 outline-none transition-all shadow-inner">
+                            </div>
+                            <button onclick="traceMobile()" id="trace-btn"
+                                class="px-12 py-5 bg-primary text-white font-black rounded-[2rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-sm uppercase tracking-widest">Execute
+                                Trace</button>
+                        </div>
+                        <div
+                            class="px-6 py-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-shield-halved text-emerald-500 text-xs text-emerald-600"></i>
+                                <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">256-bit
+                                    HTTPS Backbone Tunnel Active</p>
+                            </div>
+                            <span
+                                class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+                        </div>
+                    </div>
+
+                    <div id="trace-loader" class="hidden py-20 flex flex-col items-center justify-center">
+                        <div
+                            class="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin mb-4">
+                        </div>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-[0.3em] animate-pulse">
+                            Establishing Signal Link...</p>
+                    </div>
+
+                    <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <!-- Alert for connection info -->
+                        <div id="trace-diagnostic"
+                            class="hidden mb-6 p-4 bg-emerald-50/50 text-emerald-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-emerald-100 flex items-center gap-3">
+                            <i class="material-symbols-outlined text-sm">verified_user</i>
+                            <span id="diagnostic-msg">Signal Authenticated via Global Backbone</span>
+                        </div>
+
+                        <div id="user-found" class="hidden">
+                            <!-- ... (existing found UI) ... -->
+                            <div
+                                class="p-1 w-full bg-slate-100/50 rounded-[3rem] border border-slate-100 overflow-hidden">
+                                <div
+                                    class="bg-white p-10 rounded-[2.8rem] shadow-sm flex flex-col md:flex-row gap-10 items-center">
+                                    <div class="w-32 h-32 rounded-3xl overflow-hidden ring-4 ring-primary/5 shadow-xl">
+                                        <img id="res-photo" src="" class="w-full h-full object-cover" alt="User Avatar">
+                                    </div>
+                                    <div class="flex-1 space-y-6">
+                                        <div>
+                                            <div class="flex items-center gap-3 mb-1">
+                                                <h3 id="res-name"
+                                                    class="text-3xl font-black tracking-tighter text-slate-900 !m-0">
+                                                    User Name</h3>
+                                                <span
+                                                    class="px-3 py-1 bg-primary/10 text-primary text-[9px] font-black uppercase rounded-full tracking-widest">Internal
+                                                    Host Identity</span>
+                                            </div>
+                                            <p id="res-username"
+                                                class="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                                                @username</p>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-8 pt-6 border-t border-slate-50">
+                                            <div>
+                                                <p
+                                                    class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                    Authenticated Email</p>
+                                                <p id="res-email" class="text-xs font-bold text-slate-900">
+                                                    user@example.com</p>
+                                            </div>
+                                            <div>
+                                                <p
+                                                    class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                                                    Access Level</p>
+                                                <p id="res-role" class="text-xs font-black text-primary uppercase">
+                                                    MEMBER</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div class="bg-slate-900 p-8 rounded-[2rem] text-white">
+                                    <h4 class="text-[10px] font-black uppercase tracking-widest opacity-40 mb-4">Signal
+                                        Metadata</h4>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold opacity-60 mb-1">Internal Session IP</p>
+                                            <p id="res-ip"
+                                                class="text-2xl font-black font-mono tracking-tight text-emerald-400">
+                                                0.0.0.0</p>
+                                        </div>
+                                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-emerald-400">gps_fixed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-lg">
+                                    <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">
+                                        Activity Log</h4>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-400 mb-1">Last Secure Login</p>
+                                            <p id="res-last-login" class="text-lg font-black text-slate-900">N/A</p>
+                                        </div>
+                                        <div
+                                            class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300">
+                                            <span class="material-symbols-outlined">shield</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map Section -->
+                            <div id="map-block"
+                                class="hidden mt-8 bg-slate-100 p-2 rounded-[2.5rem] border border-slate-200 shadow-inner overflow-hidden">
+                                <iframe id="map-frame" width="100%" height="300" frameborder="0" style="border:0"
+                                    class="rounded-3xl grayscale contrast-125" allowfullscreen></iframe>
+                            </div>
+                        </div>
+
+                        <div id="not-found" class="hidden">
+                            <div
+                                class="p-12 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
+                                <div
+                                    class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-500">
+                                    <span class="material-symbols-outlined text-4xl">person_search</span>
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 mb-2">Entity Not Found.</h3>
+                                <p id="not-found-msg" class="text-sm text-slate-500 max-w-xs mx-auto mb-8 font-medium">
+                                    No user is registered with this mobile number in our central Hub database.</p>
+
+                                <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100 opacity-50">
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                            Carrier</p>
+                                        <p id="nf-carrier" class="text-xs font-bold text-slate-900">Unknown</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Region
+                                        </p>
+                                        <p id="nf-region" class="text-xs font-bold text-slate-900">Global</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Type
+                                        </p>
+                                        <p id="nf-type" class="text-xs font-bold text-slate-900">Mobile</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-12 border-t border-slate-100 bg-white text-sm">
+        <div
+            class="max-w-[1440px] mx-auto px-12 flex justify-between items-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+            <span>© 2026 Smart Hub | Administrative Trace Utility</span>
+            <div class="flex gap-8 text-[9px]">
+                <a class="hover:text-primary transition-colors" href="/AdminDashboard.html">Dashboard</a>
+                <a class="hover:text-primary transition-colors" href="/admin.html">Management</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/script.js" type="module"></script>
+    <script>
+        // Use the current origin dynamically to avoid CORS/Host mismatch
+        const API_URL = window.location.origin;
+
+        async function traceMobile() {
+            const mobileInput = document.getElementById('mobileNumber').value.trim();
+            if (!mobileInput) return alert("Please enter a valid mobile number.");
+
+            const loader = document.getElementById('trace-loader');
+            const results = document.getElementById('results-area');
+            const userFound = document.getElementById('user-found');
+            const notFound = document.getElementById('not-found');
+            const btn = document.getElementById('trace-btn');
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+            userFound.classList.add('hidden');
+            notFound.classList.add('hidden');
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/api/admin/lookup/mobile?number=${encodeURIComponent(mobileInput)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || "Backbone Offline");
+                }
+
+                const data = await response.json();
+
+                setTimeout(async () => {
+                    loader.classList.add('hidden');
+                    results.classList.remove('hidden');
+
+                    if (data.success) {
+                        const diag = document.getElementById('trace-diagnostic');
+                        diag.classList.remove('hidden');
+                        document.getElementById('diagnostic-msg').innerText = data.encryption || "Signal Secured via 256-bit HTTPS";
+
+                        if (data.found && data.details) {
+                            userFound.classList.remove('hidden');
+                            notFound.classList.add('hidden');
+                            const u = data.details;
+                            document.getElementById('res-name').innerText = u.name;
+                            document.getElementById('res-username').innerText = `@${u.username}`;
+                            document.getElementById('res-email').innerText = u.email;
+                            document.getElementById('res-role').innerText = u.role;
+
+                            const ipText = document.getElementById('res-ip');
+                            const lastLoginText = document.getElementById('res-last-login');
+
+                            ipText.innerText = u.lastIp;
+                            lastLoginText.innerText = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'N/A';
+                            document.getElementById('res-photo').src = u.photo || '/uploads/profiles/default.png';
+
+                            if (u.lastIp !== 'N/A' && u.lastIp !== '0.0.0.0') {
+                                ipText.innerHTML = `Scanning Origin...`;
+                                try {
+                                    // MISSION CRITICAL: Using IPStack for Pinpoint Accuracy
+                                    const IPSTACK_KEY = "bc0e5a2f7d9ba86c9b11f8503f8a759f";
+                                    const geoRes = await fetch(`http://api.ipstack.com/${u.lastIp}?access_key=${IPSTACK_KEY}`);
+                                    const geo = await geoRes.json();
+
+                                    if (geo && !geo.error) {
+                                        const locInfo = `${geo.city || 'Private City'}, ${geo.region_name || geo.region_code || 'Region'}`;
+                                        ipText.innerHTML = `${u.lastIp}<br><span class='text-[10px] opacity-60'>${locInfo}</span>`;
+
+                                        if (geo.latitude && geo.longitude) {
+                                            const mapBlock = document.getElementById('map-block');
+                                            const mapFrame = document.getElementById('map-frame');
+                                            const lat = parseFloat(geo.latitude);
+                                            const lon = parseFloat(geo.longitude);
+                                            // 500m Pinpoint Resolution
+                                            mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.005},${lat - 0.005},${lon + 0.005},${lat + 0.005}&layer=mapnik&marker=${lat},${lon}`;
+                                            mapBlock.classList.remove('hidden');
+                                        }
+                                    } else { ipText.innerText = u.lastIp; }
+                                } catch (e) {
+                                    console.error("IPStack Failure:", e);
+                                    ipText.innerText = u.lastIp;
+                                }
+                            }
+                        } else {
+                            notFound.classList.remove('hidden');
+                            userFound.classList.add('hidden');
+                            document.getElementById('nf-carrier').innerText = data.carrier;
+                            document.getElementById('nf-region').innerText = data.region + (data.country ? `, ${data.country}` : "");
+                            document.getElementById('nf-type').innerText = data.lineType;
+
+                            document.getElementById('not-found-msg').innerHTML = `
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="text-xs font-black text-rose-500 uppercase tracking-widest">External Signal Detected</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase transition-all animate-pulse">Scanning Global Registry...</span>
+                                </div>
+                            `;
+
+                            const mapBlock = document.getElementById('map-block');
+                            const mapFrame = document.getElementById('map-frame');
+                            const locStr = (data.region || "").toLowerCase();
+                            let lat = 20.0, lon = 0.0, foundCoord = false;
+
+                            if (locStr.includes('mumbai')) { lat = 19.0760; lon = 72.8777; foundCoord = true; }
+                            else if (locStr.includes('delhi')) { lat = 28.6139; lon = 77.2090; foundCoord = true; }
+                            else if (locStr.includes('london')) { lat = 51.5074; lon = -0.1278; foundCoord = true; }
+
+                            if (foundCoord) {
+                                const nfBlock = document.getElementById('not-found');
+                                if (mapBlock.parentElement !== nfBlock) nfBlock.appendChild(mapBlock);
+                                mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.05},${lat - 0.05},${lon + 0.05},${lat + 0.05}&layer=mapnik&marker=${lat},${lon}`;
+                                mapBlock.classList.remove('hidden');
+                            }
+                        }
+                    } else {
+                        alert(data.error || "Signal Interrupted.");
+                    }
+                    btn.disabled = false;
+                }, 1500);
+
+            } catch (err) {
+                console.error(err);
+                alert("Scan Failed: " + err.message);
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        function analyzeSignal(phoneNumber) {
+            // Normalize: Remove everything except numbers
+            let clean = phoneNumber.replace(/\D/g, '');
+
+            // Handle leading zero (e.g. 098 -> 9198)
+            if (clean.startsWith('0') && clean.length >= 10) {
+                clean = '91' + clean.substring(1);
+            }
+
+            // Handle number starting with digits but no + (length 10)
+            if (clean.length === 10) {
+                clean = '91' + clean; // Default to India for 10-digit
+            }
+
+            let region = "Global / Multi-region";
+            let carrier = "Distributed Network";
+            let type = "Mobile";
+            let lat = 20.0, lon = 0.0; // Defaults
+
+            if (clean.startsWith('91')) {
+                region = "India (Asia-Pacific)";
+                lat = 20.5937; lon = 78.9629; // India Center
+
+                // Detailed Carrier Map based on First 2 Digits after 91
+                const p = clean.substring(2, 4);
+                if (['98', '99', '88', '70', '97', '96'].includes(p)) carrier = "Bharti Airtel (Premium)";
+                else if (['90', '91', '92', '93'].includes(p)) carrier = "Vi (Vodafone Idea)";
+                else if (['80', '81', '72', '73', '63', '62'].includes(p)) carrier = "Reliance Jio 5G";
+                else if (['94', '95'].includes(p)) carrier = "BSNL (Public Sector)";
+                else carrier = "Indian Decentralized Carrier";
+            } else if (clean.startsWith('1')) {
+                region = "United States / Canada";
+                lat = 37.0902; lon = -95.7129;
+                carrier = "Verizon / T-Mobile Central Hub";
+            } else if (clean.startsWith('44')) {
+                region = "United Kingdom (Europe)";
+                lat = 51.5074; lon = -0.1278;
+                carrier = "O2 / BT Group UK";
+            } else if (clean.startsWith('971')) {
+                region = "United Arab Emirates (ME)";
+                lat = 25.2048; lon = 55.2708; // Dubai
+                carrier = "Etisalat E& Signal Tower";
+            } else if (clean.length < 8) {
+                type = "Internal / Private Extension";
+                carrier = "Local Smart Hub Node";
+            }
+
+            return { region, carrier, type, lat, lon };
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+<header class="top-header">
+    <div class="header-container">
+        <div class="header-group">
+            <button class="menu-toggle mobile-toggle" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" title="Toggle Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-branding">
+                <i class="fa-solid fa-microchip" style="color: var(--primary-color);"></i>
+                <span style="font-weight: 700;">SMART HUB</span>
+            </div>
+            <h2 class="nav-title" id="page-title-display">Dashboard</h2>
+        </div>
+        <div class="nav-actions" id="auth-actions">
+            <!-- Auth buttons injected by script.js dynamically -->
+            <div class="auth-btn-group">
+                <a href="/login.html" class="btn-secondary">Login</a>
+                <a href="/signup.html" class="btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu" class="hidden fixed inset-0 top-16 w-full h-[calc(100vh-4rem)] bg-white/98 dark:bg-slate-950/98 backdrop-blur-3xl p-8 lg:hidden z-[110] animate-in fade-in slide-in-from-bottom-5 duration-300">
+    <div class="flex flex-col gap-8 mb-12 border-b border-slate-100 dark:border-white/5 pb-12">
+        <a class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter hover:text-primary transition-colors" href="/index.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Home</a>
+        <a class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter hover:text-primary transition-colors" href="/calculators.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Tools</a>
+        <a class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter hover:text-primary transition-colors" href="/GameLobby.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Games</a>
+        <a class="text-3xl font-black text-slate-400 dark:text-slate-500 tracking-tighter hover:text-primary transition-colors" href="/history.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">History</a>
+        <a class="text-3xl font-black text-slate-400 dark:text-slate-500 tracking-tighter hover:text-primary transition-colors" href="/about.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">About</a>
+    </div>
+    <div id="mobile-auth-placeholder" class="space-y-4">
+        <!-- Auth buttons copied here for mobile if needed -->
+    </div>
+</div>

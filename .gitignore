@@ -10,6 +10,7 @@ package-lock.json
 # IDE
 .idea/
 .vscode/
+.continue/
 *.swp
 *.swo
 
@@ -31,7 +32,18 @@ dist/
 build/
 .cache/
 tmp/
+.tmp/
+.scripts/
 
 # Backup files
 backend/backups/*
 !backend/backups/.gitkeep
+
+# Auto-generated metadata
+*.metadata.json
+
+# Editor backup files
+*.orig
+*.resolved
+*.resolved.*
+

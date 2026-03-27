@@ -1,0 +1,33 @@
+<header class="top-header">
+    <div class="header-container">
+        <div class="header-group">
+            <button class="menu-toggle mobile-toggle" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" title="Toggle Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-branding">
+                <i class="fa-solid fa-gamepad" style="color: var(--primary-color);"></i>
+                <span class="text-xl font-bold tracking-tighter uppercase transition-colors">Smart Games</span>
+            </div>
+            <h2 class="nav-title" id="page-title-display">Lobby</h2>
+        </div>
+        <div class="nav-actions" id="auth-actions">
+            <!-- Auth buttons injected by script.js dynamically -->
+            <div class="auth-btn-group">
+                <a href="/login.html" class="btn-secondary">Login</a>
+                <a href="/GameLobby.html" class="btn-primary">Lobby</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu" class="hidden fixed inset-0 top-16 w-full h-[calc(100vh-4rem)] bg-slate-950/98 backdrop-blur-3xl p-8 lg:hidden z-[110] animate-in fade-in slide-in-from-bottom-5 duration-300">
+    <div class="flex flex-col gap-8 mb-12 border-b border-white/5 pb-12">
+        <a class="text-3xl font-black text-white tracking-tighter hover:text-indigo-400 transition-colors" href="/index.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Main Hub</a>
+        <a class="text-3xl font-black text-white tracking-tighter hover:text-indigo-400 transition-colors" href="/GameLobby.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Game Lobby</a>
+        <a class="text-3xl font-black text-slate-500 tracking-tighter hover:text-indigo-400 transition-colors" href="/calculators.html" onclick="document.getElementById('mobile-menu').classList.add('hidden')">All Tools</a>
+    </div>
+    <div id="mobile-auth-placeholder" class="space-y-4">
+        <!-- Auth buttons copied here for mobile if needed -->
+    </div>
+</div>

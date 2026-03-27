@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config(); // Correctly load .env file BEFORE config
@@ -67,6 +68,46 @@ app.use('/api/history', historyRoutes);
 app.use('/api/ui', uiRoutes);
 app.use('/api/connectors', connectorRoutes);
 app.use('/api/games', gameRoutes);
+
+// --- RDAP/Whois Proxy (Bypass CORS) ---
+app.get('/api/proxy/rdap', (req, res) => {
+    const { target, mode } = req.query;
+    if (!target) return res.status(400).json({ error: 'Target is required' });
+
+    const fetchRdap = (url, depth = 0) => {
+        if (depth > 5) return res.status(500).json({ error: 'Too many redirects' });
+
+        const options = {
+            headers: { 'User-Agent': 'Mozilla/5.0 (SmartHub Lookup Tool)' }
+        };
+
+        https.get(url, options, (response) => {
+            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                return fetchRdap(response.headers.location, depth + 1);
+            }
+
+            if (response.statusCode !== 200) {
+                return res.status(response.statusCode).json({ error: `RDAP Server returned ${response.statusCode} for ${url}` });
+            }
+
+            let data = '';
+            response.on('data', (chunk) => data += chunk);
+            response.on('end', () => {
+                try {
+                    res.json(JSON.parse(data));
+                } catch (e) {
+                    res.status(500).json({ error: 'Failed to parse RDAP response' });
+                }
+            });
+        }).on('error', (err) => {
+            res.status(500).json({ error: err.message });
+        });
+    };
+
+    const initialUrl = mode === 'network' ? `https://rdap.org/ip/${target}` : `https://rdap.org/domain/${target}`;
+    fetchRdap(initialUrl);
+});
+
 
 // Root Redirect
 app.get('/', (req, res) => {

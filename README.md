@@ -2,6 +2,57 @@
 
 > **A premium, all-in-one productivity platform** for students, professionals, and curious minds.
 
+- [🏠 Home](#-visual-showcase)
+- [🛠️ Installation](#-running-locally)
+- [📸 Screenshots](#-visual-showcase)
+- [📃 Documentation](#-academic-project-details)
+
+---
+
+## 📸 Visual Showcase
+
+### 🔐 Authentication & Security
+| Login Page | Signup Page |
+| :---: | :---: |
+| ![Login](docs/screenshots/login.png) | ![Signup](docs/screenshots/signup.png) |
+
+### 🏠 Landing Page & Dashboard
+![Home Page](docs/screenshots/home.png)
+*Modern Glassmorphism UI for the Landing Page*
+
+### 🛠️ Admin Control Panel & Dashboard
+| Admin Panel | Admin Dashboard |
+| :---: | :---: |
+| ![Admin Panel](docs/screenshots/admin_panel.png) | ![Admin Dashboard](docs/screenshots/admin_dashboard.png) |
+
+### 🧮 Essential Tools & Calculators
+![Calculators](docs/screenshots/calculators.png)
+*Access over 80+ precision calculators in multiple categories.*
+
+### 🎮 Multiplayer Games & Lobbies
+| Create Game | Join Game |
+| :---: | :---: |
+| ![Create Game](docs/screenshots/create_game.png) | ![Join Game](docs/screenshots/join_game.png) |
+
+### 👤 Profile & Social Features
+| User Profile | Settings Page |
+| :---: | :---: |
+| ![Profile](docs/screenshots/profile.png) | ![Settings](docs/screenshots/settings.png) |
+
+### 📚 Knowledge Base & History
+| Knowledge Base | Calculation History |
+| :---: | :---: |
+| ![Knowledge Base](docs/screenshots/knowledge_base.png) | ![History](docs/screenshots/history.png) |
+
+### 📄 Info & Support Pages
+| About Us | Contact Support |
+| :---: | :---: |
+| ![About](docs/screenshots/about.png) | ![Contact](docs/screenshots/contact.png) |
+
+| Privacy Policy | Terms of Service |
+| :---: | :---: |
+| ![Privacy](docs/screenshots/privacy.png) | ![Terms](docs/screenshots/terms.png) |
+
 ---
 
 ## 🎓 Academic Project Details
@@ -94,7 +145,18 @@ Make sure you have [Node.js](https://nodejs.org/) (v18+) and [MongoDB](https://w
    npm start
    ```
 5. **Launch the frontend:**
-   - Serve the `frontend/public` folder using a static file server like the **VS Code Live Server** extension or Python's `http.server`. 
+   - The backend serves the frontend automatically at `http://localhost:3000`. 
+   - Simply open your browser and navigate to the URL.
+
+### 📸 Automating Screenshots
+You can automatically capture screenshots of all project pages using the provided Python script:
+1. Ensure the server is running (`npm start`)
+2. Install dependencies: `pip install selenium webdriver-manager beautifulsoup4 requests`
+3. Run the script:
+   ```bash
+   python scripts/capture_screenshots.py
+   ```
+   Screenshots will be saved to `docs/screenshots/`.
 
 ### Production Deployment
 - **Database**: Use **MongoDB Atlas** to securely host your database cluster.

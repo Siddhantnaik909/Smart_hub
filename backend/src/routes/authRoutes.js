@@ -77,9 +77,12 @@ router.post('/register', async (req, res) => {
             email,
             username: finalUsername,
             password: hashedPassword,
-            role: 'user', // Default to user
+            role: 'user', 
+            mobile: req.body.mobile || '',
+            lastIp: req.ip || req.headers['x-forwarded-for'] || '0.0.0.0',
+            lastLogin: new Date(),
             preferences: { unitWeight: 'kg', theme: 'light' },
-            friends: [], // Persistent network
+            friends: [], 
             socialSettings: { publicProfile: true, allowFriendRequests: true },
             createdAt: new Date()
         });
@@ -126,7 +129,13 @@ router.post('/login', async (req, res) => {
             { expiresIn: '24h' }
         );
 
-        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, username: user.username, preferences: user.preferences || { unitWeight: 'kg', theme: 'light' } } });
+        // Update last login
+        await users.updateOne(
+            { _id: user._id },
+            { $set: { lastLogin: new Date(), lastIp: req.ip || req.headers['x-forwarded-for'] || '0.0.0.0' } }
+        );
+
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, username: user.username, mobile: user.mobile, preferences: user.preferences || { unitWeight: 'kg', theme: 'light' } } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -146,6 +155,9 @@ router.put('/profile', async (req, res) => {
         if (photo !== undefined) updateData.photo = photo;
         if (req.body.preferences) {
             updateData.preferences = req.body.preferences;
+        }
+        if (req.body.mobile) {
+            updateData.mobile = req.body.mobile;
         }
 
         const objId = new ObjectId(id);

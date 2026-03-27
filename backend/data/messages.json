@@ -10,6 +10,17 @@
       "targetUserId": "69bd93889a437022572d9f99",
       "timestamp": "2026-03-20T18:45:25.469Z",
       "read": false
+    },
+    {
+      "id": "1774588443343",
+      "type": "notification",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "title": "new pop up",
+      "body": "hiii welcome  to my website",
+      "targetUserId": "all",
+      "timestamp": "2026-03-27T05:14:03.343Z",
+      "read": false
     }
   ],
   "chats": [
@@ -44,6 +55,28 @@
       "toUserName": "SIDDHANT SATISH NAIK",
       "message": "hi",
       "timestamp": "2026-03-20T19:01:37.403Z",
+      "read": false
+    },
+    {
+      "id": "1774588396999",
+      "type": "chat",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "toUserId": "69a5ed8764f95029b4643212",
+      "toUserName": "SIDDHANT SATISH NAIK",
+      "message": "hi",
+      "timestamp": "2026-03-27T05:13:17.001Z",
+      "read": false
+    },
+    {
+      "id": "1774588405786",
+      "type": "chat",
+      "from": "Admin",
+      "fromId": "69a5ed8764f95029b4643212",
+      "toUserId": "69bd93889a437022572d9f99",
+      "toUserName": "User",
+      "message": "hii",
+      "timestamp": "2026-03-27T05:13:25.949Z",
       "read": false
     }
   ]

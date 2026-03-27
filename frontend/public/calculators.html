@@ -54,8 +54,8 @@
 <body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
     <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
         <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-            <div class="flex items-center gap-8">
-                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+            <div class="flex items-center gap-8" id="nav-logo-block">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">SMART HUB</span>
                 <div class="hidden md:flex items-center gap-6">
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
                     <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
@@ -161,20 +161,23 @@
                         html += `
                             <a href="${item.link}" class="tool-card p-8 bg-surface-container-lowest rounded-[2.5rem] border border-slate-100 flex flex-col justify-between group transition-all h-[240px] shadow-sm">
                                 <div>
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h3 class="text-xl font-black tracking-tight text-on-surface group-hover:text-primary transition-colors truncate pr-4">
-                                            ${item.name}
-                                        </h3>
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                            <i class="${category.icon || 'fas fa-calculator'} text-lg"></i>
+                                        </div>
                                         <span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">north_east</span>
                                     </div>
-                                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest opacity-60">
+                                    <h3 class="text-xl font-black tracking-tight text-on-surface group-hover:text-primary transition-colors truncate mb-1">
+                                        ${item.name}
+                                    </h3>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">
                                         Ready to use
                                     </p>
                                 </div>
                                 <div class="pt-6 border-t border-slate-50 flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600">Online</span>
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span class="text-[8px] font-black uppercase tracking-widest text-emerald-600">Online</span>
                                     </div>
                                     <div class="text-[9px] font-black text-primary uppercase tracking-[0.2em] bg-primary/5 px-4 py-2 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
                                         Open Tool

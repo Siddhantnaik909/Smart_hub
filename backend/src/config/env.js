@@ -21,6 +21,7 @@ const config = {
     "0123456789abcdef0123456789abcdef"
   ),
   corsOrigin: process.env.CORS_ORIGIN || "*",
+  numVerifyApiKey: process.env.NUMVERIFY_API_KEY || "c761ba6abcad046165be19fb6835dd03",
 };
 
 module.exports = { config };

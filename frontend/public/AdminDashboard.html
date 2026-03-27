@@ -7,8 +7,17 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+    <script>
+        // Immediate Auth Check to prevent unauthorized access
+        (function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!isLoggedIn || user.role?.toLowerCase() !== 'admin') {
+                window.location.href = '/login.html';
+            }
+        })();
+    </script>
+    <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
         theme: {
@@ -99,44 +108,44 @@
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
 </div>
 <div>
-<h1 class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">Smart Hub</h1>
+<h1 class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">SMART HUB</h1>
 <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">System Administrator</p>
 </div>
 </div>
 <!-- Main Nav -->
 <nav class="flex-1 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 shadow-sm font-semibold rounded-lg transition-all duration-200 active:scale-95" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 shadow-sm font-semibold rounded-lg transition-all duration-200 active:scale-95" href="/AdminDashboard.html">
 <span class="material-symbols-outlined">dashboard</span>
 <span>Dashboard</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/admin.html">
 <span class="material-symbols-outlined">monitoring</span>
-<span>Analytics</span>
+<span>Analytics & Files</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/GameLobby.html">
 <span class="material-symbols-outlined">sports_esports</span>
 <span>Game Management</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/calculators.html">
 <span class="material-symbols-outlined">build</span>
 <span>Toolbox</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
-<span class="material-symbols-outlined">dns</span>
-<span>System Status</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
-<span class="material-symbols-outlined">settings</span>
-<span>Settings</span>
-</a>
-</nav>
+                    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/settings.html">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span>Settings</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/admin_mobile_trace.html">
+                        <span class="material-symbols-outlined">track_changes</span>
+                        <span>Mobile Trace</span>
+                    </a>
+                </nav>
 <!-- Footer Nav -->
 <div class="pt-4 mt-4 border-t border-slate-200/50 dark:border-slate-800 space-y-1">
-<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 transition-all duration-200" href="/contact.html">
 <span class="material-symbols-outlined">help</span>
 <span>Support</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/5 transition-all duration-200" href="#">
+<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/5 transition-all duration-200" href="javascript:void(0)" onclick="confirmLogout()">
 <span class="material-symbols-outlined">logout</span>
 <span>Logout</span>
 </a>
@@ -164,8 +173,8 @@
 <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
 <div class="flex items-center gap-3">
 <div class="text-right hidden sm:block">
-<p class="text-xs font-bold text-on-surface">Admin User</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Super Admin</p>
+<p id="admin-display-name" class="text-xs font-bold text-on-surface">Admin User</p>
+<p id="admin-display-role" class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Super Admin</p>
 </div>
 <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-primary/10">
 <img class="w-full h-full object-cover" data-alt="Admin User Profile Avatar Portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkLBUoLkUO-gPKLkYz2PunBB5-eApa_MyqtXlaGww6UH9N5aaB3_H1Lw7MkFGqryIhaWyNDz85EW5zZ2vTK-27j1HewER-QHwAuRYxLw_e8qGLfOvriucVnU3FLw6rQUtsrRiLRl08G_87BjBUtMBPnGcPerSQ56NW2IS9iJa9e_6NQODbh7Amrlk08I1_DJuj2XAEr-le5PFWIEuGYsdICqleqesQdKjWRRrlcgyI0K71L85yMSx_8TBW7m4B_y7hmc8zwiSRJiyI"/>
@@ -188,7 +197,7 @@
                         </span>
 </div>
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Total Users</p>
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">52,491</h2>
+<h2 id="stat-total-users" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
 </div>
 <!-- Active Sessions -->
 <div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
@@ -201,7 +210,7 @@
                         </span>
 </div>
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Active Sessions</p>
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">1,842</h2>
+<h2 id="stat-active-sessions" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
 </div>
 <!-- Server Latency -->
 <div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
@@ -212,7 +221,7 @@
 <span class="text-xs font-bold text-emerald-600 flex items-center gap-1"> Optimal </span>
 </div>
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Server Latency</p>
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">24ms</h2>
+<h2 id="stat-latency" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
 </div>
 <!-- Daily Players -->
 <div class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
@@ -223,7 +232,7 @@
 <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1"> Stable </span>
 </div>
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Daily Players</p>
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">12,805</h2>
+<h2 id="stat-daily-players" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
 </div>
 </section>
 <!-- Main Grid: Chart & Alerts -->
@@ -476,15 +485,47 @@
 </div>
 </div>
 <!-- System Footer -->
-<footer class="mt-auto p-8 flex justify-between items-center border-t border-slate-100">
-<p class="text-xs text-on-surface-variant font-medium">Smart Hub Dashboard v4.2.0 • Build ID: 89a2-c110</p>
-<div class="flex gap-6">
-<a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
-<a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">SLA Status</a>
-<a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">API Documentation</a>
-</div>
-</footer>
-</main>
-<script type="module" src="/js/script.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load Admin Profile
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user && user.name) {
+                document.getElementById('admin-display-name').innerText = user.name;
+                document.getElementById('admin-display-role').innerText = user.role?.toUpperCase() || 'ADMIN';
+                const avatarImg = document.querySelector('img[data-alt*="Admin User"]');
+                if (avatarImg && user.photo) {
+                    // Resolve avatar path
+                    const photoPath = user.photo.startsWith('http') ? user.photo : `http://localhost:3000${user.photo}`;
+                    avatarImg.src = photoPath;
+                }
+            }
+
+            // Load Platform Stats
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await response.json();
+                
+                if (stats && !stats.error) {
+                    document.getElementById('stat-total-users').innerText = stats.users.toLocaleString();
+                    document.getElementById('stat-active-sessions').innerText = stats.activeSessions.toLocaleString();
+                    document.getElementById('stat-latency').innerText = stats.latency;
+                    document.getElementById('stat-daily-players').innerText = stats.dailyPlayers.toLocaleString();
+                }
+            } catch (err) {
+                console.error("Failed to load platform stats:", err);
+            }
+        });
+
+        function confirmLogout() {
+            if (confirm("Terminate security session?")) {
+                localStorage.clear();
+                window.location.href = "/login.html";
+            }
+        }
+    </script>
 </body>
 </html>
