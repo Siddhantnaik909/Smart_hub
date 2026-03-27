@@ -507,6 +507,41 @@ window.attachSaveBtn = function (btnId, toolName, inputsFn, resultsFn) {
         gScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
         gScript.async = true;
         document.body.appendChild(gScript);
+
+        // Protect icons and symbols from translation
+        function protectIcons() {
+            // Material Symbols (text ligatures like "delete_sweep", "arrow_back")
+            document.querySelectorAll('.material-symbols-outlined, .material-icons, [class*="material-symbols"]').forEach(el => {
+                el.classList.add('notranslate');
+                el.setAttribute('translate', 'no');
+            });
+            // Font Awesome icons
+            document.querySelectorAll('[class*="fa-"], .fas, .far, .fab, .fal, .fad').forEach(el => {
+                el.classList.add('notranslate');
+                el.setAttribute('translate', 'no');
+            });
+            // Calculator buttons (numbers, operators)
+            document.querySelectorAll('.calc-btn, [data-num], [data-op], button[onclick*="appendNum"], button[onclick*="setOp"]').forEach(el => {
+                el.classList.add('notranslate');
+                el.setAttribute('translate', 'no');
+            });
+            // Code/formula boxes
+            document.querySelectorAll('.calc-formula-box, code, pre, .font-mono').forEach(el => {
+                el.classList.add('notranslate');
+                el.setAttribute('translate', 'no');
+            });
+            // Translate widget itself
+            const fab = document.getElementById('sh-translate-fab');
+            if (fab) { fab.classList.add('notranslate'); fab.setAttribute('translate', 'no'); }
+            const popup = document.getElementById('sh-translate-popup');
+            if (popup) { popup.classList.add('notranslate'); popup.setAttribute('translate', 'no'); }
+        }
+        // Run immediately and also observe DOM changes
+        protectIcons();
+        const observer = new MutationObserver(() => protectIcons());
+        observer.observe(document.body, { childList: true, subtree: true });
+        // Stop observing after 10s to avoid perf issues
+        setTimeout(() => observer.disconnect(), 10000);
     }
 
     if (document.readyState === 'loading') {

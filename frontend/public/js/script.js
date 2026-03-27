@@ -1815,3 +1815,247 @@ updateUserInterface();
     }
 })();
 
+/* ─── MOBILE HAMBURGER NAV (for all pages loaded via script.js) ─── */
+(function() {
+    function injectMobileNav() {
+        if (document.getElementById('sh-mobile-hamburger')) return;
+
+        // Find the fixed nav bar (top nav used by most pages)
+        const nav = document.querySelector('nav.fixed');
+        if (!nav) return;
+
+        const navContainer = nav.querySelector('.flex.justify-between') || nav.querySelector('[class*="justify-between"]');
+        if (!navContainer) return;
+
+        // Skip if already has a mobile toggle
+        if (nav.querySelector('.mobile-toggle') || nav.querySelector('#sh-mobile-hamburger')) return;
+
+        // Find logo block to prepend hamburger before it
+        const logoBlock = navContainer.querySelector('#nav-logo-block') || navContainer.firstElementChild;
+        if (!logoBlock) return;
+
+        const burger = document.createElement('button');
+        burger.id = 'sh-mobile-hamburger';
+        burger.title = 'Menu';
+        burger.setAttribute('aria-label', 'Open navigation menu');
+        burger.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+        logoBlock.insertBefore(burger, logoBlock.firstChild);
+
+        // Build nav links - detect current page to choose links
+        const isAdmin = window.location.pathname.includes('admin') || window.location.pathname.includes('Admin');
+        const navLinks = isAdmin ? `
+            <a href="/AdminDashboard.html"><span class="sh-mob-icon">📊</span> Dashboard</a>
+            <a href="/admin.html"><span class="sh-mob-icon">📁</span> Management</a>
+            <a href="/admin_mobile_trace.html"><span class="sh-mob-icon">📱</span> Mobile Trace</a>
+            <a href="/index.html"><span class="sh-mob-icon">🏠</span> Home</a>
+            <a href="/calculators.html"><span class="sh-mob-icon">🧮</span> Tools</a>
+            <a href="/GameLobby.html"><span class="sh-mob-icon">🎮</span> Games</a>
+            <a href="/settings.html"><span class="sh-mob-icon">⚙️</span> Settings</a>
+        ` : `
+            <a href="/index.html"><span class="sh-mob-icon">🏠</span> Home</a>
+            <a href="/calculators.html"><span class="sh-mob-icon">🧮</span> Tools</a>
+            <a href="/GameLobby.html"><span class="sh-mob-icon">🎮</span> Games</a>
+            <a href="/history.html"><span class="sh-mob-icon">📜</span> History</a>
+            <a href="/about.html"><span class="sh-mob-icon">ℹ️</span> About</a>
+            <a href="/settings.html"><span class="sh-mob-icon">⚙️</span> Settings</a>
+        `;
+
+        // Create mobile overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'sh-mobile-overlay';
+        overlay.innerHTML = `
+            <div class="sh-mob-header">
+                <span class="sh-mob-brand">SMART HUB</span>
+                <button id="sh-mobile-close" aria-label="Close menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <nav class="sh-mob-links">${navLinks}</nav>
+        `;
+        document.body.appendChild(overlay);
+
+        // Inject mobile nav CSS only once
+        if (!document.getElementById('_sh-mobile-nav-css')) {
+            const style = document.createElement('style');
+            style.id = '_sh-mobile-nav-css';
+            style.textContent = `
+                #sh-mobile-hamburger {
+                    display: none; background: none; border: none; color: #334155;
+                    cursor: pointer; padding: 8px; border-radius: 10px; transition: all 0.2s; flex-shrink: 0;
+                }
+                #sh-mobile-hamburger:hover { background: rgba(139,92,246,0.1); color: #7c3aed; }
+                @media (max-width: 768px) {
+                    #sh-mobile-hamburger { display: flex; align-items: center; justify-content: center; }
+                    nav.fixed { padding-left: 16px !important; padding-right: 16px !important; }
+                    main { padding-left: 16px !important; padding-right: 16px !important; }
+                    main h1 { font-size: 2rem !important; }
+                    footer { padding-left: 16px !important; padding-right: 16px !important; }
+                    footer .flex { flex-direction: column; gap: 8px; text-align: center; }
+                }
+                #sh-mobile-overlay {
+                    position: fixed; inset: 0; z-index: 99999;
+                    background: rgba(255,255,255,0.98); backdrop-filter: blur(30px);
+                    -webkit-backdrop-filter: blur(30px);
+                    display: none; flex-direction: column; padding: 24px;
+                    animation: shSlideIn 0.3s ease;
+                }
+                #sh-mobile-overlay.active { display: flex; }
+                @keyframes shSlideIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .sh-mob-header {
+                    display: flex; justify-content: space-between; align-items: center;
+                    margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;
+                }
+                .sh-mob-brand {
+                    font-size: 18px; font-weight: 900; letter-spacing: -0.02em;
+                    background: linear-gradient(135deg, #7c3aed, #6366f1);
+                    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+                }
+                .sh-mob-header button {
+                    background: #f1f5f9; border: none; border-radius: 12px;
+                    padding: 10px; cursor: pointer; color: #475569; transition: all 0.2s;
+                }
+                .sh-mob-header button:hover { background: #e2e8f0; }
+                .sh-mob-links { display: flex; flex-direction: column; gap: 4px; }
+                .sh-mob-links a {
+                    display: flex; align-items: center; gap: 16px;
+                    padding: 16px 20px; border-radius: 16px; font-size: 16px; font-weight: 700;
+                    color: #1e293b; text-decoration: none; transition: all 0.2s; letter-spacing: -0.01em;
+                }
+                .sh-mob-links a:hover { background: rgba(139,92,246,0.08); color: #7c3aed; }
+                .sh-mob-icon { font-size: 20px; }
+                .dark #sh-mobile-overlay, .dark-mode #sh-mobile-overlay { background: rgba(15,23,42,0.98); }
+                .dark .sh-mob-links a, .dark-mode .sh-mob-links a { color: #e2e8f0; }
+                .dark .sh-mob-links a:hover, .dark-mode .sh-mob-links a:hover { background: rgba(139,92,246,0.15); color: #a78bfa; }
+                .dark .sh-mob-header, .dark-mode .sh-mob-header { border-color: rgba(255,255,255,0.1); }
+                .dark .sh-mob-header button, .dark-mode .sh-mob-header button { background: rgba(255,255,255,0.05); color: #94a3b8; }
+                .dark #sh-mobile-hamburger, .dark-mode #sh-mobile-hamburger { color: #e2e8f0; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Event handlers
+        burger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sh-mobile-close').addEventListener('click', () => {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        overlay.querySelectorAll('.sh-mob-links a').forEach(a => {
+            a.addEventListener('click', () => {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+
+    // Also handle AdminDashboard sidebar on mobile
+    function handleAdminSidebar() {
+        const sidebar = document.querySelector('aside.h-screen');
+        if (!sidebar) return;
+
+        // Add sidebar toggle CSS for mobile
+        if (!document.getElementById('_sh-admin-sidebar-css')) {
+            const style = document.createElement('style');
+            style.id = '_sh-admin-sidebar-css';
+            style.textContent = `
+                @media (max-width: 768px) {
+                    aside.h-screen {
+                        position: fixed; left: -280px; transition: left 0.3s ease; z-index: 99998;
+                        box-shadow: 10px 0 40px rgba(0,0,0,0.1);
+                    }
+                    aside.h-screen.sh-sidebar-open { left: 0; }
+                    .sh-sidebar-backdrop {
+                        position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+                        z-index: 99997; display: none;
+                    }
+                    .sh-sidebar-backdrop.active { display: block; }
+                    main.flex-1 { margin-left: 0 !important; }
+                    header.sticky { padding-left: 16px !important; padding-right: 16px !important; }
+                    .sh-admin-burger {
+                        display: flex !important; align-items: center; justify-content: center;
+                        background: none; border: none; color: #334155; cursor: pointer;
+                        padding: 8px; border-radius: 10px; margin-right: 8px;
+                    }
+                }
+                @media (min-width: 769px) {
+                    .sh-admin-burger { display: none !important; }
+                    .sh-sidebar-backdrop { display: none !important; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Add burger to admin header
+        const adminHeader = document.querySelector('header.sticky');
+        if (adminHeader && !adminHeader.querySelector('.sh-admin-burger')) {
+            const adminBurger = document.createElement('button');
+            adminBurger.className = 'sh-admin-burger';
+            adminBurger.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+            adminHeader.insertBefore(adminBurger, adminHeader.firstChild);
+
+            // Backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'sh-sidebar-backdrop';
+            document.body.appendChild(backdrop);
+
+            adminBurger.addEventListener('click', () => {
+                sidebar.classList.toggle('sh-sidebar-open');
+                backdrop.classList.toggle('active');
+            });
+            backdrop.addEventListener('click', () => {
+                sidebar.classList.remove('sh-sidebar-open');
+                backdrop.classList.remove('active');
+            });
+            // Close sidebar when links are clicked
+            sidebar.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', () => {
+                    sidebar.classList.remove('sh-sidebar-open');
+                    backdrop.classList.remove('active');
+                });
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => { injectMobileNav(); handleAdminSidebar(); });
+    } else {
+        injectMobileNav();
+        handleAdminSidebar();
+    }
+})();
+
+/* ─── ICON PROTECTION FROM TRANSLATE ─── */
+(function() {
+    function protectIcons() {
+        document.querySelectorAll('.material-symbols-outlined, .material-icons, [class*="material-symbols"]').forEach(el => {
+            el.classList.add('notranslate'); el.setAttribute('translate', 'no');
+        });
+        document.querySelectorAll('[class*="fa-"], .fas, .far, .fab, .fal, .fad').forEach(el => {
+            el.classList.add('notranslate'); el.setAttribute('translate', 'no');
+        });
+        document.querySelectorAll('code, pre, .font-mono').forEach(el => {
+            el.classList.add('notranslate'); el.setAttribute('translate', 'no');
+        });
+        const fab = document.getElementById('sh-translate-fab');
+        if (fab) { fab.classList.add('notranslate'); fab.setAttribute('translate', 'no'); }
+        const popup = document.getElementById('sh-translate-popup');
+        if (popup) { popup.classList.add('notranslate'); popup.setAttribute('translate', 'no'); }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', protectIcons);
+    } else {
+        protectIcons();
+    }
+    // Also observe for dynamic elements
+    const obs = new MutationObserver(protectIcons);
+    const startObs = () => { obs.observe(document.body, { childList: true, subtree: true }); setTimeout(() => obs.disconnect(), 10000); };
+    if (document.body) startObs(); else document.addEventListener('DOMContentLoaded', startObs);
+})();
