@@ -381,107 +381,319 @@ window.attachSaveBtn = function (btnId, toolName, inputsFn, resultsFn) {
             border-color: #7c3aed;
             color: #fff;
         }
-        /* Hide default Google Translate bar */
-        .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        /* Hide default Google Translate bar - use height:0 not display:none so combo is accessible */
+        .goog-te-banner-frame { display: none !important; }
+        .skiptranslate { height: 0 !important; overflow: hidden !important; opacity: 0 !important; }
         body { top: 0 !important; }
     `;
     document.head.appendChild(s);
 })();
 
 /* ─── 6. Google Translate Floating Widget ─── */
-(function injectTranslateWidget() {
-    if (document.getElementById('sh-translate-fab')) return;
+(function() {
+    function injectTranslateWidget() {
+        if (document.getElementById('sh-translate-fab')) return;
 
-    const languages = [
-        { code: 'en', name: 'English', flag: '🇺🇸' },
-        { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-        { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
-        { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
-        { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
-        { code: 'bn', name: 'বাংলা', flag: '🇮🇳' },
-        { code: 'gu', name: 'ગુજરાતી', flag: '🇮🇳' },
-        { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
-        { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
-        { code: 'pa', name: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
-        { code: 'ur', name: 'اردو', flag: '🇵🇰' },
-        { code: 'es', name: 'Español', flag: '🇪🇸' },
-        { code: 'fr', name: 'Français', flag: '🇫🇷' },
-        { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-        { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
-        { code: 'ja', name: '日本語', flag: '🇯🇵' },
-        { code: 'ko', name: '한국어', flag: '🇰🇷' },
-        { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-        { code: 'pt', name: 'Português', flag: '🇧🇷' },
-        { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-    ];
+        const languages = [
+            { code: 'en', name: 'English', flag: '🇺🇸' },
+            { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+            { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
+            { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
+            { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
+            { code: 'bn', name: 'বাংলা', flag: '🇮🇳' },
+            { code: 'gu', name: 'ગુજરાતી', flag: '🇮🇳' },
+            { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
+            { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
+            { code: 'pa', name: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+            { code: 'ur', name: 'اردو', flag: '🇵🇰' },
+            { code: 'es', name: 'Español', flag: '🇪🇸' },
+            { code: 'fr', name: 'Français', flag: '🇫🇷' },
+            { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+            { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
+            { code: 'ja', name: '日本語', flag: '🇯🇵' },
+            { code: 'ko', name: '한국어', flag: '🇰🇷' },
+            { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+            { code: 'pt', name: 'Português', flag: '🇧🇷' },
+            { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+        ];
 
-    // Create FAB button
-    const fab = document.createElement('button');
-    fab.id = 'sh-translate-fab';
-    fab.title = 'Translate this page';
-    fab.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg> Translate`;
+        // FAB
+        const fab = document.createElement('button');
+        fab.id = 'sh-translate-fab';
+        fab.title = 'Translate this page';
+        fab.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg> Translate`;
 
-    // Create popup
-    const popup = document.createElement('div');
-    popup.id = 'sh-translate-popup';
-    popup.innerHTML = `
-        <h4>🌐 Select Language</h4>
-        <div class="sh-lang-grid">
-            ${languages.map(l => `<button class="sh-lang-btn" data-lang="${l.code}" onclick="window._shTranslateTo('${l.code}', this)">${l.flag} ${l.name}</button>`).join('')}
-        </div>
-    `;
+        // Popup
+        const popup = document.createElement('div');
+        popup.id = 'sh-translate-popup';
+        popup.innerHTML = `
+            <h4>🌐 Select Language</h4>
+            <div class="sh-lang-grid">
+                ${languages.map(l => `<button class="sh-lang-btn" data-lang="${l.code}">${l.flag} ${l.name}</button>`).join('')}
+            </div>
+        `;
 
-    document.body.appendChild(popup);
-    document.body.appendChild(fab);
+        document.body.appendChild(popup);
+        document.body.appendChild(fab);
 
-    // Toggle popup
-    fab.addEventListener('click', (e) => {
-        e.stopPropagation();
-        popup.classList.toggle('active');
-    });
+        // Bind language buttons via delegation
+        popup.addEventListener('click', function(e) {
+            const btn = e.target.closest('.sh-lang-btn');
+            if (!btn) return;
+            const langCode = btn.getAttribute('data-lang');
+            popup.querySelectorAll('.sh-lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-    // Close popup on outside click
-    document.addEventListener('click', (e) => {
-        if (!popup.contains(e.target) && e.target !== fab) {
-            popup.classList.remove('active');
-        }
-    });
+            // Set cookie directly for Google Translate
+            document.cookie = "googtrans=/en/" + langCode + ";path=/";
+            document.cookie = "googtrans=/en/" + langCode + ";path=/;domain=" + window.location.hostname;
 
-    // Google Translate Element init
-    window.googleTranslateElementInit = function() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'en',
-            autoDisplay: false,
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-        }, 'google_translate_element');
-    };
+            // Also trigger select if it exists
+            const doTranslate = () => {
+                const select = document.querySelector('.goog-te-combo');
+                if (select) {
+                    select.value = langCode;
+                    select.dispatchEvent(new Event('change'));
+                    setTimeout(() => popup.classList.remove('active'), 300);
+                    return true;
+                }
+                return false;
+            };
 
-    // Hidden container for Google Translate
-    const gDiv = document.createElement('div');
-    gDiv.id = 'google_translate_element';
-    gDiv.style.display = 'none';
-    document.body.appendChild(gDiv);
+            if (!doTranslate()) {
+                // Retry a few times as Google Translate may still be loading
+                let retries = 0;
+                const interval = setInterval(() => {
+                    if (doTranslate() || retries++ > 20) {
+                        clearInterval(interval);
+                        if (retries > 20) {
+                            // Fallback: reload page with cookie set
+                            window.location.reload();
+                        }
+                    }
+                }, 300);
+            }
+        });
 
-    // Load Google Translate script
-    const gScript = document.createElement('script');
-    gScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    gScript.async = true;
-    document.body.appendChild(gScript);
+        // Toggle popup
+        fab.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('active');
+        });
 
-    // Translation trigger
-    window._shTranslateTo = function(langCode, btnEl) {
-        // Update active state
-        popup.querySelectorAll('.sh-lang-btn').forEach(b => b.classList.remove('active'));
-        btnEl.classList.add('active');
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!popup.contains(e.target) && e.target !== fab) {
+                popup.classList.remove('active');
+            }
+        });
 
-        // Trigger Google Translate
-        const select = document.querySelector('.goog-te-combo');
-        if (select) {
-            select.value = langCode;
-            select.dispatchEvent(new Event('change'));
-        }
+        // Google Translate Element - keep visible but off-screen so combo initializes
+        const gDiv = document.createElement('div');
+        gDiv.id = 'google_translate_element';
+        gDiv.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+        document.body.appendChild(gDiv);
 
-        // Close popup after selection
-        setTimeout(() => popup.classList.remove('active'), 300);
-    };
+        // Google Translate init callback
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
+
+        // Load the Google Translate script
+        const gScript = document.createElement('script');
+        gScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        gScript.async = true;
+        document.body.appendChild(gScript);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectTranslateWidget);
+    } else {
+        injectTranslateWidget();
+    }
 })();
+
+/* ─── 7. Mobile Hamburger Menu Injection ─── */
+(function() {
+    function injectMobileNav() {
+        if (document.getElementById('sh-mobile-hamburger')) return;
+
+        // Find the fixed nav bar used by calculator pages
+        const nav = document.querySelector('nav.fixed');
+        if (!nav) return;
+
+        const navContainer = nav.querySelector('.flex.justify-between') || nav.querySelector('[class*="justify-between"]');
+        if (!navContainer) return;
+
+        // Check if hamburger already exists from component-loader
+        if (nav.querySelector('.mobile-toggle') || nav.querySelector('#sh-mobile-hamburger')) return;
+
+        // Inject hamburger button (visible only on mobile, before the logo)
+        const logoBlock = navContainer.querySelector('#nav-logo-block') || navContainer.firstElementChild;
+        if (!logoBlock) return;
+
+        const burger = document.createElement('button');
+        burger.id = 'sh-mobile-hamburger';
+        burger.title = 'Menu';
+        burger.setAttribute('aria-label', 'Open navigation menu');
+        burger.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+        logoBlock.insertBefore(burger, logoBlock.firstChild);
+
+        // Create mobile overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'sh-mobile-overlay';
+        overlay.innerHTML = `
+            <div class="sh-mob-header">
+                <span class="sh-mob-brand">SMART HUB</span>
+                <button id="sh-mobile-close" aria-label="Close menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <nav class="sh-mob-links">
+                <a href="/index.html"><span class="sh-mob-icon">🏠</span> Home</a>
+                <a href="/calculators.html"><span class="sh-mob-icon">🧮</span> Tools</a>
+                <a href="/GameLobby.html"><span class="sh-mob-icon">🎮</span> Games</a>
+                <a href="/history.html"><span class="sh-mob-icon">📜</span> History</a>
+                <a href="/about.html"><span class="sh-mob-icon">ℹ️</span> About</a>
+                <a href="/settings.html"><span class="sh-mob-icon">⚙️</span> Settings</a>
+            </nav>
+        `;
+        document.body.appendChild(overlay);
+
+        // Inject CSS for mobile hamburger and overlay
+        const style = document.createElement('style');
+        style.id = '_sh-mobile-nav-css';
+        style.textContent = `
+            #sh-mobile-hamburger {
+                display: none;
+                background: none;
+                border: none;
+                color: #334155;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 10px;
+                transition: all 0.2s;
+                flex-shrink: 0;
+            }
+            #sh-mobile-hamburger:hover {
+                background: rgba(139,92,246,0.1);
+                color: #7c3aed;
+            }
+            @media (max-width: 768px) {
+                #sh-mobile-hamburger { display: flex; align-items: center; justify-content: center; }
+                nav.fixed { padding-left: 16px !important; padding-right: 16px !important; }
+                main { padding-left: 16px !important; padding-right: 16px !important; }
+                main h1 { font-size: 2rem !important; }
+                footer { padding-left: 16px !important; padding-right: 16px !important; }
+                footer .flex { flex-direction: column; gap: 8px; text-align: center; }
+            }
+            #sh-mobile-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 99999;
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
+                display: none;
+                flex-direction: column;
+                padding: 24px;
+                animation: shSlideIn 0.3s ease;
+            }
+            #sh-mobile-overlay.active { display: flex; }
+            @keyframes shSlideIn {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .sh-mob-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .sh-mob-brand {
+                font-size: 18px;
+                font-weight: 900;
+                letter-spacing: -0.02em;
+                background: linear-gradient(135deg, #7c3aed, #6366f1);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .sh-mob-header button {
+                background: #f1f5f9;
+                border: none;
+                border-radius: 12px;
+                padding: 10px;
+                cursor: pointer;
+                color: #475569;
+                transition: all 0.2s;
+            }
+            .sh-mob-header button:hover { background: #e2e8f0; }
+            .sh-mob-links {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .sh-mob-links a {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 16px 20px;
+                border-radius: 16px;
+                font-size: 16px;
+                font-weight: 700;
+                color: #1e293b;
+                text-decoration: none;
+                transition: all 0.2s;
+                letter-spacing: -0.01em;
+            }
+            .sh-mob-links a:hover {
+                background: rgba(139,92,246,0.08);
+                color: #7c3aed;
+            }
+            .sh-mob-icon { font-size: 20px; }
+            /* Dark mode support */
+            .dark #sh-mobile-overlay, .dark-mode #sh-mobile-overlay {
+                background: rgba(15,23,42,0.98);
+            }
+            .dark .sh-mob-links a, .dark-mode .sh-mob-links a { color: #e2e8f0; }
+            .dark .sh-mob-links a:hover, .dark-mode .sh-mob-links a:hover { background: rgba(139,92,246,0.15); color: #a78bfa; }
+            .dark .sh-mob-header, .dark-mode .sh-mob-header { border-color: rgba(255,255,255,0.1); }
+            .dark .sh-mob-header button, .dark-mode .sh-mob-header button { background: rgba(255,255,255,0.05); color: #94a3b8; }
+            .dark #sh-mobile-hamburger, .dark-mode #sh-mobile-hamburger { color: #e2e8f0; }
+        `;
+        document.head.appendChild(style);
+
+        // Event handlers
+        burger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sh-mobile-close').addEventListener('click', () => {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close overlay when a link is clicked
+        overlay.querySelectorAll('.sh-mob-links a').forEach(a => {
+            a.addEventListener('click', () => {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectMobileNav);
+    } else {
+        injectMobileNav();
+    }
+})();
+

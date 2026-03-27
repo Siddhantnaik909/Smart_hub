@@ -1696,7 +1696,6 @@ updateUserInterface();
 (function injectTranslateIfMissing() {
     // If calc-utils.js already injected the translate button, skip
     if (document.getElementById('sh-translate-fab')) return;
-    // Wait for DOM to be ready
     const inject = () => {
         if (document.getElementById('sh-translate-fab')) return;
 
@@ -1738,7 +1737,8 @@ updateUserInterface();
                 #sh-translate-popup .sh-lang-btn{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:11px;font-weight:700;color:#0f172a;cursor:pointer;text-align:left;transition:all .2s}
                 #sh-translate-popup .sh-lang-btn:hover{background:#ede9fe;border-color:#c4b5fd;color:#7c3aed}
                 #sh-translate-popup .sh-lang-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff}
-                .goog-te-banner-frame,.skiptranslate{display:none!important}
+                .goog-te-banner-frame{display:none!important}
+                .skiptranslate{height:0!important;overflow:hidden!important;opacity:0!important}
                 body{top:0!important}
                 @keyframes shFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
             `;
@@ -1752,36 +1752,60 @@ updateUserInterface();
 
         const popup = document.createElement('div');
         popup.id = 'sh-translate-popup';
-        popup.innerHTML = `<h4>🌐 Select Language</h4><div class="sh-lang-grid">${languages.map(l => `<button class="sh-lang-btn" data-lang="${l.code}" onclick="window._shTranslateTo('${l.code}',this)">${l.flag} ${l.name}</button>`).join('')}</div>`;
+        popup.innerHTML = `<h4>🌐 Select Language</h4><div class="sh-lang-grid">${languages.map(l => `<button class="sh-lang-btn" data-lang="${l.code}">${l.flag} ${l.name}</button>`).join('')}</div>`;
 
         document.body.appendChild(popup);
         document.body.appendChild(fab);
+
+        // Bind language buttons via delegation
+        popup.addEventListener('click', function(e) {
+            const btn = e.target.closest('.sh-lang-btn');
+            if (!btn) return;
+            const langCode = btn.getAttribute('data-lang');
+            popup.querySelectorAll('.sh-lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Set cookie directly for Google Translate
+            document.cookie = "googtrans=/en/" + langCode + ";path=/";
+            document.cookie = "googtrans=/en/" + langCode + ";path=/;domain=" + window.location.hostname;
+
+            const doTranslate = () => {
+                const select = document.querySelector('.goog-te-combo');
+                if (select) {
+                    select.value = langCode;
+                    select.dispatchEvent(new Event('change'));
+                    setTimeout(() => popup.classList.remove('active'), 300);
+                    return true;
+                }
+                return false;
+            };
+
+            if (!doTranslate()) {
+                let retries = 0;
+                const interval = setInterval(() => {
+                    if (doTranslate() || retries++ > 20) {
+                        clearInterval(interval);
+                        if (retries > 20) window.location.reload();
+                    }
+                }, 300);
+            }
+        });
 
         fab.addEventListener('click', e => { e.stopPropagation(); popup.classList.toggle('active'); });
         document.addEventListener('click', e => { if (!popup.contains(e.target) && e.target !== fab) popup.classList.remove('active'); });
 
         if (!window.googleTranslateElementInit) {
             window.googleTranslateElementInit = function() {
-                new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false, layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
+                new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
             };
             const gDiv = document.createElement('div');
             gDiv.id = 'google_translate_element';
-            gDiv.style.display = 'none';
+            gDiv.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
             document.body.appendChild(gDiv);
             const gScript = document.createElement('script');
-            gScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            gScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
             gScript.async = true;
             document.body.appendChild(gScript);
-        }
-
-        if (!window._shTranslateTo) {
-            window._shTranslateTo = function(langCode, btnEl) {
-                popup.querySelectorAll('.sh-lang-btn').forEach(b => b.classList.remove('active'));
-                btnEl.classList.add('active');
-                const select = document.querySelector('.goog-te-combo');
-                if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); }
-                setTimeout(() => popup.classList.remove('active'), 300);
-            };
         }
     };
     if (document.readyState === 'loading') {
@@ -1790,3 +1814,4 @@ updateUserInterface();
         setTimeout(inject, 500);
     }
 })();
+
