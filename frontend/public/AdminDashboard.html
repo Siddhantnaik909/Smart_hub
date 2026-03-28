@@ -378,43 +378,14 @@
                 <div class="bg-surface-container-low rounded-xl p-6 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="font-bold text-on-surface tracking-tight">System Alerts</h3>
-                        <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded-md">2 CRITICAL</span>
+                        <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded-md alerts-badge">Loading</span>
                     </div>
-                    <div class="space-y-4 flex-1 overflow-y-auto">
-                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-error shadow-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs font-bold text-error uppercase">Security Breach</span>
-                                <span class="text-[10px] text-on-surface-variant">2m ago</span>
-                            </div>
-                            <p class="text-sm text-on-surface">Multiple failed login attempts detected on API Node-04.
-                            </p>
-                        </div>
-                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-amber-500 shadow-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs font-bold text-amber-600 uppercase">Warning</span>
-                                <span class="text-[10px] text-on-surface-variant">45m ago</span>
-                            </div>
-                            <p class="text-sm text-on-surface">Storage capacity on Log-Server-B is exceeding 85%.</p>
-                        </div>
-                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs font-bold text-indigo-600 uppercase">Maintenance</span>
-                                <span class="text-[10px] text-on-surface-variant">2h ago</span>
-                            </div>
-                            <p class="text-sm text-on-surface">Scheduled database optimization completed successfully.
-                            </p>
-                        </div>
-                        <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-indigo-500 shadow-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs font-bold text-indigo-600 uppercase">Update</span>
-                                <span class="text-[10px] text-on-surface-variant">5h ago</span>
-                            </div>
-                            <p class="text-sm text-on-surface">Scientific Engine tool updated to v2.4.1.</p>
-                        </div>
+                    <div id="alerts-container" class="space-y-4 flex-1 overflow-y-auto">
+                        <div class="p-4 text-center text-xs text-on-surface-variant italic">Loading alerts...</div>
                     </div>
-                    <button
-                        class="w-full mt-6 py-3 text-xs font-bold text-primary border-2 border-primary/10 rounded-xl hover:bg-primary/5 transition-all uppercase tracking-widest">View
-                        All Logs</button>
+                    <a href="/admin.html"
+                        class="w-full mt-6 py-3 text-xs font-bold text-primary border-2 border-primary/10 rounded-xl hover:bg-primary/5 transition-all uppercase tracking-widest text-center block">View
+                        All Logs →</a>
                 </div>
             </div>
             <!-- Management Modules Section -->
@@ -458,82 +429,14 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-xl font-bold tracking-tight text-on-surface">Game Lobby Admin</h3>
                         <div class="flex items-center gap-4">
-                            <span class="text-xs font-bold text-on-surface-variant">42 Active Rooms</span>
-                            <button
+                            <span id="game-lobby-count" class="text-xs font-bold text-on-surface-variant">0 Active Rooms</span>
+                            <button onclick="createGameLobby()"
                                 class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Create
                                 Lobby</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Lobby Card 1 -->
-                        <div
-                            class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
-                                    <img class="w-full h-full object-cover"
-                                        data-alt="Cyberpunk Game Concept Art Illustration"
-                                        src="/assets/admin_dashboard/nexus-rift.png" />
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-sm">Nexus Rift [EU-1]</h4>
-                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">
-                                        Competitive • 5v5</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex -space-x-2">
-                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
-                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
-                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-400"></div>
-                                    <div
-                                        class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">
-                                        7+</div>
-                                </div>
-                                <span class="text-xs font-bold text-primary">8/10 Players</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button
-                                    class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
-                                <button
-                                    class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
-                                    <span class="material-symbols-outlined text-sm">close</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Lobby Card 2 -->
-                        <div
-                            class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow relative group overflow-hidden border border-transparent hover:border-primary/10 transition-all">
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden">
-                                    <img class="w-full h-full object-cover"
-                                        data-alt="Neon Futuristic Game Interface Design"
-                                        src="/assets/admin_dashboard/void-runners.png" />
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-sm">Void Runners</h4>
-                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Casual •
-                                        Battle Royale</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex -space-x-2">
-                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
-                                    <div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
-                                    <div
-                                        class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold">
-                                        2+</div>
-                                </div>
-                                <span class="text-xs font-bold text-amber-600">Waiting...</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button
-                                    class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all">MANAGE</button>
-                                <button
-                                    class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all">
-                                    <span class="material-symbols-outlined text-sm">close</span>
-                                </button>
-                            </div>
-                        </div>
+                    <div id="game-lobby-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="col-span-2 p-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px] bg-surface-container-low rounded-xl">Loading lobbies...</div>
                     </div>
                 </section>
             </div>
@@ -568,189 +471,211 @@
         <script type="module" src="/js/script.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
-                // Load Admin Profile
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const token = localStorage.getItem('token');
                 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                const API = window.location.origin;
 
-                const updateUI = (u) => {
+                // ===== 1. REAL ADMIN PROFILE =====
+                const updateAdminProfile = (u) => {
                     if (!u || !u.name) return;
-                    const nameEls = ['sidebar-admin-name', 'admin-header-name'];
-                    const roleEls = ['sidebar-admin-role', 'admin-header-role'];
-                    const imgEls = ['sidebar-admin-avatar', 'admin-top-avatar'];
-
-                    nameEls.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.innerText = u.name;
-                    });
-                    roleEls.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.innerText = u.role?.toUpperCase() || 'ADMIN';
-                    });
-
-                    if (u.photo) {
-                        const path = u.photo.startsWith('http') ? u.photo : `${window.location.origin}${u.photo}`;
-                        imgEls.forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.src = path;
-                        });
+                    const nameEl = document.getElementById('admin-header-name');
+                    const roleEl = document.getElementById('admin-header-role');
+                    const avatarEl = document.getElementById('admin-top-avatar');
+                    if (nameEl) nameEl.innerText = u.name;
+                    if (roleEl) roleEl.innerText = (u.role || 'admin').toUpperCase();
+                    if (avatarEl) {
+                        avatarEl.src = u.photo ? (u.photo.startsWith('http') ? u.photo : `${API}${u.photo}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=4f46e5&color=fff&bold=true`;
+                        avatarEl.onerror = () => { avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=4f46e5&color=fff&bold=true`; };
                     }
                 };
+                if (isLoggedIn && user.name) updateAdminProfile(user);
 
-                if (isLoggedIn && user.name) updateUI(user);
-                
-                // Load Contact Messages
-                window.loadContactMessages = async () => {
-                    const tbody = document.getElementById('contact-messages-body');
-                    if (!tbody) return;
+                // ===== 2. REAL PLATFORM STATS =====
+                try {
+                    const res = await fetch(`${API}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!res.ok) throw new Error('API offline');
+                    const data = await res.json();
+                    document.getElementById('stat-total-users').innerText = (data.users || 0).toLocaleString();
+                    document.getElementById('stat-active-sessions').innerText = (data.activeSessions || 0).toLocaleString();
+                    document.getElementById('stat-latency').innerText = data.latency || '--';
+                    document.getElementById('stat-total-tools').innerText = (data.tools || 0).toLocaleString();
+                } catch (e) {
+                    console.warn('Stats offline:', e.message);
+                    ['stat-total-users','stat-active-sessions','stat-total-tools'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = '0'; });
+                    const lat = document.getElementById('stat-latency'); if(lat) lat.innerText = '--';
+                }
 
+                // ===== 3. SYSTEM ALERTS (real from API) =====
+                const alertsBox = document.getElementById('alerts-container');
+                if (alertsBox) {
                     try {
-                        const token = localStorage.getItem('token');
-                        const response = await fetch('/api/admin/contact-messages', {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-
-                        if (!response.ok) throw new Error("Failed to fetch support messages");
-                        const messages = await response.json();
-
-                        if (messages.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">No messages received yet.</td></tr>';
-                            return;
+                        const res = await fetch(`${API}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const data = await res.json();
+                        const alerts = data.alerts || [];
+                        const colors = { error:'border-error',warning:'border-amber-500',info:'border-indigo-500' };
+                        const txColors = { error:'text-error',warning:'text-amber-600',info:'text-indigo-600' };
+                        if (alerts.length === 0) { alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy</div>'; }
+                        else {
+                            alertsBox.innerHTML = alerts.map(a => `
+                                <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 ${colors[a.type]||'border-indigo-500'} shadow-sm">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <span class="text-xs font-bold ${txColors[a.type]||'text-indigo-600'} uppercase">${a.title}</span>
+                                        <span class="text-[10px] text-on-surface-variant">${a.time}</span>
+                                    </div>
+                                    <p class="text-sm text-on-surface">${a.body}</p>
+                                </div>
+                            `).join('');
                         }
+                        const badge = document.querySelector('.alerts-badge');
+                        if (badge) { const crit = alerts.filter(a=>a.type==='error').length; badge.textContent = crit > 0 ? crit+' CRITICAL' : alerts.length+' INFO'; badge.className = 'px-2 py-0.5 '+(crit>0?'bg-error':'bg-indigo-600')+' text-white text-[10px] font-bold rounded-md alerts-badge'; }
+                    } catch(e) { alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy — no alerts</div>'; }
+                }
 
-                        tbody.innerHTML = messages.map(msg => `
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-sm text-slate-900">${msg.name}</span>
-                                        <span class="text-[10px] text-slate-400 font-mono">${msg.email}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <p class="text-xs text-on-surface line-clamp-2 max-w-md">${msg.message}</p>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex flex-col items-end gap-2">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase">${new Date(msg.timestamp).toLocaleString()}</span>
-                                        <button onclick="alert('Message Detail: \\nSender: ${msg.name}\\nEmail: ${msg.email}\\n\\n${msg.message}')" 
-                                                class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-black rounded uppercase hover:bg-primary hover:text-white transition-all">
-                                            Quick View
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('');
-
-                    } catch (err) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">Error: ${err.message}</td></tr>`;
-                    }
-                };
-
-                loadContactMessages();
-
-                // Load Tools Inventory
+                // ===== 4. CALCULATOR TOOLS INVENTORY =====
                 window.loadToolsInventory = async () => {
                     const tbody = document.getElementById('tools-body');
                     if (!tbody) return;
-
                     try {
-                        const token = localStorage.getItem('token');
-                        const response = await fetch('/api/admin/calculators', {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-
-                        if (!response.ok) throw new Error("Failed to fetch inventory");
-                        const tools = await response.json();
-
-                        tbody.innerHTML = tools.map(tool => `
+                        const res = await fetch(`${API}/api/admin/calculators`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (!res.ok) throw new Error('Re-login required');
+                        const tools = await res.json();
+                        const countEl = document.getElementById('stat-total-tools');
+                        if (countEl) countEl.innerText = tools.length.toLocaleString();
+                        tbody.innerHTML = tools.slice(0,20).map(tool => `
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-primary/5 text-primary flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-lg">calculate</span>
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-sm">${tool.name}</span>
-                                            <span class="text-[8px] text-slate-400 uppercase font-black tracking-widest">${tool.category}</span>
-                                        </div>
+                                        <div class="w-8 h-8 rounded bg-primary/5 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-lg">calculate</span></div>
+                                        <div class="flex flex-col"><span class="font-bold text-sm">${tool.name}</span><span class="text-[8px] text-slate-400 uppercase font-black tracking-widest">${tool.category}</span></div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">${tool.status}</span>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-on-surface-variant font-mono text-[10px]">${tool.usage}</td>
+                                <td class="px-6 py-4"><span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">${tool.status}</span></td>
+                                <td class="px-6 py-4 text-on-surface-variant font-mono text-[10px]">${tool.usage}</td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
-                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" onclick="window.location.href='/admin/editor?path=${tool.path}'">
-                                            <span class="material-symbols-outlined text-lg">edit</span>
-                                        </button>
-                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
-                                            <span class="material-symbols-outlined text-lg">toggle_on</span>
-                                        </button>
+                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" onclick="window.open('/${tool.path}','_blank')" title="Preview"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors" onclick="window.location.href='/admin.html?edit=${encodeURIComponent(tool.path)}'" title="Edit in Command Center"><span class="material-symbols-outlined text-lg">edit</span></button>
                                     </div>
                                 </td>
                             </tr>
                         `).join('');
-
-                    } catch (err) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">Error: ${err.message}</td></tr>`;
-                    }
+                        if (tools.length > 20) tbody.innerHTML += `<tr><td colspan="4" class="px-6 py-4 text-center"><a href="/admin.html" class="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View all ${tools.length} tools in Command Center &rarr;</a></td></tr>`;
+                    } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">${err.message}</td></tr>`; }
                 };
-
                 loadToolsInventory();
 
-                // Platform Stats Logic
-                const updateStats = (data) => {
-                    document.getElementById('stat-total-users').innerText = (data.users || 1240).toLocaleString();
-                    document.getElementById('stat-active-sessions').innerText = (data.activeSessions || 42).toLocaleString();
-                    document.getElementById('stat-latency').innerText = data.latency || "24ms";
-                    document.getElementById('stat-total-tools').innerText = (data.tools || 91).toLocaleString();
+                // ===== 5. CONTACT / SUPPORT MESSAGES =====
+                window.loadContactMessages = async () => {
+                    const tbody = document.getElementById('contact-messages-body');
+                    if (!tbody) return;
+                    try {
+                        const res = await fetch(`${API}/api/admin/contact-messages`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (!res.ok) throw new Error('Auth failed');
+                        const messages = await res.json();
+                        if (!messages || messages.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">No messages received yet.</td></tr>'; return; }
+                        tbody.innerHTML = messages.map(msg => `
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4"><div class="flex flex-col"><span class="font-bold text-sm text-slate-900">${msg.name}</span><span class="text-[10px] text-slate-400 font-mono">${msg.email}</span></div></td>
+                                <td class="px-6 py-4"><p class="text-xs text-on-surface max-w-md">${msg.message}</p></td>
+                                <td class="px-6 py-4 text-right"><div class="flex flex-col items-end gap-2"><span class="text-[10px] font-bold text-slate-400 uppercase">${new Date(msg.timestamp).toLocaleString()}</span><button onclick="alert('From: ${msg.name}\nEmail: ${msg.email}\n\n${msg.message}')" class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-black rounded uppercase hover:bg-primary hover:text-white transition-all">View</button></div></td>
+                            </tr>
+                        `).join('');
+                    } catch (err) { tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">${err.message}</td></tr>`; }
+                };
+                loadContactMessages();
+
+                // ===== 6. GAME LOBBY (Dynamic with Backend API) =====
+                window.createGameLobby = async () => {
+                    const name = prompt('Enter lobby name (e.g., "Chess Arena [IN-1]")');
+                    if (!name) return;
+                    try {
+                        const res = await fetch(`${API}/api/admin/rooms`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({ name, maxPlayers: 2 })
+                        });
+                        if (res.ok) {
+                            alert('Admin lobby injected into network.');
+                            renderGameLobbies();
+                        }
+                    } catch (e) { alert('Failed to create lobby: ' + e.message); }
                 };
 
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('/api/admin/stats', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+                window.deleteGameLobby = async (code) => {
+                    if (!confirm('Close this lobby and disconnect players?')) return;
+                    try {
+                        const res = await fetch(`${API}/api/admin/rooms/${code}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (res.ok) renderGameLobbies();
+                    } catch (e) { alert('Action failed'); }
+                };
 
-                    if (!response.ok) throw new Error("Backend Offline");
-                    const stats = await response.json();
-                    if (stats && !stats.error) updateStats(stats);
-                    else throw new Error("Stats Data Corrupt");
-                } catch (err) {
-                    console.warn("Using simulation mode for platform stats:", err.message);
-                    updateStats({ users: 1240, activeSessions: 42, latency: "24ms", dailyPlayers: 315 });
-                }
+                window.manageGameLobby = (code) => {
+                    alert(`Management protocol for node ${code} engaged. Directing traffic to core...`);
+                };
 
-                // Local Table Filter Search
+                const renderGameLobbies = async () => {
+                    const container = document.getElementById('game-lobby-grid');
+                    const countEl = document.getElementById('game-lobby-count');
+                    if (!container) return;
+
+                    try {
+                        const res = await fetch(`${API}/api/admin/rooms`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const active = await res.json();
+                        
+                        if (countEl) countEl.innerText = active.length + ' Active Rooms';
+                        if (active.length === 0) { 
+                            container.innerHTML = '<div class="col-span-2 p-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px] bg-surface-container-low rounded-xl">No active lobbies detected on network — click Create Lobby to start!</div>'; 
+                        } else {
+                            const sc = { Waiting:'text-amber-600', Full:'text-error', 'In Progress':'text-emerald-600' };
+                            container.innerHTML = active.map(l => `
+                                <div class="bg-surface-container-lowest p-5 rounded-xl tonal-shadow border border-transparent hover:border-primary/10 transition-all">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-black text-lg">${l.id.substring(0,2)}</div>
+                                        <div><h4 class="font-bold text-sm">${l.id}</h4><p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">${l.type}</p></div>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-slate-400">group</span><span class="text-xs font-bold">${l.players}/${l.maxPlayers}</span></div>
+                                        <span class="text-xs font-bold ${sc[l.status]||'text-slate-500'}">${l.status}</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="manageGameLobby('${l.id}')" class="flex-1 py-2 text-[10px] font-bold bg-surface-container-high rounded-lg hover:bg-primary hover:text-white transition-all uppercase">Analyze</button>
+                                        <button onclick="deleteGameLobby('${l.id}')" class="p-2 bg-surface-container-high rounded-lg text-error hover:bg-error hover:text-white transition-all"><span class="material-symbols-outlined text-sm">block</span></button>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                    } catch(e) {
+                         container.innerHTML = '<div class="col-span-2 p-4 text-center text-error italic text-xs">Connectivity failure to game backbone.</div>';
+                    }
+                };
+                renderGameLobbies();
+                setInterval(renderGameLobbies, 5000); // Polling for real-time update
+
+                // ===== 7. CLOSE DROPDOWN =====
+                document.addEventListener('click', (e) => {
+                    const dropdown = document.getElementById('avatar-dropdown');
+                    const avatar = document.getElementById('admin-top-avatar');
+                    if (dropdown && avatar && !dropdown.contains(e.target) && e.target !== avatar && !avatar.parentElement.contains(e.target)) dropdown.classList.add('hidden');
+                });
+
+                // ===== 8. SEARCH FILTER =====
                 const searchInput = document.querySelector('input[placeholder*="Search system logs"]');
                 if (searchInput) {
                     searchInput.addEventListener('input', (e) => {
                         const term = e.target.value.toLowerCase();
-                        const rows = document.querySelectorAll('tbody tr');
-                        rows.forEach(row => {
-                            const name = row.querySelector('.font-bold')?.innerText.toLowerCase();
-                            if (name) row.style.display = name.includes(term) ? '' : 'none';
-                        });
+                        document.querySelectorAll('#tools-body tr').forEach(row => { row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none'; });
                     });
                 }
-
-            // Close dropdown on click outside
-            document.addEventListener('click', (e) => {
-                const dropdown = document.getElementById('avatar-dropdown');
-                const avatar = document.getElementById('admin-top-avatar');
-                if (dropdown && !dropdown.contains(e.target) && e.target !== avatar && !avatar.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
             });
-        });
 
-        function confirmLogout() {
-            if (confirm("Terminate security session?")) {
-                localStorage.clear();
-                window.location.href = "/login.html";
+            function confirmLogout() {
+                if (confirm('Terminate security session?')) { localStorage.clear(); window.location.href = '/login.html'; }
             }
-        }
-    </script>
+        </script>
 </body>
 
 </html>

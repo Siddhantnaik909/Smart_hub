@@ -1635,92 +1635,75 @@
             } catch (e) { alert("Failed to delete user"); }
         }
 
-        function renderAdminTools() {
+        async function renderAdminTools() {
             const container = document.getElementById('tools-management-grid');
             if (!container) return;
 
-            // Populate global admin tool data on first run
-            if (adminToolData.length === 0) {
-                let sourceData = TOOLS_CATALOG;
-                if (window.CALCULATORS_DATA) {
-                    sourceData = window.CALCULATORS_DATA.map(c => ({
-                        cat: c.category,
-                        icon: c.icon,
-                        tools: c.items.map(t => ({ name: t.name, path: t.link }))
-                    }));
-                }
-                adminToolData = sourceData;
-            } 
-
-            // 0. Merge Custom Categories
-            if (window.customCategories && window.customCategories.length > 0) {
-                const customMapped = window.customCategories.map(c => ({
-                    cat: c.category,
-                    icon: c.icon,
-                    tools: c.items || [],
-                    isCustom: true // Flag to allow deletion
-                }));
-                adminToolData = [...adminToolData.filter(c => !c.isCustom), ...customMapped];
-            }
-
-            // 1. Sort Catalog based on saved order
-            let displayCatalog = [...adminToolData];
-            if (window.currentSettings && window.currentSettings.categoryOrder) {
-                const order = window.currentSettings.categoryOrder;
-                displayCatalog.sort((a, b) => {
-                    const indexA = order.indexOf(a.cat);
-                    const indexB = order.indexOf(b.cat);
-                    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-                    if (indexA !== -1) return -1;
-                    if (indexB !== -1) return 1;
-                    return 0;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/api/admin/calculators`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-            }
-            
-            const disabledTools = (window.currentSettings && window.currentSettings.disabledTools) ? window.currentSettings.disabledTools : [];
-            
-            let html = '';
-            displayCatalog.forEach(cat => {
-                const catId = cat.cat.replace(/\s+/g, '-').toLowerCase();
-                // Check if all tools in this category are enabled
-                const catToolPaths = cat.tools.map(t => t.path);
-                const disabledCount = catToolPaths.filter(path => disabledTools.includes(path)).length;
-                const isAllEnabled = disabledCount === 0;
+                const tools = await res.json();
+                
+                // Group tools by category
+                const groups = {};
+                tools.forEach(t => {
+                    if (!groups[t.category]) groups[t.category] = [];
+                    groups[t.category].push(t);
+                });
 
-                html += `
-                <div class="draggable-category" draggable="true" data-cat-name="${cat.cat}" data-is-custom="${!!cat.isCustom}" style="padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card);">
-                    <div class="category-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; cursor:pointer;" onclick="toggleCategory(this)">
-                        <h3 style="margin:0; color:var(--primary-color); display:flex; align-items:center; gap:10px; font-size: 1.1rem;">
-                            <i class="fas fa-chevron-down rotate-icon" style="transition: transform 0.2s; font-size: 0.9rem;"></i>
-                            <i class="fas fa-grip-vertical" style="color:var(--text-muted); cursor:grab; opacity: 0.5;"></i> 
-                            <i class="${cat.icon}"></i> ${cat.cat}
-                            ${cat.isCustom ? `<span class="badge-new" style="background:var(--accent-purple)">CUSTOM</span>` : ''}
-                        </h3>
-                        <div style="display:flex; align-items:center; gap:8px;" title="Toggle All in Category" onclick="event.stopPropagation()">
-                            ${cat.isCustom ? `<button class="btn-danger" style="padding:4px 8px; font-size:0.7rem; margin-right:5px;" onclick="deleteCustomCategory('${cat.cat}')"><i class="fas fa-trash"></i></button>` : ''}
-                            <span style="font-size:0.75rem; opacity:0.6; font-weight:600;">ALL</span>
-                            <label class="toggle-switch" style="transform: scale(0.85);">
-                                <input type="checkbox" class="cat-select-all" id="cat-toggle-${catId}" ${isAllEnabled ? 'checked' : ''} onchange="toggleCategoryGroup(this, '${catId}')">
-                                <div class="slider"></div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="category-content" data-cat-name="${cat.cat}" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; transition: all 0.3s; min-height: 50px;">
-                        ${cat.tools.map(tool => {
-                            const isEnabled = !disabledTools.includes(tool.path);
-                            return `
-                            <div class="tool-row" draggable="true" data-tool-path="${tool.path}" data-tool-name="${tool.name}" style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--bg-main); border-radius: 6px; border: 1px solid var(--border-color);">
-                                <span style="font-weight: 500; font-size: 0.9rem;">${tool.name}</span>
-                                <label class="toggle-switch" style="transform: scale(0.8);">
-                                    <input type="checkbox" class="tool-visibility-toggle cat-tool-${catId}" data-tool-path="${tool.path}" ${isEnabled ? 'checked' : ''} onchange="checkCategoryState('${catId}')">
-                                    <div class="slider"></div>
+                const disabledTools = (window.currentSettings && window.currentSettings.disabledTools) ? window.currentSettings.disabledTools : [];
+                
+                let html = '';
+                Object.keys(groups).forEach(cat => {
+                    const catId = cat.replace(/\s+/g, '-').toLowerCase();
+                    const groupTools = groups[cat];
+                    const isAllEnabled = groupTools.every(t => !disabledTools.includes(t.path));
+
+                    html += `
+                    <div class="draggable-category border border-slate-200 rounded-2xl bg-white p-6 shadow-sm mb-4" data-cat-name="${cat}">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="flex items-center gap-3 text-lg font-bold text-slate-800 m-0">
+                                <span class="material-symbols-outlined text-primary">folder_open</span>
+                                ${cat}
+                            </h3>
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" ${isAllEnabled ? 'checked' : ''} onchange="toggleCategoryGroup(this, '${catId}')">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                 </label>
                             </div>
-                        `}).join('')}
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            ${groupTools.map(tool => {
+                                const isEnabled = !disabledTools.includes(tool.path);
+                                return `
+                                <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl hover:border-primary/20 transition-all">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-sm text-slate-800">${tool.name}</span>
+                                        <span class="text-[9px] font-mono text-slate-400 uppercase">${tool.path.split('/').pop()}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button onclick="editFile('${tool.path}')" class="p-2 text-slate-400 hover:text-primary transition-colors" title="Edit Code">
+                                            <span class="material-symbols-outlined text-lg">edit</span>
+                                        </button>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer tool-toggle" data-path="${tool.path}" ${isEnabled ? 'checked' : ''}>
+                                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            `}).join('')}
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = `<div class="p-10 text-center text-rose-500 font-bold uppercase tracking-widest text-xs">Failed to load real-time inventory from register.</div>`;
+            }
+        }
             
             // Initialize Drag and Drop
             initCategoryDnD();
@@ -1986,9 +1969,9 @@
 
             payload.customCategories = finalCustomCategories;
 
-            // Collect manually disabled tools and merge with moved tools
-            const manuallyDisabled = Array.from(document.querySelectorAll('.tool-visibility-toggle:not(:checked)')).map(i => i.dataset.toolPath);
-            payload.disabledTools = [...new Set([...manuallyDisabled, ...Array.from(movedToolPaths)])];
+            // Collect manually disabled tools
+            const manuallyDisabled = Array.from(document.querySelectorAll('.tool-toggle:not(:checked)')).map(i => i.dataset.path);
+            payload.disabledTools = [...new Set([...manuallyDisabled])];
 
             // Collect Category Order
             document.querySelectorAll('.draggable-category').forEach(el => {
@@ -2528,6 +2511,13 @@
         // Restore custom preferences on initialization
         document.addEventListener('DOMContentLoaded', () => {
             initAdminSettingsToggles();
+            
+            // Check for edit request from Dashboard
+            const params = new URLSearchParams(window.location.search);
+            const editPath = params.get('edit');
+            if (editPath) {
+                setTimeout(() => editFile(decodeURIComponent(editPath)), 1500);
+            }
         });
 
     </script>

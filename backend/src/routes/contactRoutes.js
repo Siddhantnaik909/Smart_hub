@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
 
-const MESSAGES_FILE = path.join(__dirname, '../../../data/messages.json');
+const MESSAGES_FILE = path.join(__dirname, '../../data/messages.json');
 
 async function readMessages() {
     try {
