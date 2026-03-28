@@ -617,6 +617,17 @@ router.get('/messages/chat/:userId', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
+// GET /api/admin/contact-messages — Get all public contact form submissions
+router.get('/contact-messages', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const msgs = await readMessages();
+        const contactMsgs = msgs.contactMessages || [];
+        res.json(contactMsgs.reverse()); // newest first
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // GET /api/admin/messages/notifications — Get all sent notifications
 router.get('/messages/notifications', verifyToken, isAdmin, async (req, res) => {
     try {

@@ -55,6 +55,7 @@ const historyRoutes = require('./src/routes/historyRoutes');
 const uiRoutes = require('./src/routes/uiRoutes');
 const connectorRoutes = require('./src/routes/connectorRoutes');
 const gameRoutes = require('./src/routes/gameRoutes');
+const contactRoutes = require('./src/routes/contactRoutes');
 
 // Public API for sidebar features (Fixes the ERR_CONNECTION_REFUSED)
 app.get('/api/admin/client/features', (req, res) => {
@@ -68,6 +69,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/ui', uiRoutes);
 app.use('/api/connectors', connectorRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/contact', contactRoutes);
 
 // --- RDAP/Whois Proxy (Bypass CORS) ---
 app.get('/api/proxy/rdap', (req, res) => {

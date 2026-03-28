@@ -618,6 +618,32 @@
                     </div>
                 </section>
             </div>
+            
+            <!-- Contact Messages Management -->
+            <section class="space-y-6 pt-10">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold tracking-tight text-on-surface">Support Messages (Contact Us)</h3>
+                    <button onclick="loadContactMessages()" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+                    </button>
+                </div>
+                <div class="bg-surface-container-lowest rounded-xl tonal-shadow overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-surface-container-low">
+                            <tr>
+                                <th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Sender</th>
+                                <th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Message</th>
+                                <th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Date / Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contact-messages-body" class="divide-y divide-slate-50">
+                            <tr>
+                                <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">Loading messages...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
         <!-- System Footer -->
         <script type="module" src="/js/script.js"></script>
@@ -652,6 +678,55 @@
                 };
 
                 if (isLoggedIn && user.name) updateUI(user);
+                
+                // Load Contact Messages
+                window.loadContactMessages = async () => {
+                    const tbody = document.getElementById('contact-messages-body');
+                    if (!tbody) return;
+
+                    try {
+                        const token = localStorage.getItem('token');
+                        const response = await fetch('/api/admin/contact-messages', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (!response.ok) throw new Error("Failed to fetch support messages");
+                        const messages = await response.json();
+
+                        if (messages.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">No messages received yet.</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = messages.map(msg => `
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-sm text-slate-900">${msg.name}</span>
+                                        <span class="text-[10px] text-slate-400 font-mono">${msg.email}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-xs text-on-surface line-clamp-2 max-w-md">${msg.message}</p>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex flex-col items-end gap-2">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">${new Date(msg.timestamp).toLocaleString()}</span>
+                                        <button onclick="alert('Message Detail: \\nSender: ${msg.name}\\nEmail: ${msg.email}\\n\\n${msg.message}')" 
+                                                class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-black rounded uppercase hover:bg-primary hover:text-white transition-all">
+                                            Quick View
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+
+                    } catch (err) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">Error: ${err.message}</td></tr>`;
+                    }
+                };
+
+                loadContactMessages();
 
                 // Platform Stats Logic
                 const updateStats = (data) => {
