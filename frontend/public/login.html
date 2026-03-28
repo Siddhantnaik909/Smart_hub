@@ -59,7 +59,7 @@
     </style>
 </head>
 
-<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<body class="bg-surface text-on-surface antialiased overflow-y-auto">
     <main class="flex min-h-screen">
         <section
             class="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 bg-primary text-white overflow-hidden">
@@ -172,7 +172,7 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-12">
-                    <button
+                    <button onclick="simulateSocialLogin('Google')"
                         class="flex items-center justify-center gap-3 py-4 px-6 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-all shadow-sm group">
                         <svg class="w-5 h-5" viewbox="0 0 24 24">
                             <path
@@ -190,7 +190,7 @@
                         </svg>
                         <span class="text-xs font-black uppercase tracking-widest">Google</span>
                     </button>
-                    <button
+                    <button onclick="simulateSocialLogin('GitHub')"
                         class="flex items-center justify-center gap-3 py-4 px-6 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-all shadow-sm group">
                         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
                             <path
@@ -255,10 +255,34 @@
                     submitBtn.disabled = false;
                 }
             } catch (err) {
-                alert('Server is down. Please try again later.');
+                alert('Server is down or unconfigured. Make sure MONGO_URI is set in Render!');
                 submitBtn.innerText = 'Login';
                 submitBtn.disabled = false;
             }
+        });
+
+        window.simulateSocialLogin = (platform) => {
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="animate-spin material-symbols-outlined text-sm">sync</span> Handshaking...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert(`${platform} integration is in Sandbox mode. Please use your email/password for the full experience during the evolution phase.`);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }, 1500);
+        };
+
+        // Forgot Password Simulation
+        document.querySelector('a[href="#"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            if (!email) {
+                alert("Please enter your email address first so we can identify your account.");
+                return;
+            }
+            alert(`A secure password reset link has been simulated for ${email}. In a production environment, you would receive an email within minutes.`);
         });
     </script>
     <script type="module" src="js/script.js"></script>

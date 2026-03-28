@@ -699,8 +699,8 @@ window.fetchAdminStats = async function() {
         });
         const stats = await res.json();
 
-        if (document.getElementById('stat-users')) document.getElementById('stat-users').innerText = stats.users || 0;
-        if (document.getElementById('stat-tools')) document.getElementById('stat-tools').innerText = stats.tools || 0;
+        if (document.getElementById('stat-total-users')) document.getElementById('stat-total-users').innerText = stats.users || 0;
+        if (document.getElementById('stat-total-tools')) document.getElementById('stat-total-tools').innerText = stats.tools || 0;
     } catch (err) {
         console.error("Failed to fetch admin stats.");
     }

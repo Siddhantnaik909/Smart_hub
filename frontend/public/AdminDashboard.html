@@ -298,18 +298,18 @@
                     </p>
                     <h2 id="stat-latency" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
                 </div>
-                <!-- Daily Players -->
+                <!-- Total Tools -->
                 <div
                     class="bg-surface-container-lowest p-6 rounded-xl tonal-shadow border-none hover:bg-surface-bright transition-all group">
                     <div class="flex justify-between items-start mb-4">
                         <div
                             class="p-3 bg-error/5 text-error rounded-lg group-hover:bg-error group-hover:text-white transition-colors">
-                            <span class="material-symbols-outlined">videogame_asset</span>
+                            <span class="material-symbols-outlined">construction</span>
                         </div>
-                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1"> Stable </span>
+                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1"> Catalog </span>
                     </div>
-                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Daily Players</p>
-                    <h2 id="stat-daily-players" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
+                    <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-1">Total Tools</p>
+                    <h2 id="stat-total-tools" class="text-3xl font-extrabold tracking-tight text-on-surface">--</h2>
                 </div>
             </section>
             <!-- Main Grid: Chart & Alerts -->
@@ -445,90 +445,9 @@
                                         Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-lg">calculate</span>
-                                            </div>
-                                            <span class="font-bold text-sm">Scientific Engine</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-on-surface-variant">12.4k req/h</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-                                                <span class="material-symbols-outlined text-lg">edit</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
-                                                <span class="material-symbols-outlined text-lg">toggle_on</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-lg">currency_exchange</span>
-                                            </div>
-                                            <span class="font-bold text-sm">Currency Converter</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Active</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-on-surface-variant">8.1k req/h</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-                                                <span class="material-symbols-outlined text-lg">edit</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
-                                                <span class="material-symbols-outlined text-lg">toggle_on</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded bg-slate-100 text-slate-400 flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-lg">functions</span>
-                                            </div>
-                                            <span class="font-bold text-sm text-slate-400">Equation Solver</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 bg-slate-200 text-slate-500 text-[10px] font-bold rounded-full uppercase">Paused</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-on-surface-variant">0 req/h</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-                                                <span class="material-symbols-outlined text-lg">edit</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">
-                                                <span class="material-symbols-outlined text-lg">toggle_off</span>
-                                            </button>
-                                        </div>
-                                    </td>
+                            <tbody id="tools-body" class="divide-y divide-slate-50">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">Loading inventory...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -728,12 +647,63 @@
 
                 loadContactMessages();
 
+                // Load Tools Inventory
+                window.loadToolsInventory = async () => {
+                    const tbody = document.getElementById('tools-body');
+                    if (!tbody) return;
+
+                    try {
+                        const token = localStorage.getItem('token');
+                        const response = await fetch('/api/admin/calculators', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (!response.ok) throw new Error("Failed to fetch inventory");
+                        const tools = await response.json();
+
+                        tbody.innerHTML = tools.map(tool => `
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-primary/5 text-primary flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-lg">calculate</span>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm">${tool.name}</span>
+                                            <span class="text-[8px] text-slate-400 uppercase font-black tracking-widest">${tool.category}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">${tool.status}</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-on-surface-variant font-mono text-[10px]">${tool.usage}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" onclick="window.location.href='/admin/editor?path=${tool.path}'">
+                                            <span class="material-symbols-outlined text-lg">edit</span>
+                                        </button>
+                                        <button class="p-2 hover:bg-slate-200 rounded-lg text-primary transition-colors">
+                                            <span class="material-symbols-outlined text-lg">toggle_on</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+
+                    } catch (err) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">Error: ${err.message}</td></tr>`;
+                    }
+                };
+
+                loadToolsInventory();
+
                 // Platform Stats Logic
                 const updateStats = (data) => {
                     document.getElementById('stat-total-users').innerText = (data.users || 1240).toLocaleString();
                     document.getElementById('stat-active-sessions').innerText = (data.activeSessions || 42).toLocaleString();
                     document.getElementById('stat-latency').innerText = data.latency || "24ms";
-                    document.getElementById('stat-daily-players').innerText = (data.dailyPlayers || 315).toLocaleString();
+                    document.getElementById('stat-total-tools').innerText = (data.tools || 91).toLocaleString();
                 };
 
                 try {

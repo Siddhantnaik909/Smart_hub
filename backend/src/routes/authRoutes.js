@@ -37,7 +37,14 @@ const upload = multer({
     }
 });
 // Helper to get DB collection
-const getUsers = (req) => req.app.locals.dbReady.collection('users');
+const getUsers = (req) => {
+    if (!req.app.locals.dbReady) {
+        const err = new Error('Database not initialized');
+        err.status = 503;
+        throw err;
+    }
+    return req.app.locals.dbReady.collection('users');
+};
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -100,7 +107,7 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(error.status || 500).json({ message: error.message || 'Server error' });
     }
 });
 
@@ -138,7 +145,7 @@ router.post('/login', async (req, res) => {
         res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, username: user.username, mobile: user.mobile, preferences: user.preferences || { unitWeight: 'kg', theme: 'light' } } });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(error.status || 500).json({ message: error.message || 'Server error' });
     }
 });
 
@@ -193,7 +200,7 @@ router.put('/profile', async (req, res) => {
         res.json({ message: 'Profile updated successfully', token, user: { id: updatedUser._id, name: updatedUser.name, email: updatedUser.email, role: updatedUser.role, username: updatedUser.username, photo: updatedUser.photo, preferences: updatedUser.preferences } });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(error.status || 500).json({ message: error.message || 'Server error' });
     }
 });
 
