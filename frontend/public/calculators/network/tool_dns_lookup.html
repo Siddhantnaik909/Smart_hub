@@ -60,9 +60,9 @@
     <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
         <div class="mb-12">
             <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
-                <span>NETWORK TOOLS</span>
+                <span>Network Tools</span>
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
-                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">DNS Lookup</span>
+                <span class="text-primary tracking-tight text-xs font-bold">DNS Lookup</span>
             </nav>
             <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Website Info.</h1>
             <p class="text-on-surface-variant text-lg max-w-2xl">Find the IP address and mail server records for any website. Useful for setting up domains or troubleshooting email issues.</p>
@@ -119,14 +119,14 @@
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-6">
-                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Lookup Target</h4>
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Lookup target</h4>
                             <div class="space-y-4">
                                 <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Domain Name</label>
+                                    <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block">Domain name</label>
                                     <input type="text" id="dnsDomain" placeholder="e.g. google.com" class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-mono font-bold text-lg outline-none focus:ring-2 focus:ring-primary shadow-sm">
                                 </div>
                                 <div class="flex gap-4 pt-2">
-                                    <button onclick="lookupDNS()" id="btn-dns-lookup" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">START SEARCH</button>
+                                    <button onclick="lookupDNS()" id="btn-dns-lookup" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">Start search</button>
                                     <button onclick="clearData()" class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
                                         <span class="material-symbols-outlined">restart_alt</span>
                                     </button>
@@ -185,7 +185,7 @@
             const btn = document.getElementById('btn-dns-lookup');
             const resArea = document.getElementById('dns-results-area');
             
-            btn.innerText = "LOOKING UP...";
+            btn.innerText = "Looking up...";
             resArea.innerHTML = '<div class="space-y-3"><div class="h-4 bg-slate-100 rounded animate-pulse"></div><div class="h-4 bg-slate-100 rounded w-5/6 animate-pulse"></div></div>';
             
             try {
@@ -228,7 +228,7 @@
             } catch (err) {
                 resArea.innerHTML = '<div class="text-[10px] font-bold text-rose-500 uppercase py-4">Search Failed: Please check your connection.</div>';
             } finally {
-                btn.innerText = "START SEARCH";
+                btn.innerText = "Start Search";
             }
         }
 

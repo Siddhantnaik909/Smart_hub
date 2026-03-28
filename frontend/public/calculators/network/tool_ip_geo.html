@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html class="light" lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Smart Hub | IP Locator</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -32,22 +37,32 @@
         }
     </script>
     <style>
-        :root { --primary-color: #3b82f6; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root {
+            --primary-color: #3b82f6;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined';
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
 </head>
+
 <body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
-    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+    <nav
+        class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)] h-20 flex items-center px-12 tracking-tight">
         <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
             <div class="flex items-center gap-8" id="nav-logo-block">
-                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <span id="nav-site-logo-text"
+                    class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
                 <div class="hidden md:flex items-center gap-6">
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
-                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1"
+                        href="/calculators.html">Tools</a>
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
                     <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
@@ -60,12 +75,14 @@
     <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
         <div class="mb-12">
             <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
-                <span>NETWORK TOOLS</span>
+                <span>Network Tools</span>
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
-                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">IP Locator</span>
+                <span class="text-primary tracking-tight text-xs font-bold">IP Locator</span>
             </nav>
-            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Find Any IP.</h1>
-            <p class="text-on-surface-variant text-lg max-w-2xl">Locate any IP address globally. See where an IP is located, its provider (ISP), and its coordinates on a map.</p>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Find
+                Any IP.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Locate any IP address globally. See where an IP is
+                located, its provider (ISP), and its coordinates on a map.</p>
         </div>
 
         <div class="grid grid-cols-12 gap-8 items-start">
@@ -73,42 +90,56 @@
             <div class="col-span-12 lg:col-span-4 space-y-8">
                 <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(59,130,246,0.06)]">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-blue-800">Search History</h3>
-                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-blue-800">Search
+                            History</h3>
+                        <span onclick="clearSidebarHistory()"
+                            class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors"
+                            title="Clear History">delete_sweep</span>
                     </div>
                     <div class="space-y-6" id="sidebar-history-container">
-                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent searches.</p>
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent
+                            searches.</p>
                     </div>
                 </div>
 
                 <div class="bg-blue-900 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
-                     <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <div
+                        class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                         <span class="material-symbols-outlined text-[120px]">explore</span>
-                     </div>
-                     <h4 class="text-lg font-black mb-2 flex items-center gap-2">
+                    </div>
+                    <h4 class="text-lg font-black mb-2 flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">public</span> IP Privacy
-                     </h4>
-                     <p class="text-blue-100 text-[11px] leading-relaxed mb-4 opacity-80">
-                        Your public IP address can reveal your city and ISP. Using a VPN is a great way to hide your actual location from websites.
-                     </p>
+                    </h4>
+                    <p class="text-blue-100 text-[11px] leading-relaxed mb-4 opacity-80">
+                        Your public IP address can reveal your city and ISP. Using a VPN is a great way to hide your
+                        actual location from websites.
+                    </p>
                 </div>
-            
+
                 <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
-                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <h4
+                        class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">
+                        Quick Navigation</h4>
                     <div class="space-y-4">
-                        <a href="tool_dns_lookup.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
-                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                        <a href="tool_dns_lookup.html"
+                            class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span
+                                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
                             <div>
-                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back
+                                </div>
                                 <div class="text-xs font-bold text-on-surface uppercase">Website Info</div>
                             </div>
                         </a>
-                        <a href="tool_ping.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                        <a href="tool_ping.html"
+                            class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
                             <div>
-                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next
+                                </div>
                                 <div class="text-xs font-bold text-on-surface uppercase">Test Speed</div>
                             </div>
-                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                            <span
+                                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
                         </a>
                     </div>
                 </div>
@@ -119,38 +150,53 @@
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-6">
-                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Search Parameters</h4>
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">
+                                Search Parameters</h4>
                             <div class="space-y-4">
                                 <div class="space-y-2">
-                                    <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Target IP Address</label>
-                                    <input type="text" id="geoIP" placeholder="Leave empty for your IP" class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-mono font-bold text-xl outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                                    <label
+                                        class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Target
+                                        IP Address</label>
+                                    <input type="text" id="geoIP" placeholder="Leave empty for your IP"
+                                        class="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 font-mono font-bold text-xl outline-none focus:ring-2 focus:ring-primary shadow-sm">
                                 </div>
                             </div>
                             <div class="flex gap-4 pt-4">
-                                <button onclick="locateIP()" id="btn-geo" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">Locate Now</button>
-                                <button onclick="clearData()" class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
+                                <button onclick="locateIP()" id="btn-geo"
+                                    class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">Locate
+                                    Now</button>
+                                <button onclick="clearData()"
+                                    class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
                                     <span class="material-symbols-outlined">restart_alt</span>
                                 </button>
                             </div>
                         </div>
 
                         <div id="results-display" class="hidden space-y-6">
-                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Location Details</h4>
-                            <div class="bg-white p-8 rounded-3xl border border-slate-50 shadow-sm space-y-6" id="geo-results-area">
+                            <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">
+                                Location Details</h4>
+                            <div class="bg-white p-8 rounded-3xl border border-slate-50 shadow-sm space-y-6"
+                                id="geo-results-area">
                                 <!-- Results go here -->
                             </div>
                         </div>
                     </div>
 
-                    <div id="map-block" class="hidden mt-4 bg-slate-100 p-2 rounded-3xl border border-slate-200 shadow-inner overflow-hidden">
-                        <iframe id="map-frame" width="100%" height="400" frameborder="0" style="border:0" class="rounded-2xl contrast-75 brightness-95" allowfullscreen></iframe>
+                    <div id="map-block"
+                        class="hidden mt-4 bg-slate-100 p-2 rounded-3xl border border-slate-200 shadow-inner overflow-hidden">
+                        <iframe id="map-frame" width="100%" height="400" frameborder="0" style="border:0"
+                            class="rounded-2xl contrast-75 brightness-95" allowfullscreen></iframe>
                     </div>
 
                     <!-- Navigation Actions -->
-                    <div class="pt-10 border-t border-slate-200/50 flex flex-col md:flex-row justify-end items-center gap-4">
+                    <div
+                        class="pt-10 border-t border-slate-200/50 flex flex-col md:flex-row justify-end items-center gap-4">
                         <div class="flex gap-3">
-                            <button onclick="commitToRegistry()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save Result</button>
-                            <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
+                            <button onclick="commitToRegistry()"
+                                class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl hover:scale-[1.02] transition-all">Save
+                                Result</button>
+                            <button onclick="window.print()"
+                                class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined">print</span>
                             </button>
                         </div>
@@ -162,7 +208,8 @@
 
     <footer class="w-full py-12 border-t border-slate-200/50 bg-slate-100 text-sm font-['Plus_Jakarta_Sans']">
         <div class="max-w-[1440px] mx-auto px-12 flex justify-between items-center">
-            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you work smarter</span>
+            <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">© 2026 Smart Hub | Helping you
+                work smarter</span>
             <div class="flex gap-8 text-slate-400 font-bold text-[9px] uppercase tracking-widest">
                 <a class="hover:text-primary transition-colors" href="/history.html">History</a>
                 <a class="hover:text-primary transition-colors" href="/about.html">About</a>
@@ -180,21 +227,21 @@
             const btn = document.getElementById('btn-geo');
             const resArea = document.getElementById('geo-results-area');
             const mapFrame = document.getElementById('map-frame');
-            
-            btn.innerText = "LOCATING...";
-            
+
+            btn.innerText = "Locating...";
+
             try {
                 const url = ip ? `https://ipapi.co/${ip}/json/` : `https://ipapi.co/json/`;
                 const response = await fetch(url);
                 const data = await response.json();
-                
+
                 if (data.error) throw new Error(data.reason || "Lookup failed");
 
                 document.getElementById('results-display').classList.remove('hidden');
                 document.getElementById('map-block').classList.remove('hidden');
 
                 const flagUrl = data.country_code ? `https://flagcdn.com/24x18/${data.country_code.toLowerCase()}.png` : '';
-                
+
                 resArea.innerHTML = `
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
@@ -217,14 +264,14 @@
 
                 const lat = parseFloat(data.latitude);
                 const lon = parseFloat(data.longitude);
-                const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01},${lat-0.01},${lon+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lon}`;
+                const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01},${lat - 0.01},${lon + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lon}`;
                 mapFrame.src = mapUrl;
-                
+
                 lastGeo = { ip: data.ip, country: data.country_name, isp: data.org };
             } catch (err) {
                 resArea.innerHTML = `<div class="text-xs font-bold text-rose-500 uppercase py-4">Lookup Failed: ${err.message}</div>`;
             } finally {
-                btn.innerText = "LOCATE NOW";
+                btn.innerText = "Locate Now";
             }
         }
 
@@ -252,4 +299,5 @@
     </script>
     <script type="module" src="/js/script.js"></script>
 </body>
+
 </html>

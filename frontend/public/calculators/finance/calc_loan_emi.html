@@ -60,9 +60,9 @@
     <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
         <div class="mb-12">
             <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
-                <span>LOAN CENTER</span>
+                <span>Loan Center</span>
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
-                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Monthly Payments</span>
+                <span class="text-primary tracking-tight text-xs font-bold">Monthly Payments</span>
             </nav>
             <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">EMI Master.</h1>
             <p class="text-on-surface-variant text-lg max-w-2xl">Calculate your monthly loan payments in seconds! Perfect for planning your Home loan, Car loan, or Personal loan with clear interest details.</p>
@@ -135,7 +135,7 @@
                         <div class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2" id="calc-status">Ready to calculate</div>
                         <div id="calc-display" class="text-7xl font-black text-on-surface font-mono">₹0</div>
                         <div id="total-repayment" class="mt-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            ₹0 Total to pay back
+                            ₹0 Total pay back
                         </div>
                     </div>
 
@@ -159,15 +159,15 @@
                              <label class="text-[10px] font-black text-on-surface-variant uppercase ml-1 block tracking-widest">Popular Loan Presets</label>
                              <div class="grid grid-cols-1 gap-3">
                                 <button onclick="applyPreset(2500000, 8.5, 20)" class="p-5 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all text-left group">
-                                    <div class="text-[9px] font-black text-primary uppercase mb-1">DREAM HOME</div>
+                                    <div class="text-[9px] font-bold text-primary uppercase mb-1">Dream Home</div>
                                     <div class="text-sm font-bold text-on-surface">₹25 Lakhs @ 8.5% (20Y)</div>
                                 </button>
                                 <button onclick="applyPreset(800000, 10.5, 5)" class="p-5 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all text-left group">
-                                    <div class="text-[9px] font-black text-primary uppercase mb-1">NEW CAR</div>
+                                    <div class="text-[9px] font-bold text-primary uppercase mb-1">New Car</div>
                                     <div class="text-sm font-bold text-on-surface">₹8 Lakhs @ 10.5% (5Y)</div>
                                 </button>
                                 <button onclick="applyPreset(200000, 14, 3)" class="p-5 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all text-left group">
-                                    <div class="text-[9px] font-black text-primary uppercase mb-1">PERSONAL LOAN</div>
+                                    <div class="text-[9px] font-bold text-primary uppercase mb-1">Personal Loan</div>
                                     <div class="text-sm font-bold text-on-surface">₹2 Lakhs @ 14% (3Y)</div>
                                 </button>
                              </div>
@@ -229,12 +229,19 @@
                 return;
             }
 
-            const r = (annualRate / 100) / 12;
+            let emi = 0;
+            if (annualRate === 0) {
+                emi = principal / (years * 12);
+            } else {
+                const r = (annualRate / 100) / 12;
+                const n = years * 12;
+                emi = (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            }
+            
             const n = years * 12;
-            const emi = (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             const totalPay = emi * n;
             const totalInterest = totalPay - principal;
-            const interestPct = (totalInterest / totalPay) * 100;
+            const interestPct = principal > 0 ? (totalInterest / totalPay) * 100 : 0;
 
             const f = (val) => '₹' + Math.round(val).toLocaleString('en-IN');
 

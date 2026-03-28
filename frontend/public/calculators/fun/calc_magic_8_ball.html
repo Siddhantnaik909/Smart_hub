@@ -138,10 +138,10 @@
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
                     <!-- Display -->
-                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden">
                         <div class="absolute top-8 left-8 flex gap-2">
-                            <span class="px-3 py-1 rounded-lg bg-primary-fixed-dim text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">ANSWER STATUS</span>
-                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="oracle-tag">WAITING...</span>
+                            <span class="px-3 py-1 rounded-lg bg-primary-fixed-dim text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">Answer Status</span>
+                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase" id="oracle-tag">Waiting...</span>
                         </div>
                         <div id="calc-status" class="text-on-surface-variant text-xl font-medium tracking-tight mb-2 min-h-[28px]">The Answer</div>
                         <div id="calc-display" class="text-4xl md:text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight">
@@ -174,7 +174,7 @@
                         <!-- Navigation Actions -->
                     <div class="pt-10 border-t border-slate-200/50 flex flex-col md:flex-row justify-end items-center gap-4">
                         <div class="flex gap-3">
-                                <button onclick="triggerInquiry()" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] tracking-widest uppercase hover:shadow-xl transition-all">Check Answer</button>
+                                <button onclick="triggerInquiry()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-xs tracking-widest uppercase hover:shadow-xl transition-all">Check Answer</button>
                                 <button onclick="window.print()" class="p-4 bg-slate-100 rounded-xl text-slate-400 hover:text-primary transition-colors">
                                     <span class="material-symbols-outlined">print</span>
                                 </button>
@@ -249,11 +249,11 @@
                 lastQuestion = q;
                 lastAnswer = choice;
 
-                tag.innerText = "ANSWER READY";
-                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${choice.toUpperCase()}`;
+                tag.innerText = "Answer Ready";
+                display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>${choice}`;
                 
                 document.getElementById('resConfidence').innerText = (Math.random() * 20 + 80).toFixed(1) + "%";
-                document.getElementById('resSignal').innerText = "STABLE";
+                document.getElementById('resSignal').innerText = "Stable";
                 
                 center.textContent = "●";
                 center.style.opacity = '1';

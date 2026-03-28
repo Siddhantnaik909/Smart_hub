@@ -136,7 +136,7 @@
                         </svg>
                         <div class="absolute flex flex-col items-center">
                             <span id="timer-display" class="text-6xl font-black tabular-nums tracking-tighter text-on-surface">25:00</span>
-                            <span id="timer-label" class="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">FOCUSING</span>
+                            <span id="timer-label" class="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mt-2">Focusing</span>
                         </div>
                     </div>
 
@@ -148,7 +148,7 @@
                     </div>
 
                     <div class="flex gap-4 w-full max-w-lg mb-8">
-                        <button id="main-action" onclick="toggleTimer()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">START SESSION</button>
+                        <button id="main-action" onclick="toggleTimer()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">Start Session</button>
                     </div>
 
                     <!-- Navigation Actions -->
@@ -204,8 +204,8 @@
             totalTime = mins * 60;
             currentMode = mode;
             
-            document.getElementById('timer-label').innerText = mode.toUpperCase() + (mode === 'focus' ? 'ING' : ' TIME');
-            document.getElementById('main-action').innerText = "START SESSION";
+            document.getElementById('timer-label').innerText = mode.charAt(0).toUpperCase() + mode.slice(1) + (mode === 'focus' ? 'ing' : ' Time');
+            document.getElementById('main-action').innerText = "Start Session";
             
             document.querySelectorAll('.timer-type-btn').forEach(b => b.classList.remove('border-primary', 'text-primary', 'bg-primary/5'));
             event.target.classList.add('border-primary', 'text-primary', 'bg-primary/5');
@@ -218,7 +218,7 @@
             if (timerId) {
                 clearInterval(timerId);
                 timerId = null;
-                btn.innerText = "RESUME";
+                btn.innerText = "Resume";
             } else {
                 timerId = setInterval(() => {
                     timeLeft--;
@@ -229,7 +229,7 @@
                         sessionFinished();
                     }
                 }, 1000);
-                btn.innerText = "PAUSE";
+                btn.innerText = "Pause";
             }
         }
 

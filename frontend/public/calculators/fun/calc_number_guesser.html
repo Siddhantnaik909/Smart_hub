@@ -141,7 +141,7 @@
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
                 <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Number Guessing</span>
             </nav>
-            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Number 's&nbsp; Guess It.</h1>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans'] leading-none italic">Guess the <span class="text-primary italic">Number.</span></h1>
             <p class="text-on-surface-variant text-lg max-w-2xl">Refined numerical isolation. Identify the hidden variable across the specified domain to achieve algorithmic resolution.</p>
         </div>
 
@@ -182,21 +182,46 @@
             <!-- Content Area -->
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
+                    <!-- Mode Selection Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div onclick="startCPU()" id="mode-cpu" class="p-6 bg-primary/10 border-2 border-primary rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                            <span class="material-symbols-outlined text-primary mb-2 text-3xl">smart_toy</span>
+                            <h4 class="text-[10px] font-black uppercase text-primary tracking-widest">Single Player</h4>
+                            <p class="text-[8px] text-primary/60 font-bold uppercase mt-1">AI Picks Number</p>
+                        </div>
+                        <div onclick="startLocal()" id="mode-local" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                            <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">group</span>
+                            <h4 class="text-[10px] font-black uppercase text-slate-800 tracking-widest">Local Friend</h4>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase mt-1">Friend Picks Number</p>
+                        </div>
+                        <div onclick="startOnline()" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                            <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">hub</span>
+                            <h4 class="text-[10px] font-black uppercase text-slate-800 tracking-widest">Online Play</h4>
+                            <p class="text-[8px] text-slate-400 font-bold uppercase mt-1">Join Lobby</p>
+                        </div>
+                    </div>
+
                     <!-- Display -->
-                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase">
+                    <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[220px] border border-slate-100 shadow-sm relative overflow-hidden uppercase group">
+                        <!-- Overlay -->
+                        <div id="game-overlay" class="absolute inset-0 z-20 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl opacity-0 pointer-events-none transition-all duration-500 scale-95 border-4 border-primary/20 shadow-2xl">
+                            <span id="overlay-status-icon" class="material-symbols-outlined text-6xl text-primary mb-2">military_tech</span>
+                            <h2 id="overlay-status-text" class="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-6 leading-none italic">Success!</h2>
+                            <button onclick="startCPU()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic shadow-lg shadow-primary/20">Play New Game</button>
+                        </div>
                         <div class="absolute top-8 left-8 flex gap-2">
                             <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase" id="domain-label">DOMAIN: 1-100</span>
                             <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="game-status">AWAITING INPUT</span>
                         </div>
                         <div id="feedback-display" class="text-on-surface-variant text-xl font-medium tracking-tight mb-4 min-h-[28px]">Initial sequence ready...</div>
-                        <div id="main-display" class="text-4xl md:text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight">??</div>
+                        <div id="main-display" class="text-4xl md:text-6xl font-extrabold tracking-tighter text-on-surface flex items-center justify-end gap-2 overflow-hidden leading-tight italic">??</div>
                     </div>
 
                     <!-- Input Section -->
                     <div class="p-8 space-y-8">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div class="md:col-span-2 flex flex-col gap-2">
-                                <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1">Difficulty Configuration</label>
+                            <div id="diff-section" class="md:col-span-2 flex flex-col gap-2">
+                                <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block italic opacity-60">Difficulty Selection</label>
                                 <select id="cpu-difficulty" onchange="resetGame()" class="bg-white border border-slate-100 rounded-xl px-6 py-4 text-sm font-black focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm">
                                     <option value="easy">Easy (1-10)</option>
                                     <option value="med" selected="">Medium (1-100)</option>
@@ -205,11 +230,11 @@
                                 </select>
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block">Your Guess</label>
-                                <input type="number" id="user-guess" class="w-full bg-white border border-slate-100 rounded-xl px-6 py-4 text-2xl font-black focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm">
+                                <label id="guess-label" class="text-[9px] font-black text-on-surface-variant uppercase ml-1 block italic opacity-60">Enter Guess</label>
+                                <input type="number" id="user-guess" class="w-full bg-white border border-slate-100 rounded-xl px-6 py-4 text-2xl font-black focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm italic">
                             </div>
                         </div>
-                        <button onclick="makeGuess()" class="w-full bg-primary text-white py-5 rounded-xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all">Execute Comparison</button>
+                        <button id="main-btn" onclick="makeGuess()" class="w-full bg-primary text-white py-5 rounded-xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all italic">Verify Guess</button>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-200/50">
                             <div>
@@ -237,6 +262,8 @@
     <script src="/js/calc-utils.js"></script>
     <script>
         let targetNumber, attempts = 0, pastGuesses = [], gameWon = false, maxRange = 100;
+        let playMode = 'cpu';
+        let isSettingNumber = false;
 
         function resetGame() {
             const diff = document.getElementById('cpu-difficulty').value;
@@ -258,6 +285,19 @@
             const input = document.getElementById('user-guess');
             const g = parseInt(input.value);
             if (isNaN(g)) return;
+
+            if (playMode === 'local' && isSettingNumber) {
+                targetNumber = g;
+                isSettingNumber = false;
+                input.value = '';
+                document.getElementById('guess-label').innerText = "ENTER FRIEND'S GUESS";
+                document.getElementById('main-btn').innerText = "VERIFY GUESS";
+                document.getElementById('feedback-display').innerText = "Number Locked! Friend, start guessing!";
+                document.getElementById('game-status').innerText = 'LOCKED';
+                document.getElementById('main-display').innerText = '??';
+                return;
+            }
+
             attempts++; pastGuesses.push(g);
             input.value = '';
             
@@ -266,11 +306,15 @@
             const status = document.getElementById('game-status');
 
             if (g === targetNumber) {
-                gameWon = true; status.innerText = 'ISOLATED'; feedback.innerText = 'Variable identified successfully.';
-                display.innerText = g; saveMatch();
+                gameWon = true; 
+                status.innerText = 'ISOLATED'; 
+                feedback.innerText = 'Found it!';
+                display.innerText = g; 
+                showOverlay("YOU WON!", 'trophy');
+                saveMatch();
             } else {
                 status.innerText = 'VARIATION';
-                feedback.innerText = g > targetNumber ? 'Decrease value.' : 'Increase value.';
+                feedback.innerText = g > targetNumber ? 'GO LOWER!' : 'GO HIGHER!';
                 display.innerText = g;
             }
 
@@ -279,12 +323,81 @@
             document.getElementById('guess-history-area').innerHTML = pastGuesses.map(v => `<div class="px-2 py-1 bg-slate-100 rounded text-[9px] font-bold text-slate-500">#${v}</div>`).join('');
         }
 
+        function showOverlay(text, icon) {
+            const over = document.getElementById('game-overlay');
+            const overText = document.getElementById('overlay-status-text');
+            const overIcon = document.getElementById('overlay-status-icon');
+            overText.innerText = text;
+            overIcon.innerText = icon;
+            over.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+
+        function hideOverlay() {
+            const over = document.getElementById('game-overlay');
+            over.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+
         async function saveMatch() {
-            await window.saveCalcToHistory('Number Guesser', [{label: 'Range', val: `1-${maxRange}`}], [{label: 'Attempts', val: attempts}]);
+            await window.saveCalcToHistory('Number Guesser', [{label: 'Mode', val: playMode.toUpperCase()}], [{label: 'Score', val: attempts + ' Tries'}]);
             initSidebarHistory('Number Guesser', 'sidebar-history-container');
         }
 
-        document.addEventListener('DOMContentLoaded', resetGame);
+        function startCPU() {
+            playMode = 'cpu';
+            isSettingNumber = false;
+            hideOverlay();
+            document.getElementById('diff-section').classList.remove('hidden');
+            document.getElementById('guess-label').innerText = "ENTER GUESS";
+            document.getElementById('main-btn').innerText = "VERIFY GUESS";
+            updateModeUI('cpu');
+            resetGame();
+        }
+
+        function startLocal() {
+            playMode = 'local';
+            isSettingNumber = true;
+            hideOverlay();
+            document.getElementById('diff-section').classList.add('hidden');
+            document.getElementById('guess-label').innerText = "SET SECRET NUMBER";
+            document.getElementById('main-btn').innerText = "LOCK NUMBER";
+            document.getElementById('feedback-display').innerText = "Awaiting Friend's Secret Number...";
+            updateModeUI('local');
+            resetGame();
+        }
+
+        function startOnline() {
+            alert("MULTIPLAYER HUB INIT... \n\nConnecting to Guessing Server [BETA]\nStatus: Synching Active Nodes...\n\nOnline Play is currently being standardized. Please use the Lobby to host rooms!");
+            window.location.href = '/GameLobby.html';
+        }
+
+        function updateModeUI(m) {
+            document.getElementById('mode-cpu').className = `p-6 ${m==='cpu'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            document.getElementById('mode-local').className = `p-6 ${m==='local'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            
+            const cpuIcon = document.getElementById('mode-cpu').querySelector('span');
+            const localIcon = document.getElementById('mode-local').querySelector('span');
+            const cpuText = document.getElementById('mode-cpu').querySelector('h4');
+            const localText = document.getElementById('mode-local').querySelector('h4');
+
+            if(m==='cpu') {
+                cpuIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                cpuText.className = 'text-[10px] font-black uppercase text-primary tracking-widest';
+                localIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                localText.className = 'text-[10px] font-black uppercase text-slate-800 tracking-widest';
+            } else {
+                localIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                localText.className = 'text-[10px] font-black uppercase text-primary tracking-widest';
+                cpuIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                cpuText.className = 'text-[10px] font-black uppercase text-slate-800 tracking-widest';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Number Guesser', 'sidebar-history-container');
+            startCPU();
+        });
         document.getElementById('user-guess').addEventListener('keypress', (e) => { if(e.key==='Enter') makeGuess(); });
     </script>
     <script type="module" src="/js/script.js"></script>

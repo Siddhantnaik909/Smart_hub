@@ -208,13 +208,22 @@
             <div class="flex items-center gap-4 ml-8">
                 <div class="relative group">
                     <button class="p-2 text-slate-500 hover:text-primary transition-colors relative"
-                        onclick="alert('Notification Center: Storage capacity on Node-03 at 85% - Review required.')">
+                        onclick="document.getElementById('dashboard-notif-dropdown').classList.toggle('hidden'); window.loadNotifications && window.loadNotifications(false, 'dashboard-notif-list', 'dashboard-notif-badge'); event.stopPropagation();">
                         <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+                        <span id="dashboard-notif-badge" class="hidden absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
                     </button>
+                    <div id="dashboard-notif-dropdown" class="hidden absolute top-14 right-0 w-96 bg-white dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl py-4 z-[1000] max-h-96 flex flex-col">
+                        <h4 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 px-6">Notifications</h4>
+                        <div id="dashboard-notif-list" class="flex-1 overflow-y-auto px-6 pb-2 space-y-4">
+                            <div class="py-8 text-center">
+                                <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-2 block">notifications_off</span>
+                                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">No new notifications</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <button class="p-2 text-slate-500 hover:text-primary transition-colors"
-                    onclick="alert('Admin Hub v2.4.1 - Centralized Control Active')">
+                    onclick="customAlert('Admin Hub', 'Version 2.4.1 - Centralized Control Active', 'info')">
                     <span class="material-symbols-outlined">apps</span>
                 </button>
                 <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
@@ -241,7 +250,7 @@
                             <span class="material-symbols-outlined text-sm">person</span> Profile
                         </a>
                         <div class="h-[1px] bg-slate-100 dark:bg-slate-800 my-1"></div>
-                        <button onclick="confirmLogout()"
+                        <button onclick="confirmAdminLogout()"
                             class="w-full flex items-center gap-3 px-4 py-2 hover:bg-error/10 text-error rounded-lg text-sm transition-colors text-left">
                             <span class="material-symbols-outlined text-sm">logout</span> Logout
                         </button>
@@ -471,66 +480,116 @@
         <script type="module" src="/js/script.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                // ===== 1. INITIALIZATION & AUTH =====
+                const user = JSON.parse(localStorage.getItem('user') || '{}'); // Get user from storage
                 const token = localStorage.getItem('token');
                 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
                 const API = window.location.origin;
 
-                // ===== 1. REAL ADMIN PROFILE =====
-                const updateAdminProfile = (u) => {
-                    if (!u || !u.name) return;
-                    const nameEl = document.getElementById('admin-header-name');
-                    const roleEl = document.getElementById('admin-header-role');
-                    const avatarEl = document.getElementById('admin-top-avatar');
-                    if (nameEl) nameEl.innerText = u.name;
-                    if (roleEl) roleEl.innerText = (u.role || 'admin').toUpperCase();
-                    if (avatarEl) {
-                        avatarEl.src = u.photo ? (u.photo.startsWith('http') ? u.photo : `${API}${u.photo}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=4f46e5&color=fff&bold=true`;
-                        avatarEl.onerror = () => { avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=4f46e5&color=fff&bold=true`; };
-                    }
-                };
-                if (isLoggedIn && user.name) updateAdminProfile(user);
+                // Function to update all instances of the admin's profile on the page
+                const updateAdminProfile = (currentUser) => {
+                    if (!currentUser || !currentUser.name) return;
 
-                // ===== 2. REAL PLATFORM STATS =====
-                try {
-                    const res = await fetch(`${API}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!res.ok) throw new Error('API offline');
-                    const data = await res.json();
-                    document.getElementById('stat-total-users').innerText = (data.users || 0).toLocaleString();
-                    document.getElementById('stat-active-sessions').innerText = (data.activeSessions || 0).toLocaleString();
-                    document.getElementById('stat-latency').innerText = data.latency || '--';
-                    document.getElementById('stat-total-tools').innerText = (data.tools || 0).toLocaleString();
-                } catch (e) {
-                    console.warn('Stats offline:', e.message);
-                    ['stat-total-users','stat-active-sessions','stat-total-tools'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = '0'; });
-                    const lat = document.getElementById('stat-latency'); if(lat) lat.innerText = '--';
+                    const displayName = currentUser.name;
+                    const displayRole = currentUser.role?.toLowerCase() === 'admin' ? 'Super Admin' : (currentUser.role || 'user').toUpperCase();
+                    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4f46e5&color=fff&bold=true`;
+                    const userAvatar = currentUser.photo ? (currentUser.photo.startsWith('http') ? currentUser.photo : `${API}${currentUser.photo}`) : fallbackAvatar;
+
+                    const profileElements = [
+                        { id: 'sidebar-admin-name', value: displayName },
+                        { id: 'sidebar-admin-role', value: displayRole },
+                        { id: 'sidebar-admin-avatar', value: userAvatar, isSrc: true },
+                        { id: 'admin-header-name', value: displayName },
+                        { id: 'admin-header-role', value: displayRole },
+                        { id: 'admin-top-avatar', value: userAvatar, isSrc: true },
+                    ];
+
+                    profileElements.forEach(item => {
+                        const el = document.getElementById(item.id);
+                        if (el) {
+                            if (item.isSrc) {
+                                el.src = item.value;
+                                el.onerror = () => { el.src = fallbackAvatar; }; // Fallback on error
+                            } else {
+                                el.innerText = item.value;
+                            }
+                        }
+                    });
+                };
+                if (isLoggedIn && user.name) {
+                    updateAdminProfile(user);
                 }
 
-                // ===== 3. SYSTEM ALERTS (real from API) =====
-                const alertsBox = document.getElementById('alerts-container');
-                if (alertsBox) {
-                    try {
-                        const res = await fetch(`${API}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
-                        const data = await res.json();
-                        const alerts = data.alerts || [];
-                        const colors = { error:'border-error',warning:'border-amber-500',info:'border-indigo-500' };
+                // ===== 2. REAL PLATFORM STATS & ALERTS (Single API Call) =====
+                try {
+                    const res = await fetch(`${API}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!res.ok) throw new Error('API offline or auth issue');
+                    const statsData = await res.json();
+
+                    // Populate Stats Cards
+                    document.getElementById('stat-total-users').innerText = (statsData.users || 0).toLocaleString();
+                    document.getElementById('stat-active-sessions').innerText = (statsData.activeSessions || 0).toLocaleString();
+                    document.getElementById('stat-latency').innerText = statsData.latency || '--';
+                    document.getElementById('stat-total-tools').innerText = (statsData.tools || 0).toLocaleString();
+
+                    // Populate System Alerts
+                    const alertsBox = document.getElementById('alerts-container');
+                    if (alertsBox) {
+                        const alerts = statsData.alerts || [];
+                        const colors = { error:'border-error bg-error/5',warning:'border-amber-500 bg-amber-50',info:'border-indigo-500 bg-indigo-50/30' };
                         const txColors = { error:'text-error',warning:'text-amber-600',info:'text-indigo-600' };
-                        if (alerts.length === 0) { alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy</div>'; }
-                        else {
+                        const icons = { error: 'report', warning: 'warning', info: 'info' };
+
+                        if (alerts.length === 0) {
+                            alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy</div>';
+                        } else {
                             alertsBox.innerHTML = alerts.map(a => `
-                                <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 ${colors[a.type]||'border-indigo-500'} shadow-sm">
+                                <div class="p-4 rounded-lg border-l-4 ${colors[a.type]||'border-indigo-500'} shadow-sm transition-transform hover:scale-[1.01]">
                                     <div class="flex justify-between items-start mb-1">
-                                        <span class="text-xs font-bold ${txColors[a.type]||'text-indigo-600'} uppercase">${a.title}</span>
-                                        <span class="text-[10px] text-on-surface-variant">${a.time}</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm ${txColors[a.type]}">${icons[a.type]||'info'}</span>
+                                            <span class="text-xs font-black ${txColors[a.type]||'text-indigo-600'} uppercase tracking-tighter">${a.title}</span>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-on-surface-variant tracking-widest">${a.time}</span>
                                     </div>
-                                    <p class="text-sm text-on-surface">${a.body}</p>
+                                    <p class="text-[13px] font-medium text-on-surface/80 leading-snug">${a.body}</p>
                                 </div>
                             `).join('');
                         }
                         const badge = document.querySelector('.alerts-badge');
-                        if (badge) { const crit = alerts.filter(a=>a.type==='error').length; badge.textContent = crit > 0 ? crit+' CRITICAL' : alerts.length+' INFO'; badge.className = 'px-2 py-0.5 '+(crit>0?'bg-error':'bg-indigo-600')+' text-white text-[10px] font-bold rounded-md alerts-badge'; }
-                    } catch(e) { alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy — no alerts</div>'; }
+                        if (badge) { 
+                            const crit = alerts.filter(a=>a.type==='error').length; 
+                            badge.textContent = crit > 0 ? `${crit} CRITICAL` : `${alerts.length} LOGS`; 
+                            badge.className = `px-2 py-0.5 ${crit > 0 ? 'bg-error ring-4 ring-error/20' : 'bg-indigo-600'} text-white text-[10px] font-bold rounded-md alerts-badge animate-pulse`; 
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Stats/Alerts offline:', e.message);
+                    ['stat-total-users','stat-active-sessions','stat-total-tools'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = '0'; });
+                    const lat = document.getElementById('stat-latency'); if(lat) lat.innerText = '--';
+                    const alertsBox = document.getElementById('alerts-container');
+                    if (alertsBox) alertsBox.innerHTML = '<div class="p-4 text-center text-xs italic text-on-surface-variant">System healthy — no alerts</div>';
                 }
+
+                // ===== 3. SYSTEM PERFORMANCE CHART =====
+                const updatePerformance = async () => {
+                   try {
+                       const res = await fetch(`${API}/api/admin/performance`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (!res.ok) throw new Error('Performance API failed');
+                       const data = await res.json();
+                       const chartContainer = document.querySelector('.lg\\:col-span-2 .relative.flex');
+                       if (chartContainer && data.traffic) {
+                           const points = data.traffic;
+                           chartContainer.innerHTML = `
+                               <div class="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
+                                   ${[0,1,2,3].map(()=>'<div class="w-full border-t border-slate-100"></div>').join('')}
+                               </div>
+                               ${points.map(p => `<div class="flex-1 bg-primary/20 rounded-t-sm hover:bg-primary/40 transition-all cursor-pointer group relative" style="height: ${p}%"><div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">${p}%</div></div>`).join('')}
+                           `;
+                       }
+                   } catch (e) { console.error('Perf sync failed:', e.message); }
+                };
+                updatePerformance();
 
                 // ===== 4. CALCULATOR TOOLS INVENTORY =====
                 window.loadToolsInventory = async () => {
@@ -542,7 +601,7 @@
                         const tools = await res.json();
                         const countEl = document.getElementById('stat-total-tools');
                         if (countEl) countEl.innerText = tools.length.toLocaleString();
-                        tbody.innerHTML = tools.slice(0,20).map(tool => `
+                        tbody.innerHTML = tools.slice(0, 5).map(tool => `
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -560,7 +619,7 @@
                                 </td>
                             </tr>
                         `).join('');
-                        if (tools.length > 20) tbody.innerHTML += `<tr><td colspan="4" class="px-6 py-4 text-center"><a href="/admin.html" class="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View all ${tools.length} tools in Command Center &rarr;</a></td></tr>`;
+                        if (tools.length > 5) tbody.innerHTML += `<tr><td colspan="4" class="px-6 py-4 text-center"><a href="/admin.html" class="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View all ${tools.length} tools in Command Center &rarr;</a></td></tr>`;
                     } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">${err.message}</td></tr>`; }
                 };
                 loadToolsInventory();
@@ -574,20 +633,21 @@
                         if (!res.ok) throw new Error('Auth failed');
                         const messages = await res.json();
                         if (!messages || messages.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px]">No messages received yet.</td></tr>'; return; }
-                        tbody.innerHTML = messages.map(msg => `
+                        tbody.innerHTML = messages.slice(0, 5).map(msg => `
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-4"><div class="flex flex-col"><span class="font-bold text-sm text-slate-900">${msg.name}</span><span class="text-[10px] text-slate-400 font-mono">${msg.email}</span></div></td>
                                 <td class="px-6 py-4"><p class="text-xs text-on-surface max-w-md">${msg.message}</p></td>
-                                <td class="px-6 py-4 text-right"><div class="flex flex-col items-end gap-2"><span class="text-[10px] font-bold text-slate-400 uppercase">${new Date(msg.timestamp).toLocaleString()}</span><button onclick="alert('From: ${msg.name}\nEmail: ${msg.email}\n\n${msg.message}')" class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-black rounded uppercase hover:bg-primary hover:text-white transition-all">View</button></div></td>
+                                <td class="px-6 py-4 text-right"><div class="flex flex-col items-end gap-2"><span class="text-[10px] font-bold text-slate-400 uppercase">${new Date(msg.timestamp).toLocaleString()}</span><button onclick="customAlert('From: ${msg.name}', \`Email: ${msg.email}\\n\\n${msg.message}\`)" class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-black rounded uppercase hover:bg-primary hover:text-white transition-all">View</button></div></td>
                             </tr>
                         `).join('');
+                        if (messages.length > 5) tbody.innerHTML += `<tr><td colspan="3" class="px-6 py-4 text-center"><a href="/admin.html#messages" class="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View all ${messages.length} messages &rarr;</a></td></tr>`;
                     } catch (err) { tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-10 text-center text-error italic font-bold uppercase tracking-widest text-[10px]">${err.message}</td></tr>`; }
                 };
                 loadContactMessages();
 
                 // ===== 6. GAME LOBBY (Dynamic with Backend API) =====
                 window.createGameLobby = async () => {
-                    const name = prompt('Enter lobby name (e.g., "Chess Arena [IN-1]")');
+                    const name = await customPrompt('Create Game Lobby', 'Enter lobby name (e.g., "Chess Arena [IN-1]")');
                     if (!name) return;
                     try {
                         const res = await fetch(`${API}/api/admin/rooms`, {
@@ -596,25 +656,25 @@
                             body: JSON.stringify({ name, maxPlayers: 2 })
                         });
                         if (res.ok) {
-                            alert('Admin lobby injected into network.');
+                            await customAlert('Success', 'Admin lobby injected into network.', 'success');
                             renderGameLobbies();
                         }
-                    } catch (e) { alert('Failed to create lobby: ' + e.message); }
+                    } catch (e) { await customAlert('Error', 'Failed to create lobby: ' + e.message, 'error'); }
                 };
 
                 window.deleteGameLobby = async (code) => {
-                    if (!confirm('Close this lobby and disconnect players?')) return;
+                    if (!await customConfirm('Confirm Deletion', 'Close this lobby and disconnect players?', 'warning')) return;
                     try {
                         const res = await fetch(`${API}/api/admin/rooms/${code}`, {
                             method: 'DELETE',
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
                         if (res.ok) renderGameLobbies();
-                    } catch (e) { alert('Action failed'); }
+                    } catch (e) { await customAlert('Error', 'Action failed', 'error'); }
                 };
 
-                window.manageGameLobby = (code) => {
-                    alert(`Management protocol for node ${code} engaged. Directing traffic to core...`);
+                window.manageGameLobby = async (code) => {
+                    await customAlert('Engaged', `Management protocol for node ${code} engaged. Directing traffic to core...`, 'info');
                 };
 
                 const renderGameLobbies = async () => {
@@ -628,7 +688,7 @@
                         
                         if (countEl) countEl.innerText = active.length + ' Active Rooms';
                         if (active.length === 0) { 
-                            container.innerHTML = '<div class="col-span-2 p-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px] bg-surface-container-low rounded-xl">No active lobbies detected on network — click Create Lobby to start!</div>'; 
+                            container.innerHTML = '<div class="col-span-1 sm:col-span-2 p-10 text-center text-on-surface-variant italic font-bold uppercase tracking-widest text-[10px] bg-surface-container-low rounded-xl">No active lobbies detected on network — click Create Lobby to start!</div>'; 
                         } else {
                             const sc = { Waiting:'text-amber-600', Full:'text-error', 'In Progress':'text-emerald-600' };
                             container.innerHTML = active.map(l => `
@@ -649,7 +709,7 @@
                             `).join('');
                         }
                     } catch(e) {
-                         container.innerHTML = '<div class="col-span-2 p-4 text-center text-error italic text-xs">Connectivity failure to game backbone.</div>';
+                         container.innerHTML = '<div class="col-span-1 sm:col-span-2 p-4 text-center text-error italic text-xs">Connectivity failure to game backbone.</div>';
                     }
                 };
                 renderGameLobbies();
@@ -658,7 +718,7 @@
                 // ===== 7. CLOSE DROPDOWN =====
                 document.addEventListener('click', (e) => {
                     const dropdown = document.getElementById('avatar-dropdown');
-                    const avatar = document.getElementById('admin-top-avatar');
+                    const avatar = document.querySelector('.cursor-pointer.transition-transform');
                     if (dropdown && avatar && !dropdown.contains(e.target) && e.target !== avatar && !avatar.parentElement.contains(e.target)) dropdown.classList.add('hidden');
                 });
 
@@ -672,9 +732,10 @@
                 }
             });
 
-            function confirmLogout() {
-                if (confirm('Terminate security session?')) { localStorage.clear(); window.location.href = '/login.html'; }
+            async function confirmAdminLogout() {
+                if (await customConfirm('Sign Out', 'Terminate security session?', 'warning')) { localStorage.clear(); window.location.href = '/login.html'; }
             }
+            window.confirmAdminLogout = confirmAdminLogout;
         </script>
 </body>
 

@@ -23,18 +23,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
-      tailwind.config = { 
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#8b5cf6",
-              "primary-dark": "#7c3aed",
-              surface: "#f8fafc",
-            }
-          }
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3525cd",
+                        "background": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "on-surface-variant": "#464555",
+                        "surface": "#fbf9f8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f6f3f3",
+                        "surface-container-high": "#eae7e7",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
         }
-      };
     </script>
     <script>
         // Immediate Auth Check
@@ -251,32 +264,63 @@
     </style>
 </head>
 
-<body class="bg-surface text-on-surface">
-    <header>
-        <nav class="fixed top-0 w-full z-[100] bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
-            <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
-                <div class="flex items-center gap-8">
-                    <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved"></i> Smart Hub Admin
-                    </span>
-                    <div class="hidden md:flex items-center gap-6">
-                        <a class="text-slate-500 hover:text-slate-900 transition-colors" href="AdminDashboard.html">Dashboard</a>
-                        <a class="text-slate-500 hover:text-slate-900 transition-colors" href="calculators.html">Tools</a>
-                        <a class="text-slate-500 hover:text-slate-900 transition-colors" href="admin_mobile_trace.html">Mobile Trace</a>
-                        <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="admin.html">Command</a>
-                    </div>
+<body class="bg-surface text-on-surface flex min-h-screen">
+    <!-- Sidebar Nav aligned with AdminDashboard -->
+    <aside class="h-screen w-64 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col sticky top-0 shadow-sm z-50">
+        <div class="flex flex-col h-full p-4 text-sm font-medium tracking-tight">
+            <div class="flex items-center gap-3 px-3 py-6 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-primary rounded-xl flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
                 </div>
-                <div class="flex items-center gap-4" id="auth-actions">
-                    <!-- Populated by script.js -->
+                <div>
+                    <h1 class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">SMART HUB</h1>
+                    <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Admin Panel</p>
                 </div>
             </div>
-        </nav>
-    </header>
+            <div class="px-3 mb-8">
+                <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 overflow-hidden ring-2 ring-primary/5">
+                        <img class="admin-display-avatar w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff&bold=true">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="admin-display-name text-sm font-bold truncate text-slate-900 dark:text-white">Admin User</p>
+                        <p class="admin-display-role text-[10px] uppercase font-black tracking-widest text-primary">Super Admin</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 space-y-1">
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/AdminDashboard.html">
+                    <span class="material-symbols-outlined">dashboard</span> <span>Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 shadow-sm font-semibold rounded-lg transition-all duration-200 active:scale-95" href="/admin.html">
+                    <span class="material-symbols-outlined">monitoring</span> <span>Command Center</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/GameLobby.html">
+                    <span class="material-symbols-outlined">sports_esports</span> <span>Game Management</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/calculators.html">
+                    <span class="material-symbols-outlined">build</span> <span>Toolbox</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="/admin_mobile_trace.html">
+                    <span class="material-symbols-outlined">track_changes</span> <span>Mobile Trace</span>
+                </a>
+            </nav>
+            <div class="pt-4 mt-4 border-t border-slate-200/50 dark:border-slate-800 space-y-1">
+                <button onclick="confirmAdminLogout()" class="w-full flex items-center gap-3 px-4 py-3 text-error hover:bg-error/5 transition-all duration-200 rounded-lg">
+                    <span class="material-symbols-outlined">logout</span> <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </aside>
 
-    <div class="dashboard-layout pt-24" id="dashboard-wrapper">
-        <main class="main-content">
-            <div class="page-body px-8 py-10">
-                <section class="max-w-[1440px] mx-auto fade-in">
+    <main class="flex-1 flex flex-col min-w-0">
+        <header class="w-full h-16 sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-sm flex justify-between items-center px-8 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center flex-1">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">System Command Center</h2>
+            </div>
+        </header>
+
+        <div class="p-10 space-y-10 max-w-[1600px] mx-auto w-full fade-in">
                     <!-- Header -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-8 bg-primary/5 p-8 rounded-[3rem] border border-primary/10">
                         <div class="flex items-center gap-6">
@@ -939,11 +983,8 @@
                         </div>
                     </div>
 
-                </section>
-                <div id="footer-placeholder"></div>
             </div>
         </main>
-    </div>
 
     <!-- Editor Modal -->
     <div id="editor-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-2xl z-[2000] flex items-center justify-center p-4">
@@ -1186,7 +1227,7 @@
             }
             return res;
         }
-
+        window.confirmAdminLogout = async () => { if (await window.customConfirm('Sign Out', 'Terminate security session?')) { localStorage.clear(); window.location.href = '/login.html'; } };
 
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize CodeMirror
@@ -1202,6 +1243,15 @@
 
             // Load initial stats
             fetchSystemStats();
+
+            // Sync Profile Sidebar
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.name) {
+                document.querySelectorAll('.admin-display-name').forEach(el => el.innerText = user.name);
+                document.querySelectorAll('.admin-display-role').forEach(el => el.innerText = user.role === 'admin' ? 'Super Admin' : 'Member');
+                const avatarUrl = user.photo ? (user.photo.startsWith('http') ? user.photo : `${API_URL}${user.photo}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4f46e5&color=fff&bold=true`;
+                document.querySelectorAll('.admin-display-avatar').forEach(el => { el.src = avatarUrl; el.onerror = () => el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4f46e5&color=fff&bold=true`; });
+            }
         });
 
         function switchTab(tabId, btn = null) {
@@ -1273,7 +1323,7 @@
         }
 
         async function triggerSystemAction(action) {
-            if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) return;
+            if (!await window.customConfirm('Confirm Action', `Are you sure you want to ${action.replace('_', ' ')}?`)) return;
 
             try {
                 const token = localStorage.getItem('token');
@@ -1286,8 +1336,8 @@
                     body: JSON.stringify({ action })
                 });
                 const data = await res.json();
-                alert(data.message || 'Action executed');
-            } catch (e) { alert('Action failed: ' + e.message); }
+                await window.customAlert('Success', data.message || 'Action executed', 'success');
+            } catch (e) { await window.customAlert('Error', 'Action failed: ' + e.message, 'error'); }
         }
 
         let currentAdminDir = '.';
@@ -1332,7 +1382,7 @@
         }
 
         async function createFileFolder(type) {
-            const name = prompt(`Enter ${type} name:`);
+            const name = await window.customPrompt(`Create ${type}`, `Enter ${type} name:`);
             if (!name) return;
             const fullPath = currentAdminDir === '.' ? name : `${currentAdminDir}/${name}`;
 
@@ -1352,11 +1402,11 @@
                     });
                 }
                 fetchAssetFiles(currentAdminDir);
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { await window.customAlert("Error", "Error: " + e.message, "error"); }
         }
 
         async function renameFile(oldPath, oldName) {
-            const newName = prompt('Enter new path/name:', oldPath);
+            const newName = await window.customPrompt('Rename', 'Enter new path/name:', oldPath);
             if (!newName || newName === oldPath) return;
             try {
                 const token = localStorage.getItem('token');
@@ -1366,11 +1416,11 @@
                     body: JSON.stringify({ oldPath, newPath: newName })
                 });
                 fetchAssetFiles(currentAdminDir);
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { await window.customAlert("Error", "Error: " + e.message, "error"); }
         }
 
         async function copyFile(sourcePath) {
-            const targetPath = prompt('Enter destination path/name:', sourcePath + '_copy');
+            const targetPath = await window.customPrompt('Copy', 'Enter destination path/name:', sourcePath + '_copy');
             if (!targetPath || targetPath === sourcePath) return;
             try {
                 const token = localStorage.getItem('token');
@@ -1380,11 +1430,11 @@
                     body: JSON.stringify({ source: sourcePath, target: targetPath })
                 });
                 fetchAssetFiles(currentAdminDir);
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { await window.customAlert("Error", "Error: " + e.message, "error"); }
         }
 
         async function deleteFile(path, isDir) {
-            if (!confirm(`Are you sure you want to delete ${isDir ? 'folder and its contents' : 'file'} "${path}"?`)) return;
+            if (!await window.customConfirm('Delete Confirmed', `Are you sure you want to delete ${isDir ? 'folder and its contents' : 'file'} "${path}"?`, 'error')) return;
             try {
                 const token = localStorage.getItem('token');
                 await secureFetch(`${API_URL}/api/admin/files/delete`, {
@@ -1393,7 +1443,7 @@
                     body: JSON.stringify({ path })
                 });
                 fetchAssetFiles(currentAdminDir);
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { await window.customAlert("Error", "Error: " + e.message, "error"); }
         }
 
         async function editFile(filePath) {
@@ -1415,7 +1465,7 @@
                     setTimeout(() => editorInstance.refresh(), 100);
                 }
             } catch (e) {
-                alert("Could not load file content");
+                await window.customAlert("Error", "Could not load file content", "error");
                 closeEditor();
             }
         }
@@ -1436,12 +1486,12 @@
                 });
 
                 if (res.ok) {
-                    alert("File saved successfully!");
+                    await window.customAlert("Success", "File saved successfully!", "success");
                     closeEditor();
                 } else {
                     throw new Error("Save failed");
                 }
-            } catch (e) { alert(e.message); }
+            } catch (e) { await window.customAlert("Error", e.message, "error"); }
         }
 
         function closeEditor() {
@@ -1452,7 +1502,7 @@
 
         async function restorePageDefault() {
             if (!currentEditingFile) return;
-            if (!confirm(`Are you sure you want to restore "${currentEditingFile}" to its core original unedited state? This will wipe recent changes.`)) return;
+            if (!await window.customConfirm('Warning', `Are you sure you want to restore "${currentEditingFile}" to its core original unedited state? This will wipe recent changes.`, 'error')) return;
 
             try {
                 const token = localStorage.getItem('token');
@@ -1463,13 +1513,13 @@
                 });
 
                 if (res.ok) {
-                    alert("System file successfully restored to default!");
+                    await window.customAlert("Success", "System file successfully restored to default!", "success");
                     editFile(currentEditingFile); // Reload
                 } else {
                     const error = await res.json();
-                    alert(error.error || "Failed to restore.");
+                    await window.customAlert("Error", error.error || "Failed to restore.", "error");
                 }
-            } catch (e) { alert("Error connecting to server restore sequence."); }
+            } catch (e) { await window.customAlert("Error", "Error connecting to server restore sequence.", "error"); }
         }
 
         let globalUsersCache = [];
@@ -1600,13 +1650,13 @@
                 if (res.ok) {
                     closeUserModal();
                     fetchUsers();
-                    alert(id ? 'User updated successfully!' : 'User created successfully!');
+                    await window.customAlert("Success", id ? 'User updated successfully!' : 'User created successfully!', "success");
                 } else {
                     const data = await res.json();
-                    alert(data.error || "Failed to save user.");
+                    await window.customAlert("Error", data.error || "Failed to save user.", "error");
                 }
             } catch (e) {
-                alert("Action failed. Server error.");
+                await window.customAlert("Error", "Action failed. Server error.", "error");
             }
         }
 
@@ -1619,11 +1669,11 @@
                     body: JSON.stringify({ role: newRole })
                 });
                 fetchUsers();
-            } catch (e) { alert("Failed to update role"); fetchUsers(); }
+            } catch (e) { await window.customAlert("Error", "Failed to update role", "error"); fetchUsers(); }
         }
 
         async function deleteUser(userId, username) {
-            if (!confirm(`WARNING: CRITICAL DELETION. Are you positive you want to completely erase the account for [ ${username} ]?`)) return;
+            if (!await window.customConfirm('Critical Deletion', `WARNING: CRITICAL DELETION. Are you positive you want to completely erase the account for [ ${username} ]?`, 'error')) return;
             try {
                 const token = localStorage.getItem('token');
                 await secureFetch(`${API_URL}/api/admin/users/${userId}`, {
@@ -1632,7 +1682,7 @@
                 });
                 showGlobalToast("User fully purged from database.", "info");
                 fetchUsers();
-            } catch (e) { alert("Failed to delete user"); }
+            } catch (e) { await window.customAlert("Error", "Failed to delete user", "error"); }
         }
 
         async function renderAdminTools() {
@@ -1653,12 +1703,28 @@
                     groups[t.category].push(t);
                 });
 
+                // Update our global model for drag/drop tracking
+                adminToolData = Object.keys(groups).map(cat => ({
+                    cat: cat,
+                    icon: 'fas fa-cube', 
+                    tools: groups[cat]
+                }));
+
                 const disabledTools = (window.currentSettings && window.currentSettings.disabledTools) ? window.currentSettings.disabledTools : [];
                 
                 let html = '';
                 Object.keys(groups).forEach(cat => {
                     const catId = cat.replace(/\s+/g, '-').toLowerCase();
                     const groupTools = groups[cat];
+                    
+                    // Apply overrides for display
+                    const overrides = window.currentSettings?.toolOverrides || {};
+                    groupTools.forEach(t => {
+                        if (overrides[t.path]) {
+                            t.displayName = overrides[t.path].newName || t.name;
+                        } else { t.displayName = t.name; }
+                    });
+
                     const isAllEnabled = groupTools.every(t => !disabledTools.includes(t.path));
 
                     html += `
@@ -1682,10 +1748,13 @@
                                 return `
                                 <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl hover:border-primary/20 transition-all">
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-sm text-slate-800">${tool.name}</span>
+                                        <span class="font-bold text-sm text-slate-800">${tool.displayName}</span>
                                         <span class="text-[9px] font-mono text-slate-400 uppercase">${tool.path.split('/').pop()}</span>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <button onclick="editToolInfo('${tool.path}', '${tool.displayName.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors" title="Edit Name & Path">
+                                            <span class="material-symbols-outlined text-lg">settings</span>
+                                        </button>
                                         <button onclick="editFile('${tool.path}')" class="p-2 text-slate-400 hover:text-primary transition-colors" title="Edit Code">
                                             <span class="material-symbols-outlined text-lg">edit</span>
                                         </button>
@@ -1703,17 +1772,16 @@
             } catch (err) {
                 container.innerHTML = `<div class="p-10 text-center text-rose-500 font-bold uppercase tracking-widest text-xs">Failed to load real-time inventory from register.</div>`;
             }
-        }
             
             // Initialize Drag and Drop
             initCategoryDnD();
             initToolDnD();
         }
 
-        function addCustomCategory() {
-            const name = prompt("Enter Category Name:");
+        async function addCustomCategory() {
+            const name = await customPrompt("New Category", "Enter Category Name:");
             if (!name) return;
-            const icon = prompt("Enter FontAwesome Icon Class (e.g., 'fas fa-cube'):", "fas fa-cube");
+            const icon = await customPrompt("Category Icon", "Enter FontAwesome Icon Class (e.g., 'fas fa-cube'):", "fas fa-cube");
             
             if (!window.customCategories) window.customCategories = [];
             window.customCategories.push({ category: name, icon: icon || 'fas fa-cube', items: [], isCustom: true });
@@ -1722,10 +1790,42 @@
             showGlobalToast("Category added. Click 'Save' to persist.", "success");
         }
 
-        function deleteCustomCategory(name) {
-            if (!confirm(`Delete custom category "${name}"?`)) return;
+        async function deleteCustomCategory(name) {
+            if (!await window.customConfirm('Delete Category', `Delete custom category "${name}"?`, 'warning')) return;
             if (!window.customCategories) return;
             window.customCategories = window.customCategories.filter(c => c.category !== name);
+            renderAdminTools();
+        }
+
+        async function editToolInfo(oldPath, oldName) {
+            const newName = await window.customPrompt('Edit Tool Name', 'Enter new display name for this tool (will update across the site):', oldName);
+            if (!newName) return;
+            
+            const newPath = await window.customPrompt('Edit Tool Link (Path)', 'Enter new URL path for this tool (WARNING: This will rename the actual file!):', oldPath);
+            if (!newPath) return;
+        
+            if (newPath !== oldPath) {
+                try {
+                    const token = localStorage.getItem('token');
+                    await secureFetch(`${API_URL}/api/admin/files/move`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ oldPath: oldPath.startsWith('/') ? oldPath.substring(1) : oldPath, newPath: newPath.startsWith('/') ? newPath.substring(1) : newPath })
+                    });
+                    showGlobalToast('File renamed successfully.', 'success');
+                } catch(e) {
+                    await window.customAlert('Error', 'Failed to rename file: ' + e.message, 'error');
+                    return; // Stop if rename fails
+                }
+            }
+        
+            if (!window.currentSettings) window.currentSettings = {};
+            if (!window.currentSettings.toolOverrides) window.currentSettings.toolOverrides = {};
+            
+            window.currentSettings.toolOverrides[oldPath] = { newName, newPath };
+            if (newPath !== oldPath) window.currentSettings.toolOverrides[newPath] = { newName, newPath };
+        
+            await saveGlobalSettings();
             renderAdminTools();
         }
 
@@ -1935,7 +2035,8 @@
                 locale: document.getElementById('setting-locale')?.value || 'en-IN',
                 
                 disabledTools: [],
-                categoryOrder: []
+                categoryOrder: [],
+                toolOverrides: window.currentSettings?.toolOverrides || {}
             };
 
             // Reconstruct categories and moved tools from the live data model
@@ -2154,7 +2255,7 @@
             if (!file) return;
 
             if (file.size > 500 * 1024) { // 500KB limit
-                alert("File is too large! Please upload an image under 500KB.");
+                window.customAlert("File Too Large", "File is too large! Please upload an image under 500KB.", "error");
                 return;
             }
 
@@ -2174,8 +2275,8 @@
         }
 
         // --- RESET DEFAULTS ---
-        function adminResetVisualDefaults() {
-            if(!confirm("Are you sure you want to reset all visual styles (colors, fonts, buttons) to default?")) return;
+        async function adminResetVisualDefaults() {
+            if(!await window.customConfirm("Reset Defaults", "Are you sure you want to reset all visual styles (colors, fonts, buttons) to default?", "warning")) return;
 
             document.getElementById('setting-color-primary').value = '#6366f1';
             document.getElementById('setting-color-accent').value = '#8b5cf6';
@@ -2237,7 +2338,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const settings = JSON.parse(e.target.result);
                     // Apply settings to form
@@ -2251,7 +2352,7 @@
                     updateAdminPreview(); // Update live preview
                     showGlobalToast("Theme imported. Click 'Save' to apply.", "info");
                 } catch (err) {
-                    alert("Invalid JSON file. Please check the file format.");
+                    await window.customAlert("Invalid Format", "Invalid JSON file. Please check the file format.", "error");
                 }
             };
             reader.readAsText(file);

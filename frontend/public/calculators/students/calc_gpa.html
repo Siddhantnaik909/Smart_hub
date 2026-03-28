@@ -70,9 +70,9 @@
     <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
         <div class="mb-12">
             <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
-                <span>STUDENT TOOLS</span>
+                <span>Student Tools</span>
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
-                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Grade Calculator</span>
+                <span class="text-primary tracking-tight text-xs font-bold">Grade Calculator</span>
             </nav>
             <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">School Grades.</h1>
             <p class="text-on-surface-variant text-lg max-w-2xl">Track your semester progress, overall scores, or exam percentages in one place. Simple and fast!</p>
@@ -129,7 +129,7 @@
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-6">
                     <div class="flex flex-wrap gap-4">
                         <button class="mode-btn active px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest uppercase transition-all" id="btn-mode-gpa" onclick="setMode('gpa')">This Semester</button>
-                        <button class="mode-btn bg-surface-container px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest uppercase transition-all shadow-sm" id="btn-mode-cgpa" onclick="setMode('cgpa')">Overall (CGPA)</button>
+                        <button class="mode-btn bg-surface-container px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest uppercase transition-all shadow-sm" id="btn-mode-cgpa" onclick="setMode('cgpa')">Overall Score</button>
                         <button class="mode-btn bg-surface-container px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest uppercase transition-all shadow-sm" id="btn-mode-marks" onclick="setMode('marks')">Exam Marks</button>
                     </div>
 
@@ -165,7 +165,7 @@
                         </div>
 
                         <div class="flex gap-4 pt-6">
-                            <button onclick="calculate()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">CALCULATE SCORE</button>
+                            <button onclick="calculate()" class="flex-1 bg-primary text-white py-5 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all">Calculate Score</button>
                             <button onclick="resetForms()" class="p-5 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined">restart_alt</span>
                             </button>

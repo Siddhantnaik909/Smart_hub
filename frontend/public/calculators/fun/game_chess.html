@@ -35,7 +35,14 @@
         }
     </script>
     <style>
-        :root { --primary-color: #8b5cf6; }
+        .font-game { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .highlight-white { background-color: #fce7f3; box-shadow: inset 0 0 3px 3px #f472b6; }
+        .highlight-black { background-color: #f9a8d4; box-shadow: inset 0 0 3px 3px #ec4899; }
+        .highlight-source { background-color: rgba(139, 92, 246, 0.3) !important; }
+        .legal-dot { width: 22px; height: 22px; background: rgba(0,0,0,0.1); border-radius: 50%; pointer-events: none; }
+        /* Fix for Chessboard.js + Tailwind piece misplacement */
+        .piece-417db { max-width: none !important; }
+        #board img { display: inline; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .board-glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(139, 92, 246, 0.1); }
@@ -75,8 +82,8 @@
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
                 <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Play Chess</span>
             </nav>
-            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Chess Game.</h1>
-            <p class="text-on-surface-variant text-lg max-w-2xl">Good quality cognitive simulation. Deploy tactical units across the Chess board to achieve total positional dominance.</p>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Chess.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Enjoy a classic game of Chess. Play against a friend or challenge the computer in a test of strategy and focus.</p>
         </div>
 
         <div class="grid grid-cols-12 gap-8 items-start">
@@ -88,18 +95,18 @@
                         <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
                     </div>
                     <div class="space-y-6" id="sidebar-history-container">
-                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent games.</p>
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent games yet.</p>
                     </div>
                 </div>
             
                 <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
-                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Other Games</h4>
                     <div class="space-y-4">
                         <a href="game_car_racing.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
                             <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
                             <div>
                                 <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
-                                <div class="text-xs font-bold text-on-surface uppercase">Car Racing Game</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">3D Racing</div>
                             </div>
                         </a>
                         <a href="game_connect4.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
@@ -116,22 +123,50 @@
             <!-- Content Area -->
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
-                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 flex flex-col items-center justify-center min-h-[550px] shadow-inner relative">
-                        <div id="board" class="w-full max-w-[500px] shadow-2xl"></div>
-                        <div id="status-text" class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mt-4">READY TO PLAY</div>
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 flex flex-col items-center justify-center min-h-[450px] shadow-inner relative">
+                        <div class="relative group w-full max-w-[500px]">
+                            <!-- Overlay -->
+                            <div id="game-overlay" class="absolute inset-0 z-20 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl opacity-0 pointer-events-none transition-all duration-500 scale-95 border-4 border-primary/20 shadow-2xl">
+                                <span id="overlay-status-icon" class="material-symbols-outlined text-6xl text-primary mb-2">military_tech</span>
+                                <h2 id="overlay-status-text" class="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-6 leading-none italic text-center">Game Over</h2>
+                                <button onclick="performRestart()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic shadow-lg shadow-primary/20">Play New Game</button>
+                            </div>
+                            <div id="board" class="w-full shadow-2xl relative z-10"></div>
+                        </div>
+                        <div id="status-text" class="text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mt-8">Ready to play</div>
                     </div>
 
                     <div class="p-8 space-y-8">
-                        <div class="flex items-center justify-between">
-                            <select id="cpu-difficulty" class="bg-surface-container border-none rounded-xl text-xs font-bold px-4 py-3 outline-none focus:ring-2 focus:ring-primary transition-all">
-                                <option value="easy">Easy (Linear)</option>
-                                <option value="med">Medium (Balanced)</option>
-                                <option value="hard">Hard (Advanced)</option>
-                                <option value="master" selected>Master (Expert)</option>
-                            </select>
+                        <!-- Mode Selection Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div onclick="startCPU()" id="mode-cpu" class="p-6 bg-primary/10 border-2 border-primary rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-primary mb-2 text-3xl">smart_toy</span>
+                                <h4 class="text-xs font-bold text-primary tracking-tight">Play Computer</h4>
+                                <p class="text-[10px] text-primary/60 font-medium mt-1">Challenge our AI</p>
+                            </div>
+                            <div onclick="startLocal()" id="mode-local" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">group</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">With a Friend</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Play on this screen</p>
+                            </div>
+                            <div onclick="startOnline()" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">hub</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">Online Match</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Coming soon...</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pb-6 border-b border-surface-container-high mb-6">
                             <div class="flex gap-4">
-                                <button onclick="startCPU()" class="bg-white text-on-surface border border-slate-200 px-6 py-4 rounded-xl font-bold text-[10px] tracking-widest hover:bg-slate-50 transition-all uppercase">vs CPU</button>
-                                <button onclick="performRestart()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Reset Board</button>
+                                <select id="cpu-difficulty" class="bg-surface-container border-none rounded-xl text-xs font-bold px-4 py-3 outline-none focus:ring-2 focus:ring-primary transition-all">
+                                    <option value="easy">Beginner</option>
+                                    <option value="med">Intermediate</option>
+                                    <option value="hard">Advanced</option>
+                                    <option value="master" selected>Expert</option>
+                                </select>
+                            </div>
+                            <div class="flex gap-4">
+                                <button onclick="performRestart()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic">New Game</button>
                             </div>
                         </div>
                     </div>
@@ -150,6 +185,7 @@
         let playMode = 'local';
 
         function initBoard() {
+            if (board) board.destroy();
             const config = {
                 draggable: true,
                 position: 'start',
@@ -159,6 +195,8 @@
                     if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
                 },
                 onDrop: (source, target) => {
+                    removeGreySquares();
+                    selectedSquare = null;
                     let move = game.move({ from: source, to: target, promotion: 'q' });
                     if (move === null) return 'snapback';
                     updateStatus();
@@ -168,14 +206,103 @@
                 pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
             };
             board = Chessboard('board', config);
+            
+            // Refined click-to-move targeting squares more accurately
+            $('#board').on('click', '[class*="square-"]', function() {
+                let square = $(this).attr('data-square');
+                if (square) handleSquareClick(square);
+            });
+        }
+
+        let selectedSquare = null;
+
+        function handleSquareClick(square) {
+            if (game.game_over()) return;
+            if (playMode === 'cpu' && game.turn() === 'b') return;
+
+            // If a piece is already selected, try to move
+            if (selectedSquare) {
+                let move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+                if (move === null) {
+                    // Selection handling
+                    let piece = game.get(square);
+                    if (piece && piece.color === game.turn()) {
+                        selectedSquare = square;
+                        removeGreySquares();
+                        showLegalMoves(square);
+                    } else {
+                        selectedSquare = null;
+                        removeGreySquares();
+                        board.position(game.fen()); // Reset any offsets
+                    }
+                } else {
+                    selectedSquare = null;
+                    removeGreySquares();
+                    board.position(game.fen());
+                    updateStatus();
+                    if (playMode === 'cpu' && !game.game_over()) setTimeout(makeCPUMove, 600);
+                }
+            } else {
+                let piece = game.get(square);
+                if (piece && piece.color === game.turn()) {
+                    selectedSquare = square;
+                    showLegalMoves(square);
+                }
+            }
+        }
+
+        function removeGreySquares() { 
+            $('#board .square-55d63').removeClass('highlight-white highlight-black highlight-source'); 
+            $('.legal-dot').remove();
+        }
+
+        function greySquare(square, isSource = false) {
+            let $square = $('#board .square-' + square);
+            if (isSource) {
+                $square.addClass('highlight-source');
+                return;
+            }
+            if ($square.find('.legal-dot').length === 0) {
+                $square.append('<div class="legal-dot" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5;"></div>');
+            }
+        }
+
+        function showLegalMoves(square) {
+            let moves = game.moves({ square: square, verbose: true });
+            if (moves.length === 0) return;
+            greySquare(square, true);
+            for (let i = 0; i < moves.length; i++) { greySquare(moves[i].to); }
         }
 
         function updateStatus() {
-            let status = game.turn() === 'w' ? 'White' : 'Black';
-            if (game.in_checkmate()) status = `Winner: ${turn === 'w' ? 'Black' : 'White'} (Checkmate)`;
-            else if (game.in_draw()) status = 'Draw';
-            else status = game.turn() === 'w' ? "WHITE'S TURN" : "BLACK'S TURN";
+            let status = game.turn() === 'w' ? "White's turn" : "Black's turn";
+            
+            if (game.in_checkmate()) {
+                let winner = game.turn() === 'w' ? 'Black' : 'White';
+                status = `Checkmate! ${winner} wins!`;
+                showOverlay(`${winner} wins!`, 'military_tech');
+            }
+            else if (game.in_draw()) {
+                status = "It's a draw!";
+                showOverlay("It's a draw!", 'handshake');
+            }
+            
             document.getElementById('status-text').innerText = status;
+        }
+
+        function showOverlay(text, icon) {
+            const over = document.getElementById('game-overlay');
+            const overText = document.getElementById('overlay-status-text');
+            const overIcon = document.getElementById('overlay-status-icon');
+            overText.innerText = text; overIcon.innerText = icon;
+            over.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+
+        function hideOverlay() {
+            const over = document.getElementById('game-overlay');
+            over.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
         }
 
         function makeCPUMove() {
@@ -252,8 +379,51 @@
             return total;
         }
 
-        function performRestart() { game.reset(); board.position('start'); updateStatus(); }
-        function startCPU() { playMode = 'cpu'; performRestart(); }
+        function performRestart() { 
+            game.reset(); 
+            board.position('start'); 
+            hideOverlay();
+            updateStatus(); 
+        }
+        
+        function startCPU() { 
+            playMode = 'cpu'; 
+            updateModeUI('cpu');
+            performRestart(); 
+        }
+
+        function startLocal() {
+            playMode = 'local';
+            updateModeUI('local');
+            performRestart();
+        }
+
+        function startOnline() {
+            alert("MULTIPLAYER HUB INIT... \n\nConnecting to Smart Hub Chess Server [BETA]\nStatus: Authenticating Matchmaker...\n\nOnline Play is currently being standardized across the suite. Please use Private Rooms in the Lobby.");
+            window.location.href = '/GameLobby.html';
+        }
+
+        function updateModeUI(m) {
+            document.getElementById('mode-cpu').className = `p-6 ${m==='cpu'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            document.getElementById('mode-local').className = `p-6 ${m==='local'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            
+            const cpuIcon = document.getElementById('mode-cpu').querySelector('span');
+            const localIcon = document.getElementById('mode-local').querySelector('span');
+            const cpuText = document.getElementById('mode-cpu').querySelector('h4');
+            const localText = document.getElementById('mode-local').querySelector('h4');
+
+            if(m==='cpu') {
+                cpuIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                cpuText.className = 'text-xs font-bold text-primary tracking-tight';
+                localIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                localText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            } else {
+                localIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                localText.className = 'text-xs font-bold text-primary tracking-tight';
+                cpuIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                cpuText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             initBoard();

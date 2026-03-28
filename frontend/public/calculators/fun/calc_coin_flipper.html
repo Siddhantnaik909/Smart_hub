@@ -145,11 +145,11 @@
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl space-y-8">
                     <!-- Visual Area -->
-                    <div id="results-display" class="bg-white rounded-2xl p-12 flex items-center justify-center min-h-[350px] relative overflow-hidden shadow-inner uppercase">
+                    <div id="results-display" class="bg-white rounded-2xl p-12 flex items-center justify-center min-h-[350px] relative overflow-hidden shadow-inner">
                         <div id="coin-visual-area" class="flex flex-wrap items-center justify-center gap-12 perspective-[1000px]">
                             <div class="text-center space-y-4 opacity-30">
                                 <span class="material-symbols-outlined text-7xl text-primary animate-bounce">published_with_changes</span>
-                                <p class="text-[10px] font-black tracking-widest">Waiting for a flip...</p>
+                                <p class="text-xs font-bold tracking-tight">Waiting for a flip...</p>
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@
                                 </div>
                             </div>
                             <div class="flex gap-4 pt-2">
-                                <button onclick="initiateFlip()" id="flip-btn" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">FLIP COIN</button>
+                                <button onclick="initiateFlip()" id="flip-btn" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Flip Coin</button>
                                 <button onclick="clearData()" class="p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-colors">
                                     <span class="material-symbols-outlined">restart_alt</span>
                                 </button>
@@ -228,8 +228,8 @@
         function initiateFlip() {
             const hInput = document.getElementById('label-heads').value.trim();
             const tInput = document.getElementById('label-tails').value.trim();
-            const hLabel = (hInput || 'Heads').toUpperCase().substring(0, 8);
-            const tLabel = (tInput || 'Tails').toUpperCase().substring(0, 8);
+            const hLabel = (hInput || 'Heads').substring(0, 12);
+            const tLabel = (tInput || 'Tails').substring(0, 12);
             const visualArea = document.getElementById('coin-visual-area');
             const saveBtn = document.getElementById('save-btn');
             
@@ -282,7 +282,7 @@
             document.getElementById('coin-visual-area').innerHTML = `
                 <div class="text-center space-y-4 opacity-30">
                     <span class="material-symbols-outlined text-7xl text-primary animate-bounce">published_with_changes</span>
-                    <p class="text-[10px] font-black tracking-widest">Waiting for a flip...</p>
+                    <p class="text-xs font-bold tracking-tight">Waiting for a flip...</p>
                 </div>
             `;
             document.getElementById('save-btn').classList.add('hidden');

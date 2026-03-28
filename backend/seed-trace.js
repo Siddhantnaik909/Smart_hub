@@ -1,8 +1,11 @@
 const { MongoClient } = require('mongodb');
 const bcrypt = require('bcryptjs');
+require('dotenv').config(); // Load .env variables
 
 async function seedTraceData() {
-    const uri = "mongodb://localhost:27017";
+    // Use Atlas in production, Local in development
+    const isProd = process.env.NODE_ENV === "production";
+    const uri = isProd ? (process.env.MONGO_ATLAS_URI || process.env.MONGO_URI) : (process.env.MONGO_LOCAL_URI || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smarthub");
     const client = new MongoClient(uri);
 
     try {

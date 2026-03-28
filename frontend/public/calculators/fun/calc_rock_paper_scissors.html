@@ -103,45 +103,176 @@
                             </div>
                             <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
                         </a>
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Smart Hub | Rock Paper Scissors</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8b5cf6",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-low": "#f1f5f9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "surface-container": "#f1f5f9",
+                        "secondary-fixed": "#ede9fe",
+                        "on-secondary-fixed": "#4c1d95",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "primary-container": "#7c3aed",
+                        "on-primary": "#ffffff",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root { --primary-color: #8b5cf6; } 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; } 
+        .battle-shake { animation: battle-vibration 0.6s infinite; }
+        @keyframes battle-vibration { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .choice-pop { animation: choice-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes choice-in { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 transition-colors duration-300">
+    <nav class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)] h-20 flex items-center px-12 tracking-tight">
+        <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center gap-8" id="nav-logo-block">
+                <span id="nav-site-logo-text" class="text-xl font-bold tracking-tighter text-slate-900 text-primary uppercase">Smart Hub</span>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/index.html">Home</a>
+                    <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="/calculators.html">Tools</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/GameLobby.html">Games</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/history.html">History</a>
+                    <a class="text-slate-500 hover:text-slate-900 transition-colors" href="/about.html">About</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4" id="auth-actions">
+                <!-- Populated by script.js -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
+                <span>FUN ZONE</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Rock Paper Scissors</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Battle Arena.</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Simple and fun strategy. Choose Rock, Paper, or Scissors to compete against the computer or a friend.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Sidebar -->
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(139,92,246,0.06)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800">Match History</h3>
+                        <span onclick="clearSidebarHistory()" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Clear History">delete_sweep</span>
+                    </div>
+                    <div class="space-y-6" id="sidebar-history-container">
+                        <p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No games played yet.</p>
+                    </div>
+                </div>
+            
+                <div class="bg-surface-container-high p-8 rounded-xl shadow-lg border border-primary/10">
+                    <h4 class="text-sm font-bold tracking-[0.03em] text-on-surface uppercase text-purple-800 mb-6 uppercase">Quick Navigation</h4>
+                    <div class="space-y-4">
+                        <a href="calc_random_number.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group">
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_back</span>
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Back</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Generate</div>
+                            </div>
+                        </a>
+                        <a href="calc_zodiac.html" class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl hover:bg-primary/10 transition-all border border-transparent hover:border-primary/20 group text-right justify-end">
+                            <div>
+                                <div class="text-[10px] font-bold text-on-surface-variant uppercase opacity-60">Next</div>
+                                <div class="text-xs font-bold text-on-surface uppercase">Zodiac Sign</div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">arrow_forward</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- Content Area -->
             <div class="col-span-12 lg:col-span-8">
-                <div class="bg-surface-container-low rounded-3xl p-6 shadow-2xl overflow-hidden">
-                    <div class="bg-white m-2 rounded-2xl p-8 flex items-center justify-center min-h-[300px] shadow-sm border border-slate-100 relative gap-12">
-                        <div class="absolute top-8 left-8 flex gap-2">
-                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">PLAY AREA</span>
-                            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="game-status">READY</span>
-                        </div>
-                        <div class="text-center group"><div id="p-display" class="w-32 h-32 bg-slate-50 border-4 border-slate-200 rounded-3xl flex items-center justify-center text-5xl shadow-sm transition-all group-hover:border-primary/40">?</div><p class="mt-4 text-[9px] font-black tracking-widest text-on-surface-variant uppercase">You</p></div>
-                        <div class="text-2xl font-black text-slate-200 italic">VS</div>
-                        <div class="text-center group"><div id="c-display" class="w-32 h-32 bg-slate-50 border-4 border-slate-200 rounded-3xl flex items-center justify-center text-5xl shadow-sm transition-all group-hover:border-primary/40">?</div><p id="opponent-tag" class="mt-4 text-[9px] font-black tracking-widest text-on-surface-variant uppercase font-bold">Computer</p></div>
-                    </div>
-
-                    <div class="p-8 space-y-8">
-                        <div>
-                            <div class="flex justify-between items-center mb-6">
-                                <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Make Your Move</h4>
-                                <select id="cpu-difficulty" class="bg-surface-container border-none rounded-xl text-[10px] font-bold px-4 py-2 outline-none focus:ring-2 focus:ring-primary transition-all">
-                                    <option value="easy">Easy (Random)</option>
-                                    <option value="med">Medium (Pattern)</option>
-                                    <option value="hard">Hard (Markov)</option>
-                                    <option value="master" selected>Master (Neural)</option>
-                                </select>
+                        <!-- Mode Selection Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div onclick="startCPU()" id="mode-cpu" class="p-6 bg-primary/10 border-2 border-primary rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-primary mb-2 text-3xl">smart_toy</span>
+                                <h4 class="text-xs font-bold text-primary tracking-tight">Play Computer</h4>
+                                <p class="text-[10px] text-primary/60 font-medium mt-1">Challenge our AI</p>
                             </div>
-                            <div class="grid grid-cols-3 gap-6">
-                                <button onclick="playRPS('rock')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✊</span></button>
-                                <button onclick="playRPS('paper')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✋</span></button>
-                                <button onclick="playRPS('scissors')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✌️</span></button>
+                            <div onclick="startLocal()" id="mode-local" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">group</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">With a Friend</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Play together</p>
+                            </div>
+                            <div onclick="startOnline()" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">hub</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">Online Match</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Coming soon...</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-200/50">
-                            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex flex-col justify-center text-center shadow-sm"><span class="text-[8px] font-black text-emerald-800 uppercase tracking-widest mb-1">Wins</span><span id="stat-w" class="text-2xl font-black text-emerald-900">0</span></div>
-                            <div class="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex flex-col justify-center text-center shadow-sm"><span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Ties</span><span id="stat-d" class="text-2xl font-black text-slate-800">0</span></div>
-                            <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100 flex flex-col justify-center text-center shadow-sm"><span class="text-[8px] font-black text-rose-800 uppercase tracking-widest mb-1">Losses</span><span id="stat-l" class="text-2xl font-black text-rose-900">0</span></div>
+                        <div class="bg-white m-2 rounded-2xl p-8 flex items-center justify-center min-h-[300px] shadow-sm border border-slate-100 relative gap-12 overflow-hidden">
+                            <!-- Overlay -->
+                            <div id="game-overlay" class="absolute inset-0 z-20 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl opacity-0 pointer-events-none transition-all duration-500 scale-95 border-4 border-primary/20 shadow-2xl">
+                                <span id="overlay-status-icon" class="material-symbols-outlined text-6xl text-primary mb-2">military_tech</span>
+                                <h2 id="overlay-status-text" class="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-6 leading-none italic">Match Over</h2>
+                                <button onclick="hideOverlay()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic shadow-lg shadow-primary/20">Play Again</button>
+                            </div>
+                            <div class="absolute top-8 left-8 flex gap-2">
+                                <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">PLAY AREA</span>
+                                <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase" id="game-status">READY</span>
+                            </div>
+                            <div class="text-center group"><div id="p-display" class="w-32 h-32 bg-slate-50 border-4 border-slate-200 rounded-3xl flex items-center justify-center text-5xl shadow-sm transition-all group-hover:border-primary/40">?</div><p id="player-tag" class="mt-4 text-[9px] font-black tracking-widest text-on-surface-variant uppercase italic">You</p></div>
+                            <div class="text-2xl font-black text-slate-200 italic">VS</div>
+                            <div class="text-center group"><div id="c-display" class="w-32 h-32 bg-slate-50 border-4 border-slate-200 rounded-3xl flex items-center justify-center text-5xl shadow-sm transition-all group-hover:border-primary/40">?</div><p id="opponent-tag" class="mt-4 text-[9px] font-black tracking-widest text-on-surface-variant uppercase italic font-bold">Computer</p></div>
+                        </div>
+
+                        <div class="p-8 space-y-8">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 italic">Choice Selection</h4>
+                                    <div id="cpu-settings" class="flex gap-4 items-center">
+                                        <select id="cpu-difficulty" class="bg-surface-container border-none rounded-xl text-xs font-bold px-4 py-2 outline-none focus:ring-2 focus:ring-primary transition-all">
+                                            <option value="easy">Easy</option>
+                                            <option value="med">Medium</option>
+                                            <option value="hard">Hard</option>
+                                            <option value="master" selected>Expert</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-6">
+                                    <button onclick="playRPS('rock')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✊</span></button>
+                                    <button onclick="playRPS('paper')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✋</span></button>
+                                    <button onclick="playRPS('scissors')" class="group relative bg-white border border-slate-100 p-8 rounded-2xl hover:border-primary transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"><span class="text-5xl">✌️</span></button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-200/50">
+                                <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex flex-col justify-center text-center shadow-sm"><span class="text-[10px] font-bold text-emerald-800 tracking-tight mb-1">Wins</span><span id="stat-w" class="text-2xl font-black text-emerald-900">0</span></div>
+                                <div class="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex flex-col justify-center text-center shadow-sm"><span class="text-[10px] font-bold text-slate-500 tracking-tight mb-1">Ties</span><span id="stat-d" class="text-2xl font-black text-slate-800">0</span></div>
+                                <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100 flex flex-col justify-center text-center shadow-sm"><span class="text-[10px] font-bold text-rose-800 tracking-tight mb-1">Losses</span><span id="stat-l" class="text-2xl font-black text-rose-900">0</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,6 +287,7 @@
         let isMoving = false;
         let lastMoves = [];
         let moveWeights = { rock: 0, paper: 0, scissors: 0 };
+        let playMode = 'cpu';
 
         function playRPS(playerChoice) {
             if (isMoving) return;
@@ -182,20 +314,15 @@
             const choices = ['rock', 'paper', 'scissors'];
             if (diff === 'easy') return choices[Math.floor(Math.random() * 3)];
             
-            // Medium: Freq-based (beats user's most used move)
             if (diff === 'med') {
                 let mostUsed = Object.keys(moveWeights).reduce((a, b) => moveWeights[a] > moveWeights[b] ? a : b);
                 return mostUsed === 'rock' ? 'paper' : (mostUsed === 'paper' ? 'scissors' : 'rock');
             }
 
-            // Hard/Master: Markov Chain (beats what user does after current move)
             let predicted = choices[Math.floor(Math.random() * 3)];
             if (lastMoves.length > 1) {
-                let last = lastMoves[lastMoves.length - 2];
                 let current = lastMoves[lastMoves.length - 1];
-                // Simple pattern matching
                 if (diff === 'master' && Math.random() > 0.2) {
-                    // Anti-streak
                     if (lastMoves.slice(-3).every(m => m === current)) return current === 'rock' ? 'paper' : (current === 'paper' ? 'scissors' : 'rock');
                 }
             }
@@ -204,23 +331,85 @@
 
         function resolveMatch(pChoice, oChoice) {
             const status = document.getElementById('game-status');
-            if (pChoice === oChoice) { stats.d++; status.innerText = "TIE!"; }
-            else if ((pChoice === 'rock' && oChoice === 'scissors') || (pChoice === 'paper' && oChoice === 'rock') || (pChoice === 'scissors' && oChoice === 'paper')) { stats.w++; status.innerText = "WON!"; }
-            else { stats.l++; status.innerText = "LOST!"; }
+            let resText = "";
+            let resIcon = "military_tech";
+            if (pChoice === oChoice) { stats.d++; resText = "It's a tie!"; resIcon = "handshake"; }
+            else if ((pChoice === 'rock' && oChoice === 'scissors') || (pChoice === 'paper' && oChoice === 'rock') || (pChoice === 'scissors' && oChoice === 'paper')) { stats.w++; resText = "You won!"; resIcon = "trophy"; }
+            else { stats.l++; resText = "You lost!"; resIcon = "sentiment_very_dissatisfied"; }
 
+            status.innerText = resText;
             document.getElementById('stat-w').innerText = stats.w;
             document.getElementById('stat-d').innerText = stats.d;
             document.getElementById('stat-l').innerText = stats.l;
-            saveMatch(pChoice, oChoice, status.innerText);
+            saveMatch(pChoice, oChoice, resText);
+            showOverlay(resText, resIcon);
             isMoving = false;
         }
 
+        function showOverlay(text, icon) {
+            const over = document.getElementById('game-overlay');
+            const overText = document.getElementById('overlay-status-text');
+            const overIcon = document.getElementById('overlay-status-icon');
+            overText.innerText = text; overIcon.innerText = icon;
+            over.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+
+        function hideOverlay() {
+            const over = document.getElementById('game-overlay');
+            over.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+            document.getElementById('p-display').textContent = '?';
+            document.getElementById('c-display').textContent = '?';
+            document.getElementById('game-status').innerText = "Ready";
+        }
+
         async function saveMatch(p, o, res) {
-            await window.saveCalcToHistory('Rock Paper Scissors', [{label: 'Move', val: p.toUpperCase()}], [{label: 'Result', val: res}]);
+            await window.saveCalcToHistory('Rock Paper Scissors', [{label: 'Mode', val: playMode.toUpperCase()}], [{label: 'Result', val: res}]);
             initSidebarHistory('Rock Paper Scissors', 'sidebar-history-container');
         }
 
-        document.addEventListener('DOMContentLoaded', () => initSidebarHistory('Rock Paper Scissors', 'sidebar-history-container'));
+        function startCPU() {
+            playMode = 'cpu'; hideOverlay();
+            document.getElementById('player-tag').innerText = "You";
+            document.getElementById('opponent-tag').innerText = "Computer";
+            document.getElementById('cpu-settings').classList.remove('hidden');
+            updateModeUI('cpu');
+        }
+
+        function startLocal() {
+            playMode = 'local'; hideOverlay();
+            document.getElementById('player-tag').innerText = "Player A";
+            document.getElementById('opponent-tag').innerText = "Player B";
+            document.getElementById('cpu-settings').classList.add('hidden');
+            updateModeUI('local');
+        }
+
+        function startOnline() {
+            alert("MULTIPLAYER HUB INIT... \n\nConnecting to RPS Battle Server [BETA]\nStatus: Seeking Opponent...\n\nOnline Play is currently being standardized.");
+            window.location.href = '/GameLobby.html';
+        }
+
+        function updateModeUI(m) {
+            document.getElementById('mode-cpu').className = `p-6 ${m==='cpu'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            document.getElementById('mode-local').className = `p-6 ${m==='local'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            const cpuIcon = document.getElementById('mode-cpu').querySelector('span');
+            const localIcon = document.getElementById('mode-local').querySelector('span');
+            const cpuText = document.getElementById('mode-cpu').querySelector('h4');
+            const localText = document.getElementById('mode-local').querySelector('h4');
+            if(m==='cpu') {
+                cpuIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl'; cpuText.className = 'text-xs font-bold text-primary tracking-tight';
+                localIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors'; localText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            } else {
+                localIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl'; localText.className = 'text-xs font-bold text-primary tracking-tight';
+                cpuIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors'; cpuText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSidebarHistory('Rock Paper Scissors', 'sidebar-history-container');
+            playMode = 'cpu';
+        });
     </script>
     <script type="module" src="/js/script.js"></script>
 </body>

@@ -61,9 +61,9 @@
     <main class="pt-32 pb-20 min-h-screen px-12 max-w-[1440px] mx-auto">
         <div class="mb-12">
             <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4 font-medium tracking-wide">
-                <span>HEALTH TOOLS</span>
+                <span>Health Tools</span>
                 <span class="material-symbols-outlined text-xs">chevron_right</span>
-                <span class="text-primary uppercase tracking-widest text-[10px] font-bold">BMI Calculator</span>
+                <span class="text-primary tracking-tight text-xs font-bold">BMI Calculator</span>
             </nav>
             <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2 font-['Plus_Jakarta_Sans']">Body Wellness.</h1>
             <p class="text-on-surface-variant text-lg max-w-2xl">Find out if you're at a healthy weight for your height. A simple way to track your fitness progress over time!</p>
@@ -121,8 +121,8 @@
                     <!-- Display -->
                     <div class="bg-white rounded-2xl p-8 text-right flex flex-col justify-end min-h-[260px] shadow-sm relative border border-slate-100">
                         <div class="absolute top-8 left-8 flex gap-2">
-                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-black tracking-widest uppercase">BMI SCORE</span>
-                            <span id="bmi-status-tag" class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase">Awaiting Data</span>
+                            <span class="px-3 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">BMI Score</span>
+                            <span id="bmi-status-tag" class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase">Awaiting Data</span>
                         </div>
                         <div class="flex items-center justify-between w-full mt-auto">
                             <div class="body-diagram opacity-30">
@@ -149,10 +149,10 @@
                             </div>
                         </div>
                         <div class="flex justify-between w-full mt-2 text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">
-                            <span>UNDER</span>
-                            <span>IDEAL</span>
-                            <span>OVER</span>
-                            <span>OBESE</span>
+                            <span>Under</span>
+                            <span>Ideal</span>
+                            <span>Over</span>
+                            <span>Obese</span>
                         </div>
                     </div>
 
@@ -277,7 +277,7 @@
             if (isNaN(weight) || isNaN(height) || height <= 0 || weight <= 0) {
                 display.innerHTML = `<span class="w-1 h-14 bg-primary animate-pulse rounded-full mr-2"></span>0.0`;
                 tag.innerText = 'Awaiting Data';
-                tag.className = 'px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black tracking-widest uppercase';
+                tag.className = 'px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase';
                 rangeEl.innerText = '-- / -- kg';
                 targetEl.innerText = 'Status';
                 insightEl.innerText = '"Input your numbers to see your personalized health tips."';
@@ -331,19 +331,19 @@
                 insight = "Focus on small, daily changes to your diet and activity level. Consulting a doctor is a great next step.";
             }
 
-            tag.innerText = category.toUpperCase();
-            tag.className = `px-3 py-1 rounded-lg ${colorClass} text-[10px] font-black tracking-widest uppercase`;
+            tag.innerText = category;
+            tag.className = `px-3 py-1 rounded-lg ${colorClass} text-[10px] font-bold tracking-widest uppercase`;
             
             const minIdeal = (18.5 * (heightM * heightM)).toFixed(1);
             const maxIdeal = (24.9 * (heightM * heightM)).toFixed(1);
             rangeEl.innerText = `${minIdeal} - ${maxIdeal} kg`;
             
             if (bmi < 18.5) {
-                targetEl.innerText = `GAIN ${ (minIdeal - weight).toFixed(1)} KG`;
+                targetEl.innerText = `Gain ${ (minIdeal - weight).toFixed(1)} kg`;
             } else if (bmi >= 25) {
-                targetEl.innerText = `LOSE ${ (weight - maxIdeal).toFixed(1)} KG`;
+                targetEl.innerText = `Lose ${ (weight - maxIdeal).toFixed(1)} kg`;
             } else {
-                targetEl.innerText = "PERFECT WEIGHT";
+                targetEl.innerText = "Perfect Weight";
             }
             
             insightEl.innerText = insight;

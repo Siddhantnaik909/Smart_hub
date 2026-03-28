@@ -148,7 +148,7 @@ window.initSidebarHistory = function (toolName, containerId, partialMatch = fals
             const hName = h.name || h.toolName || '';
             if (partialMatch) return hName.includes(toolName);
             return hName === toolName;
-        }).slice(0, 5);
+        }).slice(0, 12);
         
         if (toolHistory.length === 0) {
             container.innerHTML = `<p class="text-sm text-on-surface-variant font-medium opacity-60 text-center py-4">No recent ${toolName} records.</p>`;

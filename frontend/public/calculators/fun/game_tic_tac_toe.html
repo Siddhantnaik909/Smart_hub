@@ -68,7 +68,7 @@
                 <span class="text-primary uppercase tracking-widest text-[10px] font-bold">Tic Tac Toe Board</span>
             </nav>
             <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Tic Tac Toe.</h1>
-            <p class="text-on-surface-variant text-lg max-w-2xl">Classic tic tac toe game. Get three in a row across the synchronized matrix to achieve dominance via algorithmic precision.</p>
+            <p class="text-on-surface-variant text-lg max-w-2xl">Classic Tic Tac Toe game. Get three in a row to win the match. Fun and simple strategy for everyone.</p>
         </div>
 
         <div class="grid grid-cols-12 gap-8 items-start">
@@ -108,48 +108,71 @@
             <!-- Content Area -->
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-surface-container-low rounded-xl p-2 shadow-2xl overflow-hidden">
-                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 flex flex-col items-center justify-center min-h-[450px] shadow-inner relative">
+                    <div class="bg-surface-container-lowest m-4 rounded-xl p-8 flex flex-col items-center justify-center min-h-[350px] shadow-inner relative">
                         <div class="absolute top-8 left-8 flex gap-2">
                             <span class="px-2 py-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase">CONFLICT CORE</span>
                             <span class="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase" id="game-status">READY</span>
                         </div>
                         <div id="status-text" class="mb-8 text-xs font-black text-on-surface-variant uppercase tracking-[0.2em]">INITIALIZING GRID...</div>
-                        <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[350px] aspect-square">
-                            <!-- JS Injected Cells -->
+                        <div class="relative group w-full max-w-[350px] aspect-square">
+                            <!-- Game Over Overlay -->
+                            <div id="game-overlay" class="absolute inset-0 z-20 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl opacity-0 pointer-events-none transition-all duration-500 scale-95 border-4 border-primary/20 shadow-2xl">
+                                <span id="overlay-status-icon" class="material-symbols-outlined text-6xl text-primary mb-2">military_tech</span>
+                                <h2 id="overlay-status-text" class="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-6 leading-none italic">Match Over</h2>
+                                <button onclick="resetBoard()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic shadow-lg shadow-primary/20">Play Again</button>
+                            </div>
+                            <div id="board" class="grid grid-cols-3 gap-3 w-full h-full relative z-10">
+                                <!-- Cells will go here -->
+                            </div>
                         </div>
                     </div>
 
                     <div class="p-8 space-y-8">
-                        <div class="flex items-center justify-between">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div onclick="startCPU()" id="mode-cpu" class="p-6 bg-primary/10 border-2 border-primary rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-primary mb-2 text-3xl">smart_toy</span>
+                                <h4 class="text-xs font-bold text-primary tracking-tight">Play Computer</h4>
+                                <p class="text-[10px] text-primary/60 font-medium mt-1">Challenge our AI</p>
+                            </div>
+                            <div onclick="startLocal()" id="mode-local" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">group</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">With a Friend</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Play on this screen</p>
+                            </div>
+                            <div onclick="startOnline()" class="p-6 bg-white border border-slate-200 rounded-2xl cursor-pointer transition-all hover:scale-105 group opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                                <span class="material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors">hub</span>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">Online Match</h4>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Coming soon...</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pb-6 border-b border-surface-container-high mb-6">
                             <div class="flex gap-4 items-center">
                                 <div class="px-4 py-2 bg-on-secondary-fixed/5 border border-on-secondary-fixed/20 rounded-lg">
                                     <span class="text-[9px] font-black text-on-surface-variant uppercase block">Player X</span>
-                                    <strong id="label-x" class="text-xs font-bold text-rose-500 uppercase tracking-widest">Awaiting</strong>
+                                    <strong id="label-x" class="text-xs font-bold text-rose-500 uppercase tracking-widest italic">Awaiting</strong>
                                 </div>
                                 <div class="px-4 py-2 bg-on-secondary-fixed/5 border border-on-secondary-fixed/20 rounded-lg">
                                     <span class="text-[9px] font-black text-on-surface-variant uppercase block">Player O</span>
-                                    <strong id="label-o" class="text-xs font-bold text-primary uppercase tracking-widest">Awaiting</strong>
+                                    <strong id="label-o" class="text-xs font-bold text-primary uppercase tracking-widest italic">Awaiting</strong>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <select id="cpu-difficulty" class="bg-surface-container border-none rounded-xl text-xs font-bold px-4 py-3 outline-none focus:ring-2 focus:ring-primary transition-all">
-                                    <option value="easy">Easy (Random)</option>
-                                    <option value="med">Medium (Semi)</option>
-                                    <option value="hard">Hard (Advanced)</option>
-                                    <option value="master" selected>Master (Perfect)</option>
+                                    <option value="easy">Easy</option>
+                                    <option value="med">Medium</option>
+                                    <option value="hard">Hard</option>
+                                    <option value="master" selected>Expert</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap items-center justify-between pt-8 border-t border-surface-container-high gap-4">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Game Session Active</div>
                             <div class="flex gap-4">
-                                <button onclick="startCPU()" class="bg-white text-on-surface border border-slate-200 px-6 py-4 rounded-xl font-bold text-[10px] tracking-widest hover:bg-slate-50 transition-all uppercase">vs CPU</button>
-                                <button onclick="startLocal()" class="bg-white text-on-surface border border-slate-200 px-6 py-4 rounded-xl font-bold text-[10px] tracking-widest hover:bg-slate-50 transition-all uppercase">vs local</button>
-                            </div>
-                            <div class="flex gap-4">
-                                <button onclick="resetBoard()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-sm tracking-widest hover:shadow-xl transition-all uppercase">Reset Matrix</button>
-                                <button onclick="quitGame()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined">exit_to_app</span>
+                                <button onclick="resetBoard()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-xs tracking-widest hover:shadow-xl transition-all uppercase italic">Restart Engine</button>
+                                <button onclick="quitGame()" class="p-4 bg-surface-container rounded-xl text-on-surface-variant hover:text-rose-500 transition-colors">
+                                    <span class="material-symbols-outlined">power_settings_new</span>
                                 </button>
                             </div>
                         </div>
@@ -223,36 +246,60 @@
 
             if (winObj) {
                 isGameActive = false;
-                winObj.pattern.forEach(i => boardEl.children[i].classList.add('win-glow'));
-                statusText.innerText = `Winner: ${winObj.winner}`;
-                document.getElementById('game-status').innerText = winObj.winner === 'X' ? "X WON" : "O WON";
+                winObj.pattern.forEach(i => boardEl.children[i].classList.add('win-glow')); 
+                
+                // Simple Language
+                let resultText = "";
+                if(playMode === 'cpu') resultText = winObj.winner === 'X' ? "You Won!" : "Computer Won!";
+                else resultText = winObj.winner === 'X' ? "Player X Won!" : "Player O Won!";
+                
+                showOverlay(resultText, winObj.winner === 'X' ? 'trophy' : 'sentiment_very_dissatisfied');
                 saveResolution(winObj.winner);
             } else if (!boardState.includes('')) {
                 isGameActive = false;
-                statusText.innerText = "DRAW";
-                document.getElementById('game-status').innerText = "STALEMATE";
+                showOverlay("It's a tie!", 'handshake');
                 saveResolution('TIE');
             } else {
-                statusText.innerText = `Turn: PLAYER ${currentPlayer}`;
+                statusText.innerText = `${currentPlayer === 'X' ? 'Player X' : 'Player O'}'s turn`;
             }
+        }
+
+        function showOverlay(text, icon) {
+            const over = document.getElementById('game-overlay');
+            const overText = document.getElementById('overlay-status-text');
+            const overIcon = document.getElementById('overlay-status-icon');
+            
+            overText.innerText = text;
+            overIcon.innerText = icon;
+            
+            over.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        }
+
+        function hideOverlay() {
+            const over = document.getElementById('game-overlay');
+            over.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            over.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
         }
 
         function resetBoard() {
             boardState = ['', '', '', '', '', '', '', '', ''];
             currentPlayer = 'X';
             isGameActive = true;
+            hideOverlay();
             document.getElementById('game-status').innerText = "READY";
-            Array.from(boardEl.children).forEach(cell => {
+            Array.from(boardEl.children).forEach((cell, idx) => {
                 cell.textContent = '';
                 cell.className = 'bg-surface-container-low border border-surface-container-high rounded-xl flex items-center justify-center text-4xl font-extrabold cursor-pointer transition-all hover:border-primary/50';
             });
-            statusText.innerText = "GRID RESET";
+            statusText.innerText = "Your turn!";
         }
 
         function startCPU() {
             playMode = 'cpu';
             labelX.textContent = "USER";
             labelO.textContent = "CPU";
+            updateModeUI('cpu');
             resetBoard();
         }
 
@@ -260,7 +307,35 @@
             playMode = 'local';
             labelX.textContent = "PLAYER A";
             labelO.textContent = "PLAYER B";
+            updateModeUI('local');
             resetBoard();
+        }
+
+        function startOnline() {
+            alert("MULTIPLAYER HUB INIT... \n\nConnecting to Smart Hub Game Server [BETA]\nStatus: Waiting for Peer...\n\nOnline Play is currently being standardized across the platform. Use Private Rooms in Lobby to invite friends!");
+            window.location.href = '/GameLobby.html';
+        }
+
+        function updateModeUI(m) {
+            document.getElementById('mode-cpu').className = `p-6 ${m==='cpu'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            document.getElementById('mode-local').className = `p-6 ${m==='local'?'bg-primary/10 border-2 border-primary':'bg-white border border-slate-200'} rounded-2xl cursor-pointer transition-all hover:scale-105 group`;
+            
+            const cpuIcon = document.getElementById('mode-cpu').querySelector('span');
+            const localIcon = document.getElementById('mode-local').querySelector('span');
+            const cpuText = document.getElementById('mode-cpu').querySelector('h4');
+            const localText = document.getElementById('mode-local').querySelector('h4');
+
+            if(m==='cpu') {
+                cpuIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                cpuText.className = 'text-xs font-bold text-primary tracking-tight';
+                localIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                localText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            } else {
+                localIcon.className = 'material-symbols-outlined text-primary mb-2 text-3xl';
+                localText.className = 'text-xs font-bold text-primary tracking-tight';
+                cpuIcon.className = 'material-symbols-outlined text-slate-400 mb-2 text-3xl group-hover:text-primary transition-colors';
+                cpuText.className = 'text-xs font-bold text-slate-800 tracking-tight';
+            }
         }
 
         function quitGame() { location.reload(); }

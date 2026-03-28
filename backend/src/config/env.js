@@ -11,10 +11,13 @@ function required(name, fallback) {
   return value;
 }
 
+const isProd = process.env.NODE_ENV === "production";
+const dbUri = isProd ? (process.env.MONGO_ATLAS_URI || process.env.MONGO_URI) : (process.env.MONGO_LOCAL_URI || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smarthub");
+
 const config = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT || 3000),
-  mongoUri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smarthub",
+  mongoUri: dbUri,
   jwtSecret: required("JWT_SECRET", "dev-change-this-secret"),
   encryptionKey: required(
     "ENCRYPTION_KEY",
